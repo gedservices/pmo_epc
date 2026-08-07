@@ -1,0 +1,95 @@
+{% comment %}
+Table générique PMO
+
+Variables possibles :
+- table_headers
+- table_rows
+- empty_message
+
+Usage avancé :
+surcharger les blocs table_header et table_body
+{% endcomment %}
+
+
+<div class="table-responsive">
+
+
+<table class="table table-hover align-middle">
+
+
+<thead class="table-light">
+
+
+<tr>
+
+{% block table_header %}
+
+{% for header in table_headers %}
+
+<th>
+    {{ header }}
+</th>
+
+{% endfor %}
+
+{% endblock %}
+
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody>
+
+
+{% block table_body %}
+
+
+{% for row in table_rows %}
+
+<tr>
+
+{% for value in row %}
+
+<td>
+
+{{ value }}
+
+</td>
+
+{% endfor %}
+
+</tr>
+
+
+{% empty %}
+
+
+<tr>
+
+<td colspan="100%">
+
+{% include "base/components/empty_state.html" %}
+
+</td>
+
+</tr>
+
+
+{% endfor %}
+
+
+{% endblock %}
+
+
+</tbody>
+
+
+
+</table>
+
+
+</div>

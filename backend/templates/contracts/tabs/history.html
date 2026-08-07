@@ -1,0 +1,47 @@
+<div class="row g-4">
+
+    <div class="col-lg-7">
+
+        {% include "base/components/detail/section_title.html" with   title="Chronologie"    icon="bi-clock-history"  subtitle="Historique des principales opérations"   %}
+
+        {% include "base/components/detail/timeline_item.html" with   icon="bi-plus-circle-fill"   title="Commande créée"   subtitle=commande.cree_par   date=commande.date_creation     %}
+
+        {% include "base/components/detail/timeline_item.html" with  icon="bi-pencil-square"  title="Dernière modification"   subtitle=commande.modifie_par   date=commande.date_modification         %}
+
+    </div>
+
+
+
+    <div class="col-lg-5">
+
+        {% include "base/components/detail/section_title.html" with   title="Informations système"   icon="bi-info-circle"   %}
+
+        {% include "base/components/detail/info_row.html" with   label="Créé par"   value=commande.cree_par  %}
+
+        {% include "base/components/detail/info_row.html" with   label="Date de création" value=commande.date_creation   %}
+
+        {% include "base/components/detail/info_row.html" with label="Dernière modification par"  value=commande.modifie_par         %}
+
+        {% include "base/components/detail/info_row.html" with    label="Dernière modification"      value=commande.date_modification         %}
+
+    </div>
+
+</div>
+
+
+
+<div class="mt-5">
+
+    {% include "base/components/detail/section_title.html" with         title="Journal d'audit"         icon="bi-journal-text"         subtitle="Les événements détaillés seront disponibles lorsque le module d'audit sera implémenté."     %}
+
+    <div class="alert alert-light border">
+
+        <i class="bi bi-info-circle me-2"></i>
+
+        Le journal d'audit affichera ici les opérations réalisées sur cette commande :
+        création, modifications, changements de statut, validations, workflows,
+        actions GED et interventions des utilisateurs.
+
+    </div>
+
+</div>

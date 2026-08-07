@@ -1,0 +1,299 @@
+<div class="pmo-card">
+
+
+    <h5 class="mb-3">
+
+
+        <i class="bi bi-currency-euro text-primary me-2"></i>
+
+
+        Budget
+
+
+    </h5>
+
+
+
+
+
+    <div class="row g-3">
+
+
+
+
+
+        <!-- Budget prévu -->
+
+
+        <div class="col-md-6">
+
+
+            <div class="small text-muted">
+
+                Budget prévu
+
+            </div>
+
+
+            <div class="fs-5 fw-bold">
+
+
+                {{ projet.budget_prevu|floatformat:0 }}
+
+                €
+
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <!-- Budget réel -->
+
+
+        <div class="col-md-6">
+
+
+            <div class="small text-muted">
+
+                Budget réel
+
+            </div>
+
+
+            <div class="fs-5 fw-bold">
+
+
+                {{ projet.budget_reel|floatformat:0 }}
+
+                €
+
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+
+    </div>
+
+
+
+
+
+
+    <hr>
+
+
+
+
+
+
+    <!-- Dérive -->
+
+
+    <div class="d-flex justify-content-between mb-2">
+
+
+
+        <span class="text-muted">
+
+            Dérive budgétaire
+
+        </span>
+
+
+
+        <span class="fw-semibold
+
+        {% if projet.derive_budget > 0 %}
+            text-danger
+        {% else %}
+            text-success
+        {% endif %}
+        ">
+
+
+            {% if projet.derive_budget > 0 %}
+
+                +
+
+            {% endif %}
+
+
+
+            {{ projet.derive_budget|floatformat:0 }}
+
+            €
+
+
+        </span>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- Consommation -->
+
+
+    <div class="d-flex justify-content-between mb-1">
+
+
+        <span class="text-muted">
+
+
+            Consommation
+
+
+        </span>
+
+
+
+        <strong>
+
+
+            {{ projet.taux_consommation }} %
+
+
+        </strong>
+
+
+
+    </div>
+
+
+
+
+
+    <div class="progress mb-3"
+         style="height:10px;">
+
+
+
+        <div class="progress-bar
+
+        {% if projet.taux_consommation > 100 %}
+
+            bg-danger
+
+        {% elif projet.taux_consommation > 80 %}
+
+            bg-warning
+
+        {% else %}
+
+            bg-success
+
+        {% endif %}
+
+        "
+        role="progressbar"
+        style="width:{{ projet.taux_consommation }}%">
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+
+    <!-- Etat budget -->
+
+
+    <div class="small">
+
+
+
+        {% if projet.taux_consommation > 100 %}
+
+
+
+            <span class="badge bg-danger">
+
+
+                <i class="bi bi-exclamation-triangle"></i>
+
+
+                Dépassement budget
+
+
+            </span>
+
+
+
+
+        {% elif projet.taux_consommation > 80 %}
+
+
+
+
+            <span class="badge bg-warning text-dark">
+
+
+                <i class="bi bi-exclamation-circle"></i>
+
+
+                Surveillance
+
+
+            </span>
+
+
+
+
+        {% else %}
+
+
+
+
+            <span class="badge bg-success">
+
+
+                <i class="bi bi-check-circle"></i>
+
+
+                Budget maîtrisé
+
+
+            </span>
+
+
+
+
+        {% endif %}
+
+
+
+    </div>
+
+
+
+
+
+</div>

@@ -1,0 +1,15 @@
+<div class="progress"
+     role="progressbar"
+     aria-valuenow="{{ value|default:0 }}"
+     aria-valuemin="0"
+     aria-valuemax="100"
+     style="height:22px;">
+
+    <div class="progress-bar bg-{% if color %}{{ color }}{% else %}primary{% endif %}"
+         style="width: {{ value|default:0 }}%;">
+
+        {{ value|default:0 }} %
+
+    </div>
+
+</div>

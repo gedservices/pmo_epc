@@ -1,0 +1,69 @@
+{% extends "base/layout/workspace_detail.html" %}
+
+
+
+{% block object_header %}
+
+    {% include "base/components/detail/object_header.html"    with    icon="bi-cart"    object_type="Commande"    object_code=commande.code_commande    object_name=commande.nom    subtitle=commande.projet.nom   status=commande.statut     %}
+
+{% endblock %}
+
+
+
+
+
+{% block dashboard %}
+
+    {% include "contracts/tabs/dashboard.html" %}
+
+{% endblock %}
+
+
+
+
+
+{% block general %}
+
+    {% include "contracts/tabs/general.html" %}
+
+{% endblock %}
+
+
+
+
+
+{% block planning %}
+
+    {% include "contracts/tabs/planning.html" %}
+
+{% endblock %}
+
+
+
+
+
+{% block budget %}
+
+    {% include "contracts/tabs/budget.html" %}
+
+{% endblock %}
+
+
+
+
+
+{% block ged %}
+
+    {% include "contracts/tabs/ged.html" %}
+
+{% endblock %}
+
+
+
+
+
+{% block history %}
+
+{% include "contracts/tabs/history.html" %}
+
+{% endblock %}

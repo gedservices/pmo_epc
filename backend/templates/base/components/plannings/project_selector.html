@@ -1,0 +1,25 @@
+<div class="col-md-4">
+
+    <label class="form-label fw-semibold">
+        Projet
+    </label>
+
+    <select class="form-select"
+            name="projet">
+
+        <option value="">
+            Tous les projets
+        </option>
+
+        {% for projet in projets %}
+            <option value="{{ projet.id }}"
+                {% if projet.id == projet_selectionne.id %}
+                    selected
+                {% endif %}>
+                {{ projet.code }} - {{ projet.nom }}
+            </option>
+        {% endfor %}
+
+    </select>
+
+</div>

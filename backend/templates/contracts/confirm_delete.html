@@ -1,0 +1,53 @@
+{% extends "base/layout/delete.html" %}
+
+{% block page_header %}
+
+{% include "base/components/cards/section_title.html" with title="Suppression d'une commande" icon="bi-trash" subtitle="Confirmation" %}
+
+{% endblock %}
+
+
+{% block delete_content %}
+
+<div class="alert alert-danger">
+
+    <h5>
+
+        {{ commande.code_commande }}
+
+    </h5>
+
+    <p class="mb-0">
+
+        {{ commande.nom }}
+
+    </p>
+
+</div>
+
+<p>
+
+    Cette opération est irréversible.
+
+</p>
+
+{% endblock %}
+
+
+{% block delete_actions %}
+
+<button type="submit" class="btn btn-danger">
+
+    <i class="bi bi-trash"></i>
+
+    Supprimer
+
+</button>
+
+<a href="{% url 'contracts:detail' commande.id %}" class="btn btn-secondary">
+
+    Annuler
+
+</a>
+
+{% endblock %}

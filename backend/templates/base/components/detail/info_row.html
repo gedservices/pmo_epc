@@ -1,0 +1,20 @@
+<div class="row py-2 border-bottom align-items-center">
+
+    <div class="col-lg-4 col-md-5 text-muted fw-semibold">
+        {% if icon %}
+            <i class="bi {{ icon }} me-2"></i>
+        {% endif %}
+
+        {{ label }}
+    </div>
+
+    <div class="col-lg-8 col-md-7">
+        {% if value %}
+            {{ value }}
+        {% else %}
+            <span class="text-muted">
+                {{ empty_text|default:"—" }}
+            </span>
+        {% endif %}
+    </div>
+</div>

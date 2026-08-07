@@ -1,0 +1,30 @@
+<div class="mb-4">
+
+
+<h5 class="border-bottom pb-2">
+
+
+{% if section_icon %}
+
+<i class="bi {{ section_icon }}"></i>
+
+{% endif %}
+
+
+{{ section_title }}
+
+
+</h5>
+
+
+<div>
+
+{% block section_content %}
+
+{% endblock %}
+
+
+</div>
+
+
+</div>

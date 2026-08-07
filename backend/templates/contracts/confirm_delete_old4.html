@@ -1,0 +1,56 @@
+{% extends "base/layout/delete.html" %}
+
+{% block page_header %}
+
+{% include "base/components/detail/section_title.html" with title="Suppression d'une commande" icon="bi-trash" %}
+
+{% endblock %}
+
+
+{% block delete_content %}
+
+<div class="alert alert-danger">
+
+    <h5>
+
+        <i class="bi bi-exclamation-triangle"></i>
+
+        Confirmation
+
+    </h5>
+
+    <p class="mb-0">
+
+        Voulez-vous vraiment supprimer la commande
+        <strong>{{ commande.code_commande }}</strong> ?
+
+    </p>
+
+</div>
+
+{% endblock %}
+
+
+{% block delete_actions %}
+
+<form method="post">
+
+    {% csrf_token %}
+
+    <button class="btn btn-danger">
+
+        <i class="bi bi-trash"></i>
+
+        Supprimer
+
+    </button>
+
+    <a href="{% url 'contracts:detail' commande.pk %}" class="btn btn-secondary">
+
+        Annuler
+
+    </a>
+
+</form>
+
+{% endblock %}

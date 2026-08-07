@@ -1,0 +1,80 @@
+{% comment %}
+Badge Discipline
+
+Variable :
+discipline
+
+Accepte :
+- objet Discipline
+- ou code discipline
+{% endcomment %}
+
+{% if discipline %}
+
+    {% if discipline.code %}
+
+        {% with code=discipline.code %}
+
+            {% include "base/components/badges/badge_discipline.html" with discipline=code %}
+
+        {% endwith %}
+
+    {% elif discipline == "CIV" %}
+
+        <span class="badge bg-secondary">
+
+            CIV
+
+        </span>
+
+    {% elif discipline == "STR" %}
+
+        <span class="badge bg-primary">
+
+            STR
+
+        </span>
+
+    {% elif discipline == "PIP" %}
+
+        <span class="badge bg-info text-dark">
+
+            PIP
+
+        </span>
+
+    {% elif discipline == "MEC" %}
+
+        <span class="badge bg-success">
+
+            MEC
+
+        </span>
+
+    {% elif discipline == "ELE" %}
+
+        <span class="badge bg-warning text-dark">
+
+            ELE
+
+        </span>
+
+    {% elif discipline == "INS" %}
+
+        <span class="badge bg-danger">
+
+            INS
+
+        </span>
+
+    {% else %}
+
+        <span class="badge bg-light text-dark">
+
+            {{ discipline }}
+
+        </span>
+
+    {% endif %}
+
+{% endif %}

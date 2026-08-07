@@ -1,0 +1,17 @@
+{% include "base/components/detail/section_title.html" with title="Organisation" icon="bi-diagram-3" %}
+
+<div class="row g-3">
+
+    {% include "base/components/detail/info_row.html" with label="Phase" value=commande.phase.nom icon="bi-signpost" %}
+
+    {% include "base/components/detail/info_row.html" with label="Responsable" value=commande.responsable.get_full_name icon="bi-person" %}
+
+    {% include "base/components/detail/info_row.html" with label="Entité Contractor" value=commande.entite_contractor.nom icon="bi-building" %}
+
+    {% include "base/components/detail/info_row.html" with label="Pays" value=commande.pays.nom icon="bi-globe" %}
+
+    {% include "base/components/detail/info_row.html" with label="Site" value=commande.site.nom icon="bi-geo-alt" %}
+
+    {% include "base/components/detail/info_row.html" with label="Secteur" value=commande.secteur.nom icon="bi-grid" %}
+
+</div>

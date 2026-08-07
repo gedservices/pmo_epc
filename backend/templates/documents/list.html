@@ -1,0 +1,196 @@
+{% extends "base/base.html" %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Documents GED</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <!-- Header -->
+  <div class="d-flex align-items-start justify-content-between mb-4">
+    <div>
+      <h1 class="pmo-page-title">
+        <i class="bi bi-file-earmark-richtext text-primary"></i> Documents GED
+      </h1>
+      <p class="pmo-page-subtitle mb-0">
+        <span class="fw-semibold">{{ paginator.count }}</span> document{{ paginator.count|pluralize }}
+        {% if filtre_statut %}· <span class="badge bg-light text-dark border">{{ filtre_statut }}</span>{% endif %}
+        {% if filtre_archive == '1' %}· <span class="badge bg-secondary">Archivés</span>{% endif %}
+      </p>
+    </div>
+    <div class="pmo-page-actions">
+      <a href="{% url 'documents:create' %}" class="btn-pmo-primary">
+        <i class="bi bi-plus-lg"></i> Nouveau Document
+      </a>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="pmo-filters mb-4">
+    <form method="get" class="row g-3 align-items-end">
+      
+      <div class="col-12 col-md-4 col-lg-3">
+        <label class="form-label small fw-semibold text-muted mb-1">Recherche</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" class="form-control" placeholder="Code, titre..." value="{{ search }}">
+        </div>
+      </div>
+
+      <div class="col-6 col-md-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Statut</label>
+        <select name="statut" class="form-select pmo-auto-submit">
+          <option value="">Tous</option>
+          {% for code, lib in statut_choices %}
+          <option value="{{ code }}" {% if filtre_statut == code %}selected{% endif %}>{{ lib }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-6 col-md-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Classe</label>
+        <select name="classe" class="form-select pmo-auto-submit">
+          <option value="">Toutes</option>
+          {% for c in classes %}
+          <option value="{{ c.numero }}" {% if filtre_classe == c.numero|stringformat:"s" %}selected{% endif %}>Classe {{ c.numero }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-6 col-md-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Discipline</label>
+        <select name="discipline" class="form-select pmo-auto-submit">
+          <option value="">Toutes</option>
+          {% for d in disciplines %}
+          <option value="{{ d.code }}" {% if filtre_discipline == d.code %}selected{% endif %}>{{ d.code }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-6 col-md-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Phase</label>
+        <select name="phase" class="form-select pmo-auto-submit">
+          <option value="">Toutes</option>
+          {% for p in phases %}
+          <option value="{{ p.code }}" {% if filtre_phase == p.code %}selected{% endif %}>{{ p.code }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-6 col-md-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Projet</label>
+        <select name="projet" class="form-select pmo-auto-submit">
+          <option value="">Tous</option>
+          {% for p in projets %}
+          <option value="{{ p.id }}" {% if filtre_projet == p.id|stringformat:"s" %}selected{% endif %}>{{ p.code }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-6 col-md-2">
+        <div class="form-check mt-4">
+          <input class="form-check-input" type="checkbox" name="archive" value="1" id="checkArchive" {% if filtre_archive == '1' %}checked{% endif %}>
+          <label class="form-check-label small fw-semibold text-muted" for="checkArchive">Archivés</label>
+        </div>
+      </div>
+
+      <div class="col-auto ms-auto">
+        <button type="submit" class="btn btn-sm btn-pmo-primary"><i class="bi bi-funnel me-1"></i> Filtrer</button>
+        <a href="{% url 'documents:list' %}" class="btn btn-sm btn-pmo-ghost ms-2"><i class="bi bi-x-lg me-1"></i> Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Chips -->
+  {% if search or filtre_statut or filtre_classe or filtre_discipline or filtre_phase or filtre_projet or filtre_archive == '1' %}
+  <div class="d-flex gap-2 flex-wrap mb-3">
+    {% if search %}<span class="pmo-filter-chip"><i class="bi bi-search me-1"></i>"{{ search }}"<a href="?{% for k,v in request.GET.items %}{% if k != 'q' %}{{ k }}={{ v }}&{% endif %}{% endfor %}" class="btn-close"></a></span>{% endif %}
+    {% if filtre_statut %}<span class="pmo-filter-chip"><i class="bi bi-flag me-1"></i>{{ filtre_statut }}<a href="?{% for k,v in request.GET.items %}{% if k != 'statut' %}{{ k }}={{ v }}&{% endif %}{% endfor %}" class="btn-close"></a></span>{% endif %}
+    {% if filtre_archive == '1' %}<span class="pmo-filter-chip bg-secondary-subtle text-dark border-secondary-subtle"><i class="bi bi-archive me-1"></i>Archivés<a href="?{% for k,v in request.GET.items %}{% if k != 'archive' %}{{ k }}={{ v }}&{% endif %}{% endfor %}" class="btn-close"></a></span>{% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Tableau -->
+  <div class="pmo-card p-0">
+    <div class="table-responsive">
+      <table class="table pmo-table mb-0">
+        <thead>
+          <tr>
+            <th>Code / Titre</th>
+            <th>Projet / Commande</th>
+            <th>Classe / Discipline</th>
+            <th>Statut / Rév.</th>
+            <th>Origine</th>
+            <th>Date Émission</th>
+            <th>Responsable</th>
+            <th style="width:90px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for doc in documents %}
+          <tr>
+            <td>
+              <a href="{% url 'documents:detail' doc.pk %}" class="pmo-mono fw-semibold text-primary text-decoration-none d-block">{{ doc.code_documentaire }}</a>
+              <span class="small text-dark">{{ doc.titre|truncatechars:35 }}</span>
+            </td>
+            <td>
+              <div class="small fw-medium">{{ doc.projet.code }}</div>
+              {% if doc.commande %}<div class="small text-muted">{{ doc.commande.code_commande }}</div>{% endif %}
+            </td>
+            <td>
+              <span class="badge {% if doc.classe.numero == 1 %}bg-danger{% elif doc.classe.numero == 2 %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} pmo-badge">
+                Cl. {{ doc.classe.numero }}
+              </span>
+              {% if doc.discipline %}<br><span class="badge bg-secondary pmo-badge">{{ doc.discipline.code }}</span>{% endif %}
+            </td>
+            <td>
+              <span class="badge pmo-badge {% if doc.statut_actuel.code in 'IFA,AFD,AFC,MKP' %}bg-success{% elif doc.statut_actuel.code == 'IFR' %}bg-warning{% else %}bg-info{% endif %}">
+                {{ doc.statut_actuel.code|default:"-" }}
+              </span>
+              <span class="small fw-semibold ms-2">{{ doc.revision_actuelle }}</span>
+            </td>
+            <td class="small">{{ doc.origine.nom_entreprise|default:"-"|truncatechars:20 }}</td>
+            <td class="small">{{ doc.date_emission|date:"d/m/Y"|default:"-" }}</td>
+            <td class="small">
+              {% if doc.responsable %}
+                <i class="bi bi-person-fill me-1 text-muted"></i>{{ doc.responsable.nom_complet|truncatechars:18 }}
+              {% else %}<span class="text-muted">—</span>{% endif %}
+            </td>
+            <td>
+              <div class="d-flex gap-1">
+                <a href="{% url 'documents:detail' doc.pk %}" class="btn-pmo-icon" title="Voir" data-bs-toggle="tooltip"><i class="bi bi-eye"></i></a>
+                <div class="dropdown">
+                  <button class="btn-pmo-icon" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+                  <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-upload me-2"></i>Importer Révision</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-up me-2"></i>Transmittal</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-journal-text me-2"></i>Historique</a></li>
+                  </ul>
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8">
+              <div class="pmo-empty-state">
+                <div class="pmo-empty-icon"><i class="bi bi-file-earmark-x"></i></div>
+                <div class="pmo-empty-title">Aucun document trouvé</div>
+                <div class="pmo-empty-sub">Modifiez vos filtres ou créez un nouveau document.</div>
+                <a href="{% url 'documents:create' %}" class="btn-pmo-primary mt-3"><i class="bi bi-plus-lg me-1"></i>Nouveau Document</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="px-4 py-3 border-top bg-light">
+      {% include "components/pagination.html" with documents=documents %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

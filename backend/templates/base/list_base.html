@@ -1,0 +1,55 @@
+{% extends "base/base.html" %}
+
+
+{% block content %}
+
+<div class="container-fluid py-3">
+
+    {% include "base/components/page_title.html" %}
+
+    {% include "base/components/toolbar.html" %}
+
+
+    {% if filters %}
+
+    {% include "base/components/page_title.html" with title=page_title %}
+    {% endif %}
+
+
+    <div class="card shadow-sm">
+
+        <div class="card-body p-0">
+
+            {% block table_content %}
+
+            <div class="table-responsive">
+
+                <table class="table table-hover mb-0">
+
+                    {% block table_header %}
+                    {% endblock %}
+
+
+                    {% block table_body %}
+                    {% endblock %}
+
+                </table>
+
+            </div>
+
+            {% endblock %}
+
+        </div>
+
+    </div>
+
+
+    {% if page_obj %}
+        {% include "base/components/pagination.html" %}
+    {% endif %}
+
+
+</div>
+
+
+{% endblock %}

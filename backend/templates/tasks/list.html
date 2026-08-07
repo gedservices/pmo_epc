@@ -1,0 +1,289 @@
+{% extends "base/base.html" %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Tâches</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <!-- Header -->
+  <div class="d-flex align-items-start justify-content-between mb-4">
+    <div>
+      <h1 class="pmo-page-title">
+        <i class="bi bi-check2-square text-primary"></i> Tâches
+      </h1>
+      <p class="pmo-page-subtitle mb-0">
+        <span class="fw-semibold">{{ paginator.count }}</span> tâche{{ paginator.count|pluralize }}
+        {% if filtre_statut %}· <span class="badge bg-light text-dark border">{{ filtre_statut }}</span>{% endif %}
+        {% if filtre_en_retard == '1' %}· <span class="badge bg-danger">En retard</span>{% endif %}
+      </p>
+    </div>
+    <div class="pmo-page-actions">
+      <a href="{% url 'tasks:create' %}" class="btn-pmo-primary">
+        <i class="bi bi-plus-lg"></i> Nouvelle Tâche
+      </a>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="pmo-filters mb-4">
+    <form method="get" class="row g-3 align-items-end">
+      
+      <!-- Recherche -->
+      <div class="col-12 col-md-4 col-lg-3">
+        <label class="form-label small fw-semibold text-muted mb-1">Recherche</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" class="form-control" 
+                 placeholder="Nom, description..." value="{{ search }}">
+        </div>
+      </div>
+
+      <!-- Statut -->
+      <div class="col-6 col-md-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Statut</label>
+        <select name="statut" class="form-select pmo-auto-submit">
+          <option value="">Tous les statuts</option>
+          {% for val, label in statut_choices %}
+          <option value="{{ val }}" {% if filtre_statut == val %}selected{% endif %}>
+            {{ label }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Projet -->
+      <div class="col-6 col-md-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Projet</label>
+        <select name="projet" class="form-select pmo-auto-submit">
+          <option value="">Tous les projets</option>
+          {% for p in projets %}
+          <option value="{{ p.id }}" {% if filtre_projet == p.id|stringformat:"s" %}selected{% endif %}>
+            {{ p.code }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Commande -->
+      <div class="col-6 col-md-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Commande</label>
+        <select name="commande" class="form-select pmo-auto-submit">
+          <option value="">Toutes commandes</option>
+          {% for c in commandes %}
+          <option value="{{ c.id }}" {% if filtre_commande == c.id|stringformat:"s" %}selected{% endif %}>
+            {{ c.code_commande }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Discipline -->
+      <div class="col-6 col-md-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Discipline</label>
+        <select name="discipline" class="form-select pmo-auto-submit">
+          <option value="">Toutes disciplines</option>
+          {% for d in disciplines %}
+          <option value="{{ d.code }}" {% if filtre_discipline == d.code %}selected{% endif %}>
+            {{ d.code }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- En retard -->
+      <div class="col-6 col-md-2">
+        <div class="form-check mt-4">
+          <input class="form-check-input" type="checkbox" name="en_retard" value="1" id="checkRetard"
+                 {% if filtre_en_retard == '1' %}checked{% endif %}>
+          <label class="form-check-label small fw-semibold text-muted" for="checkRetard">En retard</label>
+        </div>
+      </div>
+
+      <!-- Boutons -->
+      <div class="col-auto ms-auto">
+        <button type="submit" class="btn btn-sm btn-pmo-primary">
+          <i class="bi bi-funnel me-1"></i> Filtrer
+        </button>
+        <a href="{% url 'tasks:list' %}" class="btn btn-sm btn-pmo-ghost ms-2">
+          <i class="bi bi-x-lg me-1"></i> Réinitialiser
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Chips filtres actifs -->
+  {% if search or filtre_statut or filtre_projet or filtre_commande or filtre_discipline or filtre_en_retard == '1' %}
+  <div class="d-flex gap-2 flex-wrap mb-3">
+    {% if search %}
+    <span class="pmo-filter-chip">
+      <i class="bi bi-search me-1"></i>"{{ search }}"
+      <a href="?{% for k,v in request.GET.items %}{% if k != 'q' %}{{ k }}={{ v }}&{% endif %}{% endfor %}" class="btn-close"></a>
+    </span>
+    {% endif %}
+    {% if filtre_statut %}
+    <span class="pmo-filter-chip">
+      <i class="bi bi-flag me-1"></i>{{ filtre_statut }}
+      <a href="?{% for k,v in request.GET.items %}{% if k != 'statut' %}{{ k }}={{ v }}&{% endif %}{% endfor %}" class="btn-close"></a>
+    </span>
+    {% endif %}
+    {% if filtre_en_retard == '1' %}
+    <span class="pmo-filter-chip bg-danger-subtle text-danger border-danger-subtle">
+      <i class="bi bi-exclamation-triangle me-1"></i>En retard
+      <a href="?{% for k,v in request.GET.items %}{% if k != 'en_retard' %}{{ k }}={{ v }}&{% endif %}{% endfor %}" class="btn-close"></a>
+    </span>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Tableau -->
+  <div class="pmo-card p-0">
+    <div class="table-responsive">
+      <table class="table pmo-table mb-0">
+        <thead>
+          <tr>
+            <th class="sortable-col" data-sort="projet">
+              Projet {% if sort == 'projet' %}<i class="bi bi-sort-up-alt ms-1"></i>{% elif sort == '-projet' %}<i class="bi bi-sort-down ms-1"></i>{% else %}<i class="bi bi-arrow-down-up ms-1 opacity-25"></i>{% endif %}
+            </th>
+            <th>Commande</th>
+            <th class="sortable-col" data-sort="nom">
+              Tâche {% if sort == 'nom' %}<i class="bi bi-sort-up-alt ms-1"></i>{% elif sort == '-nom' %}<i class="bi bi-sort-down ms-1"></i>{% else %}<i class="bi bi-arrow-down-up ms-1 opacity-25"></i>{% endif %}
+            </th>
+            <th>Responsable</th>
+            <th>Phase</th>
+            <th>Discipline</th>
+            <th>Statut</th>
+            <th class="sortable-col" data-sort="avancement" style="width:180px;">
+              Avancement {% if sort == 'avancement' %}<i class="bi bi-sort-up-alt ms-1"></i>{% elif sort == '-avancement' %}<i class="bi bi-sort-down ms-1"></i>{% else %}<i class="bi bi-arrow-down-up ms-1 opacity-25"></i>{% endif %}
+            </th>
+            <th class="sortable-col" data-sort="date_fin_prevue">
+              Fin prévue {% if sort == 'date_fin_prevue' %}<i class="bi bi-sort-up-alt ms-1"></i>{% elif sort == '-date_fin_prevue' %}<i class="bi bi-sort-down ms-1"></i>{% else %}<i class="bi bi-arrow-down-up ms-1 opacity-25"></i>{% endif %}
+            </th>
+            <th style="width:90px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for tache in taches %}
+          <tr {% if tache.est_en_retard %}class="table-danger-subtle"{% endif %}>
+            <td>
+              <a href="{% url 'projects:detail' tache.projet.pk %}" class="text-decoration-none fw-medium text-dark">
+                {{ tache.projet.nom|truncatechars:25 }}
+              </a>
+            </td>
+            <td>
+              {% if tache.commande %}
+                <span class="pmo-mono small text-primary">{{ tache.commande.code_commande }}</span>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'tasks:detail' tache.pk %}" class="fw-medium text-decoration-none text-dark">
+                {{ tache.nom|truncatechars:40 }}
+              </a>
+            </td>
+            <td>
+              {% if tache.responsable %}
+                <i class="bi bi-person-fill me-1 text-muted"></i>{{ tache.responsable.nom_complet|truncatechars:20 }}
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if tache.phase %}
+                <span class="badge bg-secondary pmo-badge">{{ tache.phase.code }}</span>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if tache.discipline %}
+                <span class="badge bg-info text-dark pmo-badge">{{ tache.discipline.code }}</span>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge pmo-badge
+                {% if tache.statut == 'En cours' %}bg-warning
+                {% elif tache.statut in 'Terminée,Finalisé,Clôturé' %}bg-success
+                {% elif tache.statut == 'En attente' %}bg-info
+                {% elif tache.statut == 'Suspendu' %}bg-secondary
+                {% else %}bg-danger{% endif %}">
+                {{ tache.statut }}
+              </span>
+            </td>
+            <td style="min-width:140px;">
+              <div class="d-flex align-items-center gap-2">
+                <div class="pmo-progress flex-grow-1">
+                  <div class="pmo-progress-bar bg-{{ tache.couleur_progression|default:'primary' }}" 
+                       style="width:{{ tache.avancement }}%"></div>
+                </div>
+                <span class="small fw-semibold text-dark" style="min-width:38px;">{{ tache.avancement }}%</span>
+              </div>
+            </td>
+            <td class="small">
+              {% if tache.date_fin_prevue %}
+                <span {% if tache.est_en_retard %}class="text-danger fw-semibold"{% endif %}>
+                  {{ tache.date_fin_prevue|date:"d/m/Y" }}
+                </span>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="d-flex gap-1">
+                <a href="{% url 'tasks:detail' tache.pk %}" class="btn-pmo-icon" title="Voir" data-bs-toggle="tooltip">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a href="{% url 'tasks:edit' tache.pk %}" class="btn-pmo-icon" title="Modifier" data-bs-toggle="tooltip">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <div class="dropdown">
+                  <button class="btn-pmo-icon" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <li>
+                      <a class="dropdown-item" href="{% url 'tasks:gantt' %}?projet={{ tache.projet.pk }}">
+                        <i class="bi bi-bar-chart-steps me-2"></i>Gantt Projet
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item text-danger" href="{% url 'tasks:delete' tache.pk %}">
+                        <i class="bi bi-trash me-2"></i>Supprimer
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="10">
+              <div class="pmo-empty-state">
+                <div class="pmo-empty-icon"><i class="bi bi-list-task"></i></div>
+                <div class="pmo-empty-title">Aucune tâche trouvée</div>
+                <div class="pmo-empty-sub">Modifiez vos filtres ou créez une nouvelle tâche.</div>
+                <a href="{% url 'tasks:create' %}" class="btn-pmo-primary mt-3">
+                  <i class="bi bi-plus-lg me-1"></i>Nouvelle Tâche
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="px-4 py-3 border-top bg-light">
+      {% include "components/pagination.html" with taches=taches %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

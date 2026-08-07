@@ -1,0 +1,21 @@
+{% include "base/components/detail/section_title.html" with title="Informations générales" icon="bi-info-circle" %}
+
+
+
+<div class="row g-3">
+
+
+    {% include "base/components/detail/info_row.html"     with     label="Code commande"     value=commande.code_commande     icon="bi-hash"     %}
+
+    {% include "base/components/detail/info_row.html"     with     label="Nom"     value=commande.nom     icon="bi-card-text"     %}
+
+    {% include "base/components/detail/info_row.html"     with     label="Projet"     value=commande.projet.nom     icon="bi-folder"     %}
+
+    {% include "base/components/detail/info_row.html"     with     label="Contractor"     value=commande.contractor     icon="bi-building"     %}
+
+    {% include "base/components/detail/info_row.html"     with     label="Phase"     value=commande.phase.nom     icon="bi-diagram-3"     %}
+
+    {% include "base/components/detail/info_row.html"     with     label="Code Originateur"     value=commande.code_originator     icon="bi-upc"     %}
+
+
+</div>

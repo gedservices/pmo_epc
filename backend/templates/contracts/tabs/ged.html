@@ -1,0 +1,57 @@
+<div class="row g-4">
+
+    <div class="col-lg-3">
+
+        {% include "base/components/detail/document_counter.html" with title="Documents"  count=0  icon="bi-file-earmark-text"  %}
+
+    </div>
+
+    <div class="col-lg-3">
+
+        {% include "base/components/detail/document_counter.html" with  title="Révisions"  count=0  icon="bi-arrow-repeat" %}
+
+    </div>
+
+    <div class="col-lg-3">
+
+        {% include "base/components/detail/document_counter.html" with title="Transmittals" count=0 icon="bi-send" %}
+
+    </div>
+
+    <div class="col-lg-3">
+
+        {% include "base/components/detail/document_counter.html" with title="Workflows" count=0  icon="bi-diagram-3"  %}
+
+    </div>
+
+</div>
+
+
+
+<div class="mt-5">
+
+    {% include "base/components/detail/section_title.html" with  title="Documents associés" icon="bi-folder2-open"  subtitle="Les documents liés à cette commande apparaîtront ici."  %}
+
+    {% include "base/components/detail/linked_object.html" with  title="Aucun document"  object_icon="bi-file-earmark-x"   object_code="-"  object_name="Aucun document associé"  object_description="Les documents techniques, plans, procédures et rapports seront affichés ici."  %}
+
+</div>
+
+
+
+<div class="mt-5">
+
+    {% include "base/components/detail/section_title.html" with title="Transmittals" icon="bi-envelope-paper"  subtitle="Historique des échanges documentaires."  %}
+
+    {% include "base/components/detail/linked_object.html" with  title="Aucun transmittal" object_icon="bi-send-x"  object_code="-" object_name="Aucun transmittal enregistré"  object_description="Les futurs envois et réceptions documentaires apparaîtront ici."     %}
+
+</div>
+
+
+
+<div class="mt-5">
+
+    {% include "base/components/detail/section_title.html" with title="Workflows" icon="bi-diagram-3" subtitle="Suivi des circuits de validation."  %}
+
+    {% include "base/components/detail/linked_object.html" with   title="Aucun workflow"  object_icon="bi-diagram-2"  object_code="-"  object_name="Aucun workflow disponible"   object_description="Les workflows de validation documentaire seront disponibles lorsque le module GED sera intégré."  %}
+
+</div>

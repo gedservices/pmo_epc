@@ -1,0 +1,101 @@
+{% extends "base/layout/form.html" %}
+
+
+{% block page_header %}
+
+{% include "base/components/cards/section_title.html" with title=page_title icon="bi-list-task" subtitle="Création d'une tâche de projet" %}
+
+{% endblock %}
+
+
+{% block form_content %}
+
+
+{% include "base/components/forms/form_section_begin.html" with title="Informations générales" icon="bi-info-circle" %}
+
+<div class="row">
+
+    {% include "base/components/forms/field.html" with field=form.projet %}
+    {% include "base/components/forms/field.html" with field=form.commande %}
+    {% include "base/components/forms/field.html" with field=form.nom %}
+    {% include "base/components/forms/field_textarea.html" with field=form.description col="col-12 mb-3" %}
+
+</div>
+
+{% include "base/components/forms/form_section_end.html" %}
+
+
+{% include "base/components/forms/form_section_begin.html" with title="Organisation" icon="bi-diagram-3" %}
+
+<div class="row">
+
+    {% include "base/components/forms/field.html" with field=form.phase %}
+    {% include "base/components/forms/field.html" with field=form.discipline %}
+    {% include "base/components/forms/field.html" with field=form.responsable %}
+    {% include "base/components/forms/field_select.html" with field=form.statut %}
+
+</div>
+
+{% include "base/components/forms/form_section_end.html" %}
+
+
+{% include "base/components/forms/form_section_begin.html" with title="Planification" icon="bi-calendar3" %}
+
+<div class="row">
+
+    {% include "base/components/forms/field_date.html" with field=form.date_debut_prevue %}
+    {% include "base/components/forms/field_date.html" with field=form.date_fin_prevue %}
+    {% include "base/components/forms/field_date.html" with field=form.date_debut_reelle %}
+    {% include "base/components/forms/field_date.html" with field=form.date_fin_reelle %}
+
+</div>
+
+{% include "base/components/forms/form_section_end.html" %}
+
+
+{% include "base/components/forms/form_section_begin.html" with title="Avancement" icon="bi-speedometer2" %}
+
+<div class="row">
+
+    {% include "base/components/forms/field.html" with field=form.poids %}
+    {% include "base/components/forms/field.html" with field=form.avancement %}
+    {% include "base/components/forms/field_money.html" with field=form.cout_prevu %}
+    {% include "base/components/forms/field_money.html" with field=form.cout_reel %}
+
+</div>
+
+{% include "base/components/forms/form_section_end.html" %}
+
+
+{% include "base/components/forms/form_section_begin.html" with title="Earned Value Management" icon="bi-graph-up-arrow" %}
+
+<div class="row">
+
+    {% include "base/components/forms/field_money.html" with field=form.planned_value %}
+    {% include "base/components/forms/field_money.html" with field=form.earned_value %}
+    {% include "base/components/forms/field_money.html" with field=form.actual_cost %}
+
+</div>
+
+{% include "base/components/forms/form_section_end.html" %}
+
+
+{% include "base/components/forms/form_section_begin.html" with title="Options" icon="bi-sliders" %}
+
+<div class="row">
+
+    {% include "base/components/forms/field_checkbox.html" with field=form.est_jalon col="col-12 mb-3" %}
+
+</div>
+
+{% include "base/components/forms/form_section_end.html" %}
+
+
+{% endblock %}
+
+
+{% block form_actions %}
+
+{% include "base/components/forms/form_actions.html" with cancel_url="tasks:list" %}
+
+{% endblock %}

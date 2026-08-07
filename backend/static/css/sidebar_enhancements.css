@@ -1,0 +1,385 @@
+/* ================================================================
+   PMO EPC PLATFORM - EXECUTIVE SIDEBAR THEME
+   Style moderne type SaaS / Linear / TailAdmin
+   ================================================================ */
+
+:root {
+  --pmo-bg-dark: #0f172a;        /* Ardoise nuit très profonde */
+  --pmo-bg-card: #1e293b;        /* Bleu ardoise au survol/active */
+  --pmo-text-main: #f8fafc;      /* Blanc pur */
+  --pmo-text-muted: #94a3b8;     /* Gris bleu doux */
+  --pmo-accent: #3b82f6;         /* Bleu électrique moderne */
+  --pmo-accent-glow: rgba(59, 130, 246, 0.35);
+  --pmo-border: rgba(255, 255, 255, 0.08);
+  --pmo-sidebar-width: 270px;
+  --pmo-sidebar-collapsed-width: 74px;
+}
+
+/* --- CONTENEUR PRINCIPAL --- */
+.pmo-sidebar {
+  width: var(--pmo-sidebar-width);
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: var(--pmo-bg-dark);
+  background-image: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.1) 0%, transparent 75%);
+  color: var(--pmo-text-main);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--pmo-border);
+  z-index: 1050;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+}
+
+/* --- EN-TÊTE LOGO --- */
+.pmo-sidebar-brand {
+  height: 70px;
+  padding: 0 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--pmo-border);
+  flex-shrink: 0;
+}
+
+.pmo-brand-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: var(--pmo-text-main);
+}
+
+.pmo-brand-icon {
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: #fff;
+  box-shadow: 0 4px 12px var(--pmo-accent-glow);
+}
+
+.pmo-brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.pmo-brand-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+.pmo-brand-sub {
+  font-size: 0.7rem;
+  color: var(--pmo-accent);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.pmo-sidebar-toggle {
+  background: transparent;
+  border: 1px solid var(--pmo-border);
+  color: var(--pmo-text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pmo-sidebar-toggle:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--pmo-text-main);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* --- NAVIGATION & SCROLLBAR --- */
+.pmo-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+/* Scrollbar discrète */
+.pmo-nav::-webkit-scrollbar { width: 4px; }
+.pmo-nav::-webkit-scrollbar-track { background: transparent; }
+.pmo-nav::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+.pmo-nav:hover::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); }
+
+/* --- CATÉGORIES (MICRO-HEADERS) --- */
+.pmo-nav-category {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: #64748b;
+  margin: 1.2rem 0 0.4rem 0.75rem;
+  user-select: none;
+}
+.pmo-nav-category:first-child { margin-top: 0.2rem; }
+
+/* --- LIENS PRINCIPAUX & BOUTONS ACCORDÉON --- */
+.pmo-nav-link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  color: var(--pmo-text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+}
+
+.pmo-nav-icon {
+  font-size: 1.15rem;
+  margin-right: 0.85rem;
+  color: #64748b;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.pmo-nav-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Survol des items */
+.pmo-nav-link:hover {
+  color: var(--pmo-text-main);
+  background: rgba(255, 255, 255, 0.04);
+  transform: translateX(3px);
+}
+.pmo-nav-link:hover .pmo-nav-icon { color: var(--pmo-text-main); }
+
+/* État Actif (Dashboard ou Menu parent ouvert avec page active) */
+.pmo-nav-link.active {
+  color: #fff;
+  background: linear-gradient(90deg, var(--pmo-bg-card) 0%, rgba(59, 130, 246, 0.15) 100%);
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--pmo-accent);
+}
+.pmo-nav-link.active .pmo-nav-icon { color: var(--pmo-accent); }
+
+/* --- CHEVRON ROTATIF --- */
+.pmo-chevron {
+  font-size: 0.75rem;
+  color: #64748b;
+  transition: transform 0.3s ease;
+}
+.pmo-nav-toggle:not(.collapsed) {
+  color: var(--pmo-text-main);
+  background: rgba(255, 255, 255, 0.03);
+}
+.pmo-nav-toggle:not(.collapsed) .pmo-chevron {
+  transform: rotate(90deg);
+  color: var(--pmo-accent);
+}
+.pmo-nav-toggle:not(.collapsed) .pmo-nav-icon {
+  color: var(--pmo-accent);
+}
+
+/* --- SOUS-MENUS (TREEVIEW STYLE) --- */
+.pmo-submenu {
+  transition: all 0.3s ease-in-out;
+}
+
+.pmo-submenu-inner {
+  margin: 0.25rem 0 0.5rem 1.4rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.pmo-sublink {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  color: var(--pmo-text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.pmo-bullet {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #475569;
+  margin-right: 0.75rem;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.pmo-sublink:hover {
+  color: var(--pmo-text-main);
+  background: rgba(255, 255, 255, 0.03);
+  transform: translateX(3px);
+}
+.pmo-sublink:hover .pmo-bullet {
+  background: var(--pmo-text-main);
+  transform: scale(1.3);
+}
+
+/* Sous-lien actif */
+.pmo-sublink.active {
+  color: var(--pmo-accent);
+  background: rgba(59, 130, 246, 0.1);
+  font-weight: 600;
+}
+.pmo-sublink.active .pmo-bullet {
+  background: var(--pmo-accent);
+  box-shadow: 0 0 8px var(--pmo-accent);
+  transform: scale(1.4);
+}
+
+/* --- PIED DE PAGE & CARTE UTILISATEUR --- */
+.pmo-sidebar-footer {
+  padding: 0.85rem;
+  border-top: 1px solid var(--pmo-border);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.pmo-user-card {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--pmo-border);
+  border-radius: 12px;
+  gap: 0.75rem;
+}
+
+.pmo-user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.pmo-user-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.pmo-user-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--pmo-text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pmo-user-role {
+  font-size: 0.7rem;
+  color: var(--pmo-text-muted);
+}
+
+.pmo-user-logout {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  text-decoration: none;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.pmo-user-logout:hover {
+  background: #ef4444;
+  color: #fff;
+  transform: scale(1.05);
+}
+
+/* ================================================================
+   MODE RÉDUIT (COLLAPSED SIDEBAR)
+   ================================================================ */
+
+.pmo-sidebar.collapsed {
+  width: var(--pmo-sidebar-collapsed-width);
+}
+
+.pmo-sidebar.collapsed .pmo-brand-text,
+.pmo-sidebar.collapsed .pmo-nav-label,
+.pmo-sidebar.collapsed .pmo-chevron,
+.pmo-sidebar.collapsed .pmo-nav-category,
+.pmo-sidebar.collapsed .pmo-user-info {
+  display: none;
+}
+
+.pmo-sidebar.collapsed .pmo-sidebar-brand {
+  justify-content: center;
+  padding: 0;
+}
+.pmo-sidebar.collapsed .pmo-brand-link { justify-content: center; width: 100%; }
+
+.pmo-sidebar.collapsed .pmo-nav-link {
+  justify-content: center;
+  padding: 0.75rem 0;
+}
+.pmo-sidebar.collapsed .pmo-nav-icon { margin-right: 0; font-size: 1.3rem; }
+
+/* En mode réduit, on ferme visuellement les sous-menus pour éviter qu'ils débordent */
+.pmo-sidebar.collapsed .pmo-submenu { display: none !important; }
+
+.pmo-sidebar.collapsed .pmo-user-card {
+  justify-content: center;
+  padding: 0.4rem;
+  border: none;
+  background: transparent;
+}
+.pmo-sidebar.collapsed .pmo-user-logout {
+  display: none; /* On cache le bouton logout en mode réduit pour privilégier l'avatar */
+}
+
+/* Ajustement de la zone principale de votre base.html quand le menu se réduit */
+@media (min-width: 768px) {
+  body:has(.pmo-sidebar:not(.collapsed)) .pmo-main {
+    margin-left: var(--pmo-sidebar-width);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  body:has(.pmo-sidebar.collapsed) .pmo-main {
+    margin-left: var(--pmo-sidebar-collapsed-width);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}

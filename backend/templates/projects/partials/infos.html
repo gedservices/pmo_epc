@@ -1,0 +1,333 @@
+<div class="pmo-card">
+
+
+    <h5 class="mb-3">
+
+        <i class="bi bi-info-circle text-primary me-2"></i>
+
+        Informations projet
+
+    </h5>
+
+
+
+
+    <div class="row g-3">
+
+
+
+        <!-- Code -->
+
+
+        <div class="col-md-6">
+
+
+            <div class="small text-muted">
+
+                Code projet
+
+            </div>
+
+
+            <div class="fw-semibold pmo-mono">
+
+                {{ projet.code }}
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+        <!-- Type -->
+
+
+        <div class="col-md-6">
+
+
+            <div class="small text-muted">
+
+                Type
+
+            </div>
+
+
+            <div>
+
+
+                {% if projet.type_projet %}
+
+                    {{ projet.type_projet }}
+
+                {% else %}
+
+                    <span class="text-muted">
+
+                        Non renseigné
+
+                    </span>
+
+                {% endif %}
+
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+        <!-- Nom -->
+
+
+        <div class="col-12">
+
+
+            <div class="small text-muted">
+
+                Nom du projet
+
+            </div>
+
+
+            <div class="fw-semibold">
+
+
+                {{ projet.nom }}
+
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+
+        <!-- Conteneur -->
+
+
+        <div class="col-md-6">
+
+
+            <div class="small text-muted">
+
+                Conteneur
+
+            </div>
+
+
+            <span class="badge bg-info-subtle text-info-emphasis">
+
+
+                <i class="bi bi-folder me-1"></i>
+
+
+                {{ projet.conteneur }}
+
+
+            </span>
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <!-- Responsable -->
+
+
+        <div class="col-md-6">
+
+
+            <div class="small text-muted">
+
+                Responsable
+
+            </div>
+
+
+            {% if projet.responsable %}
+
+
+                <i class="bi bi-person me-1"></i>
+
+
+                {{ projet.responsable }}
+
+
+            {% else %}
+
+
+                <span class="text-muted">
+
+                    Non affecté
+
+                </span>
+
+
+            {% endif %}
+
+
+
+        </div>
+
+
+
+
+
+
+
+        <!-- Entité -->
+
+
+        <div class="col-md-4">
+
+
+            <div class="small text-muted">
+
+                Entité
+
+            </div>
+
+
+            {% if projet.entite %}
+
+                {{ projet.entite }}
+
+            {% else %}
+
+                -
+
+            {% endif %}
+
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <!-- Pays -->
+
+
+        <div class="col-md-4">
+
+
+            <div class="small text-muted">
+
+                Pays
+
+            </div>
+
+
+            {% if projet.pays %}
+
+                {{ projet.pays }}
+
+            {% else %}
+
+                -
+
+            {% endif %}
+
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <!-- Site -->
+
+
+        <div class="col-md-4">
+
+
+            <div class="small text-muted">
+
+                Site
+
+            </div>
+
+
+            {% if projet.site %}
+
+                {{ projet.site }}
+
+            {% else %}
+
+                -
+
+            {% endif %}
+
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <!-- Secteur -->
+
+
+        <div class="col-12">
+
+
+            <div class="small text-muted">
+
+                Secteur
+
+            </div>
+
+
+            {% if projet.secteur %}
+
+                {{ projet.secteur }}
+
+            {% else %}
+
+                -
+
+            {% endif %}
+
+
+
+        </div>
+
+
+
+
+
+    </div>
+
+
+
+
+</div>

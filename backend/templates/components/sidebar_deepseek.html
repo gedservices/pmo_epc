@@ -1,0 +1,262 @@
+{% load static %}
+<aside class="pmo-sidebar" id="pmoSidebar">
+
+  <!-- LOGO -->
+  <div class="pmo-sidebar-brand">
+    <a href="{% url 'dashboard:index' %}" class="pmo-brand-link">
+      <div class="pmo-brand-icon">
+        <i class="bi bi-hexagon-fill"></i>
+      </div>
+      <div class="pmo-brand-text">
+        <span class="pmo-brand-name">PMO EPC</span>
+        <span class="pmo-brand-sub">Platform</span>
+      </div>
+    </a>
+    <button class="pmo-sidebar-toggle" id="sidebarToggle"
+            title="Réduire le menu">
+      <i class="bi bi-layout-sidebar-reverse"></i>
+    </button>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav class="pmo-nav">
+
+    <!-- Dashboard -->
+    <a href="{% url 'dashboard:index' %}"
+       class="pmo-nav-item {% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}">
+      <i class="bi bi-grid-1x2-fill pmo-nav-icon"></i>
+      <span class="pmo-nav-label">Dashboard</span>
+    </a>
+
+    <!-- PORTEFEUILLE -->
+    <div class="pmo-nav-section">
+      Portefeuille
+    </div>
+
+    <a href="{% url 'projects:list' %}"
+       class="pmo-nav-item {% if request.resolver_match.namespace == 'projects' %}active{% endif %}">
+      <i class="bi bi-folder2-open pmo-nav-icon"></i>
+      <span class="pmo-nav-label">Projets</span>
+    </a>
+
+    <a href="{% url 'contracts:list' %}"
+       class="pmo-nav-item {% if request.resolver_match.namespace == 'contracts' %}active{% endif %}">
+      <i class="bi bi-file-earmark-text pmo-nav-icon"></i>
+      <span class="pmo-nav-label">Commandes</span>
+    </a>
+
+    <!-- EXÉCUTION - Accordéon -->
+    <div class="accordion pmo-accordion" id="accordionExecution">
+      <div class="accordion-item pmo-accordion-item">
+        <h2 class="accordion-header pmo-accordion-header">
+          <button class="accordion-button collapsed pmo-accordion-btn"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseExecution"
+                  aria-expanded="false"
+                  aria-controls="collapseExecution">
+            <i class="bi bi-play-circle-fill pmo-nav-icon"></i>
+            <span class="pmo-nav-label">Exécution</span>
+          </button>
+        </h2>
+        <div id="collapseExecution"
+             class="accordion-collapse collapse"
+             data-bs-parent="#accordionExecution">
+          <div class="accordion-body pmo-accordion-body">
+            <!-- Tâches -->
+            <a href="{% url 'tasks:list' %}"
+               class="pmo-nav-item pmo-nav-item-sub {% if request.resolver_match.namespace == 'tasks' %}active{% endif %}">
+              <i class="bi bi-check2-square pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Tâches</span>
+            </a>
+
+            <!-- Suivi Planning - Sous-accordéon -->
+            <div class="accordion pmo-accordion-sub" id="accordionPlanning">
+              <div class="accordion-item pmo-accordion-item">
+                <h2 class="accordion-header pmo-accordion-header">
+                  <button class="accordion-button collapsed pmo-accordion-btn"
+                          type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#collapsePlanning"
+                          aria-expanded="false"
+                          aria-controls="collapsePlanning">
+                    <i class="bi bi-kanban-fill pmo-nav-icon"></i>
+                    <span class="pmo-nav-label">Suivi Planning</span>
+                  </button>
+                </h2>
+                <div id="collapsePlanning"
+                     class="accordion-collapse collapse"
+                     data-bs-parent="#accordionPlanning">
+                  <div class="accordion-body pmo-accordion-body">
+                    <a href="{% url 'tasks:gantt' %}"
+                       class="pmo-nav-item pmo-nav-item-sub {% if 'gantt' in request.path %}active{% endif %}">
+                      <i class="bi bi-bar-chart-steps pmo-nav-icon"></i>
+                      <span class="pmo-nav-label">Gantt Projets</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANIFICATION - Accordéon -->
+    <div class="accordion pmo-accordion" id="accordionPlanification">
+      <div class="accordion-item pmo-accordion-item">
+        <h2 class="accordion-header pmo-accordion-header">
+          <button class="accordion-button collapsed pmo-accordion-btn"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapsePlanification"
+                  aria-expanded="false"
+                  aria-controls="collapsePlanification">
+            <i class="bi bi-calendar-event-fill pmo-nav-icon"></i>
+            <span class="pmo-nav-label">Planification</span>
+          </button>
+        </h2>
+        <div id="collapsePlanification"
+             class="accordion-collapse collapse"
+             data-bs-parent="#accordionPlanification">
+          <div class="accordion-body pmo-accordion-body">
+            <a href="{% url 'planning_project:dashboard' %}"
+               class="pmo-nav-item pmo-nav-item-sub {% if request.resolver_match.namespace == 'planning_project' %}active{% endif %}">
+              <i class="bi bi-calendar3 pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Plannings Projets</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PILOTAGE - Accordéon -->
+    <div class="accordion pmo-accordion" id="accordionPilotage">
+      <div class="accordion-item pmo-accordion-item">
+        <h2 class="accordion-header pmo-accordion-header">
+          <button class="accordion-button collapsed pmo-accordion-btn"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapsePilotage"
+                  aria-expanded="false"
+                  aria-controls="collapsePilotage">
+            <i class="bi bi-compass-fill pmo-nav-icon"></i>
+            <span class="pmo-nav-label">Pilotage</span>
+          </button>
+        </h2>
+        <div id="collapsePilotage"
+             class="accordion-collapse collapse"
+             data-bs-parent="#accordionPilotage">
+          <div class="accordion-body pmo-accordion-body">
+            <a href="{% url 'costs:list' %}"
+               class="pmo-nav-item pmo-nav-item-sub {% if request.resolver_match.namespace == 'costs' %}active{% endif %}">
+              <i class="bi bi-currency-euro pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Coûts</span>
+            </a>
+            <a href="{% url 'risks:list' %}"
+               class="pmo-nav-item pmo-nav-item-sub {% if request.resolver_match.namespace == 'risks' %}active{% endif %}">
+              <i class="bi bi-exclamation-triangle pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Risques</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GED -->
+    <div class="pmo-nav-section">
+      GED
+    </div>
+
+    <a href="#"
+       class="pmo-nav-item {% if request.resolver_match.namespace == 'documents' %}active{% endif %}">
+      <i class="bi bi-folder2-open pmo-nav-icon"></i>
+      <span class="pmo-nav-label">Documents</span>
+    </a>
+
+    <!-- REPORTING - Accordéon -->
+    <div class="accordion pmo-accordion" id="accordionReporting">
+      <div class="accordion-item pmo-accordion-item">
+        <h2 class="accordion-header pmo-accordion-header">
+          <button class="accordion-button collapsed pmo-accordion-btn"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseReporting"
+                  aria-expanded="false"
+                  aria-controls="collapseReporting">
+            <i class="bi bi-graph-up-arrow pmo-nav-icon"></i>
+            <span class="pmo-nav-label">Reporting</span>
+          </button>
+        </h2>
+        <div id="collapseReporting"
+             class="accordion-collapse collapse"
+             data-bs-parent="#accordionReporting">
+          <div class="accordion-body pmo-accordion-body">
+            <a href="{% url 'reporting:dashboard' %}"
+               class="pmo-nav-item pmo-nav-item-sub {% if request.resolver_match.namespace == 'reporting' %}active{% endif %}">
+              <i class="bi bi-graph-up-arrow pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Reporting</span>
+            </a>
+            <a href="{% url 'reporting:evm' %}"
+               class="pmo-nav-item pmo-nav-item-sub">
+              <i class="bi bi-activity pmo-nav-icon"></i>
+              <span class="pmo-nav-label">EVM</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMINISTRATION - Accordéon -->
+    <div class="accordion pmo-accordion" id="accordionAdmin">
+      <div class="accordion-item pmo-accordion-item">
+        <h2 class="accordion-header pmo-accordion-header">
+          <button class="accordion-button collapsed pmo-accordion-btn"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseAdmin"
+                  aria-expanded="false"
+                  aria-controls="collapseAdmin">
+            <i class="bi bi-shield-lock-fill pmo-nav-icon"></i>
+            <span class="pmo-nav-label">Administration</span>
+          </button>
+        </h2>
+        <div id="collapseAdmin"
+             class="accordion-collapse collapse"
+             data-bs-parent="#accordionAdmin">
+          <div class="accordion-body pmo-accordion-body">
+            <a href="{% url 'accounts:profile' %}"
+               class="pmo-nav-item pmo-nav-item-sub {% if request.resolver_match.namespace == 'accounts' %}active{% endif %}">
+              <i class="bi bi-people pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Utilisateurs</span>
+            </a>
+            <a href="{% url 'core_ref:index' %}"
+               class="pmo-nav-item pmo-nav-item-sub {% if request.resolver_match.namespace == 'core_ref' %}active{% endif %}">
+              <i class="bi bi-gear pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Référentiels</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </nav>
+
+  <!-- USER INFO -->
+  <div class="pmo-sidebar-user">
+    <div class="pmo-user-avatar">
+      {{ request.user.initiales|default:"??" }}
+    </div>
+    <div class="pmo-user-info">
+      <div class="pmo-user-name">{{ request.user.nom_complet }}</div>
+      <div class="pmo-user-role">
+        {{ request.user.get_role_display }}
+      </div>
+    </div>
+    <a href="{% url 'accounts:logout' %}" class="pmo-user-logout"
+       title="Déconnexion">
+      <i class="bi bi-box-arrow-right"></i>
+    </a>
+  </div>
+
+</aside>

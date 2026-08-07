@@ -1,0 +1,16 @@
+<div class="card shadow-sm mb-3">
+
+    {% if title %}
+    <div class="card-header">
+        <h6 class="mb-0">
+            {{ title }}
+        </h6>
+    </div>
+    {% endif %}
+
+    <div class="card-body">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+</div>

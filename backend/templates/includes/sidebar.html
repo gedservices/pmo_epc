@@ -1,0 +1,210 @@
+<nav class="sidebar bg-dark text-white vh-100">
+
+    <div class="p-3">
+
+        <h5 class="mb-4">
+
+            <i class="bi bi-diagram-3"></i>
+
+            PMO EPC
+
+        </h5>
+
+        <ul class="nav flex-column">
+
+            <!-- ===================================================== -->
+            <!-- DASHBOARD -->
+            <!-- ===================================================== -->
+
+            <li class="nav-item">
+
+                <a class="nav-link text-white"
+                   href="{% url 'dashboard:index' %}">
+
+                    <i class="bi bi-speedometer2"></i>
+
+                    Dashboard
+
+                </a>
+
+            </li>
+
+
+            <!-- ===================================================== -->
+            <!-- PORTEFEUILLE -->
+            <!-- ===================================================== -->
+
+            <li class="nav-header text-uppercase small mt-3 mb-2 text-secondary">
+
+                Portefeuille
+
+            </li>
+
+            <li class="nav-item">
+
+                <a class="nav-link text-white"
+                   href="{% url 'projects:list' %}">
+
+                    <i class="bi bi-kanban"></i>
+
+                    Projets
+
+                </a>
+
+            </li>
+
+            <li class="nav-item">
+
+                <a class="nav-link text-white"
+                   href="{% url 'contracts:list' %}">
+
+                    <i class="bi bi-cart"></i>
+
+                    Commandes
+
+                </a>
+
+            </li>
+
+
+            <!-- ===================================================== -->
+            <!-- EXECUTION -->
+            <!-- ===================================================== -->
+
+            <li class="nav-header text-uppercase small mt-3 mb-2 text-secondary">
+
+                Exécution
+
+            </li>
+
+            <li class="nav-item">
+
+                <a class="nav-link text-white"
+                   href="{% url 'tasks:list' %}">
+
+                    <i class="bi bi-list-check"></i>
+
+                    Tâches
+
+                </a>
+
+            </li>
+
+            <li class="nav-item">
+
+                <a class="nav-link text-white"
+                   href="{% url 'planning:dashboard' %}">
+
+                    <i class="bi bi-bar-chart-steps"></i>
+
+                    Suivi des tâches
+
+                </a>
+
+            </li>
+
+            <li class="nav-item">
+
+                <a class="nav-link text-white"
+                   href="{% url 'planning_project:dashboard' %}">
+
+                    <i class="bi bi-calendar3"></i>
+
+                    Planning Project
+
+                </a>
+
+            </li>
+
+
+            <!-- ===================================================== -->
+            <!-- PILOTAGE -->
+            <!-- ===================================================== -->
+
+            <li class="nav-header text-uppercase small mt-3 mb-2 text-secondary">
+
+                Pilotage
+
+            </li>
+
+            <li class="nav-item">
+
+                <a class="nav-link text-white"
+                   href="{% url 'costs:list' %}">
+
+                    <i class="bi bi-cash-stack"></i>
+
+                    Coûts
+
+                </a>
+
+            </li>
+
+            <li class="nav-item">
+
+                <a class="nav-link text-white"
+                   href="{% url 'risks:list' %}">
+
+                    <i class="bi bi-exclamation-triangle"></i>
+
+                    Risques
+
+                </a>
+
+            </li>
+
+            <li class="nav-item">
+
+                <a class="nav-link text-white"
+                   href="{% url 'reporting:index' %}">
+
+                    <i class="bi bi-file-earmark-bar-graph"></i>
+
+                    Reporting
+
+                </a>
+
+            </li>
+
+            <li class="nav-item">
+
+                <a class="nav-link text-white"
+                   href="{% url 'evm:index' %}">
+
+                    <i class="bi bi-graph-up-arrow"></i>
+
+                    EVM
+
+                </a>
+
+            </li>
+
+
+            <!-- ===================================================== -->
+            <!-- GED -->
+            <!-- ===================================================== -->
+
+            <li class="nav-header text-uppercase small mt-3 mb-2 text-secondary">
+
+                GED
+
+            </li>
+
+            <li class="nav-item">
+
+                <a class="nav-link text-white"
+                   href="{% url 'documents:list' %}">
+
+                    <i class="bi bi-folder2-open"></i>
+
+                    Documents
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </div>
+
+</nav>

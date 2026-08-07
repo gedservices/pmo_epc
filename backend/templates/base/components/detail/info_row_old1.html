@@ -1,0 +1,16 @@
+<div class="row mb-2 align-items-center">
+
+    <div class="col-md-4 text-muted small">
+        {{ label }}
+    </div>
+
+    <div class="col-md-8 fw-semibold">
+        {% if value %}
+            {{ value }}
+        {% else %}
+            <span class="text-muted">
+                -
+            </span>
+        {% endif %}
+    </div>
+</div>

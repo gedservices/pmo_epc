@@ -1,0 +1,424 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+  <a href="{% url 'documents:dashboard' %}">Documents</a>
+</li>
+<li class="breadcrumb-item active">Dashboard GED</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <!-- Header -->
+  <div class="d-flex align-items-start justify-content-between mb-4">
+    <div>
+      <h1 class="pmo-page-title">
+        <i class="bi bi-folder-symlink-fill text-primary"></i>
+        Dashboard GED
+      </h1>
+      <p class="pmo-page-subtitle mb-0">
+        Vue d'ensemble de la Gestion Électronique de Documents
+      </p>
+    </div>
+    <div class="pmo-page-actions">
+      <a href="{% url 'documents:list' %}" class="btn-pmo-ghost">
+        <i class="bi bi-list-ul"></i>
+        Liste complète
+      </a>
+      <a href="{% url 'documents:create' %}" class="btn-pmo-primary">
+        <i class="bi bi-plus-lg"></i>
+        Nouveau Document
+      </a>
+    </div>
+  </div>
+
+  <!-- Statistiques principales -->
+  <div class="row g-3 mb-4">
+    <!-- Total documents -->
+    <div class="col-md-3">
+      <div class="pmo-card p-3">
+        <div class="d-flex align-items-center">
+          <div class="flex-shrink-0">
+            <div class="pmo-stat-icon bg-primary bg-opacity-10 text-primary">
+              <i class="bi bi-files"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1 ms-3">
+            <div class="pmo-stat-label">Total Documents</div>
+            <div class="pmo-stat-value">{{ stats.total }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents finalisés -->
+    <div class="col-md-3">
+      <div class="pmo-card p-3">
+        <div class="d-flex align-items-center">
+          <div class="flex-shrink-0">
+            <div class="pmo-stat-icon bg-success bg-opacity-10 text-success">
+              <i class="bi bi-check-circle-fill"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1 ms-3">
+            <div class="pmo-stat-label">Finalisés</div>
+            <div class="pmo-stat-value text-success">{{ stats.finalises }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents en revue -->
+    <div class="col-md-3">
+      <div class="pmo-card p-3">
+        <div class="d-flex align-items-center">
+          <div class="flex-shrink-0">
+            <div class="pmo-stat-icon bg-warning bg-opacity-10 text-warning">
+              <i class="bi bi-hourglass-split"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1 ms-3">
+            <div class="pmo-stat-label">En Revue</div>
+            <div class="pmo-stat-value text-warning">{{ stats.en_review }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents brouillon -->
+    <div class="col-md-3">
+      <div class="pmo-card p-3">
+        <div class="d-flex align-items-center">
+          <div class="flex-shrink-0">
+            <div class="pmo-stat-icon bg-secondary bg-opacity-10 text-secondary">
+              <i class="bi bi-pencil-square"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1 ms-3">
+            <div class="pmo-stat-label">Brouillons</div>
+            <div class="pmo-stat-value text-secondary">{{ stats.brouillons }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistiques par classe -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="pmo-card p-3">
+        <div class="d-flex align-items-center">
+          <div class="flex-shrink-0">
+            <div class="pmo-stat-icon bg-danger bg-opacity-10 text-danger">
+              <i class="bi bi-star-fill"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1 ms-3">
+            <div class="pmo-stat-label">Classe 1 - Critique</div>
+            <div class="pmo-stat-value text-danger">{{ stats.par_classe.classe_1 }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="pmo-card p-3">
+        <div class="d-flex align-items-center">
+          <div class="flex-shrink-0">
+            <div class="pmo-stat-icon bg-warning bg-opacity-10 text-warning">
+              <i class="bi bi-star-half"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1 ms-3">
+            <div class="pmo-stat-label">Classe 2 - Important</div>
+            <div class="pmo-stat-value text-warning">{{ stats.par_classe.classe_2 }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="pmo-card p-3">
+        <div class="d-flex align-items-center">
+          <div class="flex-shrink-0">
+            <div class="pmo-stat-icon bg-info bg-opacity-10 text-info">
+              <i class="bi bi-info-circle-fill"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1 ms-3">
+            <div class="pmo-stat-label">Classe 3 - Information</div>
+            <div class="pmo-stat-value text-info">{{ stats.par_classe.classe_3 }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Graphiques & Listes -->
+  <div class="row g-4 mb-4">
+
+    <!-- Évolution documentaire -->
+    <div class="col-lg-8">
+      <div class="pmo-card p-4">
+        <h5 class="mb-3">
+          <i class="bi bi-graph-up me-2 text-primary"></i>
+          Évolution Documentaire (6 derniers mois)
+        </h5>
+        <canvas id="chartEvolution" height="100"></canvas>
+      </div>
+    </div>
+
+    <!-- Répartition par statut -->
+    <div class="col-lg-4">
+      <div class="pmo-card p-4">
+        <h5 class="mb-3">
+          <i class="bi bi-pie-chart me-2 text-primary"></i>
+          Répartition par Statut
+        </h5>
+        <canvas id="chartStatut"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Top 3 Lists -->
+  <div class="row g-4 mb-4">
+
+    <!-- Top Phases -->
+    <div class="col-lg-4">
+      <div class="pmo-card p-4">
+        <h5 class="mb-3">
+          <i class="bi bi-layers me-2 text-primary"></i>
+          Top Phases
+        </h5>
+        <div class="list-group list-group-flush">
+          {% for item in stats_par_phase %}
+          <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+            <span class="fw-medium">{{ item.phase__nom|default:"Non définie" }}</span>
+            <span class="badge bg-primary rounded-pill">{{ item.total }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Disciplines -->
+    <div class="col-lg-4">
+      <div class="pmo-card p-4">
+        <h5 class="mb-3">
+          <i class="bi bi-tools me-2 text-primary"></i>
+          Top Disciplines
+        </h5>
+        <div class="list-group list-group-flush">
+          {% for item in stats_par_discipline %}
+          <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+            <span class="fw-medium">{{ item.discipline__code|default:"—" }}</span>
+            <span class="badge bg-success rounded-pill">{{ item.total }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Types -->
+    <div class="col-lg-4">
+      <div class="pmo-card p-4">
+        <h5 class="mb-3">
+          <i class="bi bi-file-earmark-text me-2 text-primary"></i>
+          Top Types Documents
+        </h5>
+        <div class="list-group list-group-flush">
+          {% for item in stats_par_type %}
+          <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+            <span class="fw-medium">{{ item.type_technique__code|default:"—" }}</span>
+            <span class="badge bg-info rounded-pill">{{ item.total }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Documents récents & en retard -->
+  <div class="row g-4">
+
+    <!-- Documents récents -->
+    <div class="col-lg-6">
+      <div class="pmo-card p-0">
+        <div class="p-3 border-bottom">
+          <h5 class="mb-0">
+            <i class="bi bi-clock-history me-2 text-primary"></i>
+            Documents Récents
+          </h5>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm pmo-table mb-0">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Titre</th>
+                <th>Statut</th>
+                <th>Modifié</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for doc in documents_recents %}
+              <tr>
+                <td>
+                  <a href="{% url 'documents:detail' doc.pk %}" class="pmo-mono small text-primary text-decoration-none">
+                    {{ doc.numero_document }}
+                  </a>
+                </td>
+                <td>{{ doc.titre|truncatechars:40 }}</td>
+                <td>
+                  <span class="badge pmo-badge bg-{{ doc.couleur_statut }}">
+                    {{ doc.statut_global }}
+                  </span>
+                </td>
+                <td class="small text-muted">
+                  {{ doc.date_modification|timesince }} ago
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents en retard de revue -->
+    <div class="col-lg-6">
+      <div class="pmo-card p-0">
+        <div class="p-3 border-bottom bg-danger bg-opacity-10">
+          <h5 class="mb-0">
+            <i class="bi bi-exclamation-triangle me-2 text-danger"></i>
+            Documents en Retard de Revue
+          </h5>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm pmo-table mb-0">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Titre</th>
+                <th>Statut</th>
+                <th>Émis le</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for doc in documents_retard %}
+              <tr class="table-danger-subtle">
+                <td>
+                  <a href="{% url 'documents:detail' doc.pk %}" class="pmo-mono small text-danger text-decoration-none fw-semibold">
+                    {{ doc.numero_document }}
+                  </a>
+                </td>
+                <td>{{ doc.titre|truncatechars:40 }}</td>
+                <td>
+                  <span class="badge bg-danger">
+                    {{ doc.statut_actuel.code }}
+                  </span>
+                </td>
+                <td class="small text-danger fw-semibold">
+                  {{ doc.date_emission|date:"d/m/Y" }}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="text-center text-success">
+                  <i class="bi bi-check-circle me-1"></i>
+                  Aucun document en retard
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .pmo-stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+  .pmo-stat-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+  .pmo-stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Graphique évolution
+  const ctxEvolution = document.getElementById('chartEvolution');
+  if (ctxEvolution) {
+    new Chart(ctxEvolution, {
+      type: 'line',
+      data: {
+        labels: {{ labels_mois|safe }},
+        datasets: [{
+          label: 'Documents créés',
+          data: {{ data_mois|safe }},
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  // Graphique statut
+  const ctxStatut = document.getElementById('chartStatut');
+  if (ctxStatut) {
+    new Chart(ctxStatut, {
+      type: 'doughnut',
+      data: {
+        labels: {{ labels_statut|safe }},
+        datasets: [{
+          data: {{ data_statut|safe }},
+          backgroundColor: [
+            '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#64748b'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true
+      }
+    });
+  }
+</script>
+{% endblock %}

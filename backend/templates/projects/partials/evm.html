@@ -1,0 +1,380 @@
+<div class="pmo-card">
+
+
+    <h5 class="mb-3">
+
+
+        <i class="bi bi-graph-up-arrow text-primary me-2"></i>
+
+
+        Earned Value Management
+
+
+    </h5>
+
+
+
+
+
+    <!-- Valeurs EVM -->
+
+
+    <div class="row g-3">
+
+
+
+
+
+        <!-- PV -->
+
+
+        <div class="col-md-4">
+
+
+            <div class="small text-muted">
+
+
+                Planned Value (PV)
+
+
+            </div>
+
+
+
+            <div class="fs-5 fw-bold">
+
+
+                {{ projet.planned_value|floatformat:0 }}
+
+                €
+
+
+            </div>
+
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <!-- EV -->
+
+
+        <div class="col-md-4">
+
+
+            <div class="small text-muted">
+
+
+                Earned Value (EV)
+
+
+            </div>
+
+
+
+            <div class="fs-5 fw-bold text-primary">
+
+
+                {{ projet.earned_value|floatformat:0 }}
+
+                €
+
+
+            </div>
+
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <!-- AC -->
+
+
+        <div class="col-md-4">
+
+
+            <div class="small text-muted">
+
+
+                Actual Cost (AC)
+
+
+            </div>
+
+
+
+            <div class="fs-5 fw-bold">
+
+
+                {{ projet.actual_cost|floatformat:0 }}
+
+                €
+
+
+            </div>
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <hr>
+
+
+
+
+
+
+
+    <!-- Indicateurs SPI CPI -->
+
+
+    <div class="row g-3">
+
+
+
+
+
+
+        <!-- SPI -->
+
+
+        <div class="col-md-6">
+
+
+
+            <div class="border rounded p-3 text-center">
+
+
+
+                <div class="small text-muted">
+
+                    SPI
+
+                </div>
+
+
+
+
+                {% if projet.spi %}
+
+
+
+                    <div class="fs-2 fw-bold
+
+                    {% if projet.spi < 1 %}
+                        text-danger
+                    {% elif projet.spi == 1 %}
+                        text-warning
+                    {% else %}
+                        text-success
+                    {% endif %}
+                    ">
+
+
+                        {{ projet.spi }}
+
+
+
+                    </div>
+
+
+
+                    <div class="small">
+
+
+                        {% if projet.spi < 1 %}
+
+
+                            Retard planning
+
+
+
+                        {% elif projet.spi == 1 %}
+
+
+                            Conforme
+
+
+
+                        {% else %}
+
+
+                            Avance planning
+
+
+
+                        {% endif %}
+
+
+
+                    </div>
+
+
+
+
+                {% else %}
+
+
+
+                    <div class="text-muted">
+
+
+                        Non disponible
+
+
+                    </div>
+
+
+
+                {% endif %}
+
+
+
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <!-- CPI -->
+
+
+        <div class="col-md-6">
+
+
+
+            <div class="border rounded p-3 text-center">
+
+
+
+                <div class="small text-muted">
+
+                    CPI
+
+                </div>
+
+
+
+
+                {% if projet.cpi %}
+
+
+
+                    <div class="fs-2 fw-bold
+
+                    {% if projet.cpi < 1 %}
+                        text-danger
+                    {% elif projet.cpi == 1 %}
+                        text-warning
+                    {% else %}
+                        text-success
+                    {% endif %}
+                    ">
+
+
+                        {{ projet.cpi }}
+
+
+
+                    </div>
+
+
+
+                    <div class="small">
+
+
+                        {% if projet.cpi < 1 %}
+
+
+                            Surcoût
+
+
+
+                        {% elif projet.cpi == 1 %}
+
+
+                            Conforme
+
+
+
+                        {% else %}
+
+
+                            Optimisation coût
+
+
+
+                        {% endif %}
+
+
+
+                    </div>
+
+
+
+
+                {% else %}
+
+
+
+                    <div class="text-muted">
+
+
+                        Non disponible
+
+
+                    </div>
+
+
+
+                {% endif %}
+
+
+
+
+            </div>
+
+
+        </div>
+
+
+
+
+    </div>
+
+
+
+
+
+
+
+</div>

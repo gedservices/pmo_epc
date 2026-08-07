@@ -1,0 +1,129 @@
+{% load static %}
+<aside class="pmo-sidebar" id="pmoSidebar">
+
+  <!-- LOGO -->
+  <div class="pmo-sidebar-brand">
+    <a href="{% url 'dashboard:index' %}" class="pmo-brand-link">
+      <div class="pmo-brand-icon">
+        <i class="bi bi-hexagon-fill"></i>
+      </div>
+      <div class="pmo-brand-text">
+        <span class="pmo-brand-name">PMO EPC</span>
+        <span class="pmo-brand-sub">Platform</span>
+      </div>
+    </a>
+    <button class="pmo-sidebar-toggle" id="sidebarToggle"
+            title="Réduire le menu">
+      <i class="bi bi-layout-sidebar-reverse"></i>
+    </button>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav class="pmo-nav">
+
+    <!-- Dashboard -->
+    <a href="{% url 'dashboard:index' %}"
+       class="pmo-nav-item {% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}">
+      <i class="bi bi-grid-1x2-fill pmo-nav-icon"></i>
+      <span class="pmo-nav-label">Dashboard</span>
+    </a>
+
+    <!-- PORTEFEUILLE -->
+    <div class="pmo-nav-section">Portefeuille</div>
+
+    <a href="{% url 'projects:list' %}"
+       class="pmo-nav-item {% if request.resolver_match.namespace == 'projects' %}active{% endif %}">
+      <i class="bi bi-folder2-open pmo-nav-icon"></i>
+      <span class="pmo-nav-label">Projets</span>
+    </a>
+
+    <a href="{% url 'contracts:list' %}"
+       class="pmo-nav-item {% if request.resolver_match.namespace == 'contracts' %}active{% endif %}">
+      <i class="bi bi-file-earmark-text pmo-nav-icon"></i>
+      <span class="pmo-nav-label">Commandes</span>
+    </a>
+
+    <!-- EXÉCUTION -->
+    <div class="pmo-nav-section">Exécution</div>
+
+    <a href="{% url 'tasks:list' %}"
+       class="pmo-nav-item {% if request.resolver_match.namespace == 'tasks' %}active{% endif %}">
+      <i class="bi bi-check2-square pmo-nav-icon"></i>
+      <span class="pmo-nav-label">Tâches</span>
+    </a>
+
+    <a href="{% url 'tasks:gantt' %}"
+       class="pmo-nav-item {% if 'gantt' in request.path %}active{% endif %}">
+      <i class="bi bi-bar-chart-steps pmo-nav-icon"></i>
+      <span class="pmo-nav-label">Planning / Gantt</span>
+    </a>
+
+    <a href="{% url 'costs:list' %}"
+       class="pmo-nav-item {% if request.resolver_match.namespace == 'costs' %}active{% endif %}">
+      <i class="bi bi-currency-euro pmo-nav-icon"></i>
+      <span class="pmo-nav-label">Coûts</span>
+    </a>
+
+    <a href="{% url 'risks:list' %}"
+       class="pmo-nav-item {% if request.resolver_match.namespace == 'risks' %}active{% endif %}">
+      <i class="bi bi-exclamation-triangle pmo-nav-icon"></i>
+      <span class="pmo-nav-label">Risques</span>
+      {% comment %}
+      {% if nb_risques_critiques %}
+      <span class="pmo-nav-badge">{{ nb_risques_critiques }}</span>
+      {% endif %}
+      {% endcomment %}
+    </a>
+
+    <!-- REPORTING -->
+    <div class="pmo-nav-section">Reporting</div>
+
+    <a href="{% url 'reporting:dashboard' %}"
+       class="pmo-nav-item {% if request.resolver_match.namespace == 'reporting' %}active{% endif %}">
+      <i class="bi bi-graph-up-arrow pmo-nav-icon"></i>
+      <span class="pmo-nav-label">Reporting</span>
+    </a>
+
+    <a href="{% url 'reporting:evm' %}"
+       class="pmo-nav-item">
+      <i class="bi bi-activity pmo-nav-icon"></i>
+      <span class="pmo-nav-label">EVM</span>
+    </a>
+
+    <!-- ADMINISTRATION -->
+    {% if request.user.is_pmo or request.user.is_admin %}
+    <div class="pmo-nav-section">Administration</div>
+
+    <a href="{% url 'accounts:profile' %}"
+       class="pmo-nav-item {% if request.resolver_match.namespace == 'accounts' %}active{% endif %}">
+      <i class="bi bi-people pmo-nav-icon"></i>
+      <span class="pmo-nav-label">Utilisateurs</span>
+    </a>
+
+    <a href="{% url 'core_ref:index' %}"
+       class="pmo-nav-item {% if request.resolver_match.namespace == 'core_ref' %}active{% endif %}">
+      <i class="bi bi-gear pmo-nav-icon"></i>
+      <span class="pmo-nav-label">Référentiels</span>
+    </a>
+    {% endif %}
+
+  </nav>
+
+  <!-- USER INFO -->
+  <div class="pmo-sidebar-user">
+    <div class="pmo-user-avatar">
+      {{ request.user.initiales|default:"??" }}
+    </div>
+    <div class="pmo-user-info">
+      <div class="pmo-user-name">{{ request.user.nom_complet }}</div>
+      <div class="pmo-user-role">
+        {{ request.user.get_role_display }}
+      </div>
+    </div>
+    <a href="{% url 'accounts:logout' %}" class="pmo-user-logout"
+       title="Déconnexion">
+      <i class="bi bi-box-arrow-right"></i>
+    </a>
+  </div>
+
+</aside>

@@ -1,0 +1,67 @@
+{% comment %}
+Etat vide générique
+
+Variables :
+- empty_title
+- empty_message
+- empty_action_url
+- empty_action_label
+- empty_icon
+
+{% endcomment %}
+
+
+<div class="text-center py-5 text-muted">
+    <div class="mb-3">
+        <i class="bi
+                {% if empty_icon %}
+                    {{ empty_icon }}
+                {% else %}
+                    bi-inbox
+                {% endif %}
+                fs-1">
+        </i>
+    </div>
+
+
+
+    <h5>
+        {% if empty_title %}
+            {{ empty_title }}
+        {% else %}
+            Aucune donnée disponible
+        {% endif %}
+    </h5>
+
+
+    {% if empty_message %}
+
+    <p class="mb-3">
+
+        {{ empty_message }}
+
+    </p>
+
+    {% endif %}
+
+
+
+
+    {% if empty_action_url %}
+
+    <a href="{{ empty_action_url }}"
+       class="btn btn-primary">
+
+
+        <i class="bi bi-plus-lg"></i>
+
+        {{ empty_action_label|default:"Créer" }}
+
+
+    </a>
+
+    {% endif %}
+
+
+
+</div>

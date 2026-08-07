@@ -1,0 +1,329 @@
+{% extends "base/base.html" %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Commandes</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <!-- Header avec design moderne -->
+  <div class="d-flex align-items-start justify-content-between mb-4">
+    <div>
+      <h1 class="pmo-page-title">
+        <i class="bi bi-cart-fill text-primary"></i>
+        Commandes
+      </h1>
+      <p class="pmo-page-subtitle mb-0">
+        <span class="fw-semibold">{{ nb_total }}</span> commande{{ nb_total|pluralize }}
+        {% if filtre_statut %}
+        · <span class="badge bg-light text-dark border">{{ filtre_statut }}</span>
+        {% endif %}
+      </p>
+    </div>
+    <div class="pmo-page-actions">
+      <a href="{% url 'contracts:create' %}" class="btn-pmo-primary">
+        <i class="bi bi-plus-lg"></i>
+        Nouvelle Commande
+      </a>
+    </div>
+  </div>
+
+  <!-- Filtres avec design carte -->
+  <div class="pmo-filters mb-4">
+    <form method="get" class="row g-3 align-items-end">
+
+      <!-- Recherche -->
+      <div class="col-12 col-md-4 col-lg-3">
+        <label class="form-label small fw-semibold text-muted mb-1">
+          <i class="bi bi-search me-1"></i>Recherche
+        </label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" class="form-control"
+                 placeholder="Code, nom, contractor..."
+                 value="{{ search }}">
+        </div>
+      </div>
+
+      <!-- Statut -->
+      <div class="col-6 col-md-3 col-lg-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Statut</label>
+        <select name="statut" class="form-select pmo-auto-submit">
+          <option value="">Tous les statuts</option>
+          {% for val, label in statut_choices %}
+          <option value="{{ val }}" {% if filtre_statut == val %}selected{% endif %}>
+            {{ label }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Priorité -->
+      <div class="col-6 col-md-3 col-lg-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Priorité</label>
+        <select name="priorite" class="form-select pmo-auto-submit">
+          <option value="">Toutes priorités</option>
+          {% for val, label in priorite_choices %}
+          <option value="{{ val }}" {% if filtre_priorite == val %}selected{% endif %}>
+            {{ label }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Phase -->
+      {% if filterset.filters.phase.field.queryset %}
+      <div class="col-6 col-md-3 col-lg-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Phase</label>
+        <select name="phase" class="form-select pmo-auto-submit">
+          <option value="">Toutes phases</option>
+          {% for phase in filterset.filters.phase.field.queryset %}
+          <option value="{{ phase.id }}" {% if filtre_phase == phase.id|stringformat:"s" %}selected{% endif %}>
+            {{ phase.code }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
+      <!-- Projet -->
+      {% if filterset.filters.projet.field.queryset %}
+      <div class="col-6 col-md-3 col-lg-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Projet</label>
+        <select name="projet" class="form-select pmo-auto-submit">
+          <option value="">Tous les projets</option>
+          {% for projet in filterset.filters.projet.field.queryset %}
+          <option value="{{ projet.id }}" {% if filtre_projet == projet.id|stringformat:"s" %}selected{% endif %}>
+            {{ projet.code }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
+      <!-- Boutons -->
+      <div class="col-auto ms-auto">
+        <button type="submit" class="btn btn-sm btn-pmo-primary">
+          <i class="bi bi-funnel me-1"></i>
+          Filtrer
+        </button>
+        <a href="{% url 'contracts:list' %}" class="btn btn-sm btn-pmo-ghost ms-2">
+          <i class="bi bi-x-lg me-1"></i>
+          Réinitialiser
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Chips filtres actifs -->
+  {% if filtre_statut or filtre_priorite or filtre_phase or filtre_projet or search %}
+  <div class="d-flex gap-2 flex-wrap mb-3">
+    {% if search %}
+    <span class="pmo-filter-chip">
+      <i class="bi bi-search me-1"></i>
+      "{{ search }}"
+      <a href="?{% if filtre_statut %}statut={{ filtre_statut }}&{% endif %}{% if filtre_priorite %}priorite={{ filtre_priorite }}&{% endif %}{% if filtre_phase %}phase={{ filtre_phase }}&{% endif %}{% if filtre_projet %}projet={{ filtre_projet }}{% endif %}"
+         class="btn-close"></a>
+    </span>
+    {% endif %}
+    {% if filtre_statut %}
+    <span class="pmo-filter-chip">
+      <i class="bi bi-flag me-1"></i>
+      {{ filtre_statut }}
+      <a href="?{% if search %}q={{ search }}&{% endif %}{% if filtre_priorite %}priorite={{ filtre_priorite }}&{% endif %}{% if filtre_phase %}phase={{ filtre_phase }}&{% endif %}{% if filtre_projet %}projet={{ filtre_projet }}{% endif %}"
+         class="btn-close"></a>
+    </span>
+    {% endif %}
+    {% if filtre_priorite %}
+    <span class="pmo-filter-chip">
+      <i class="bi bi-exclamation-circle me-1"></i>
+      {{ filtre_priorite }}
+      <a href="?{% if search %}q={{ search }}&{% endif %}{% if filtre_statut %}statut={{ filtre_statut }}&{% endif %}{% if filtre_phase %}phase={{ filtre_phase }}&{% endif %}{% if filtre_projet %}projet={{ filtre_projet }}{% endif %}"
+         class="btn-close"></a>
+    </span>
+    {% endif %}
+    {% if filtre_phase %}
+    <span class="pmo-filter-chip">
+      <i class="bi bi-diagram-3 me-1"></i>
+      Phase filtrée
+      <a href="?{% if search %}q={{ search }}&{% endif %}{% if filtre_statut %}statut={{ filtre_statut }}&{% endif %}{% if filtre_priorite %}priorite={{ filtre_priorite }}&{% endif %}{% if filtre_projet %}projet={{ filtre_projet }}{% endif %}"
+         class="btn-close"></a>
+    </span>
+    {% endif %}
+    {% if filtre_projet %}
+    <span class="pmo-filter-chip">
+      <i class="bi bi-folder me-1"></i>
+      Projet filtré
+      <a href="?{% if search %}q={{ search }}&{% endif %}{% if filtre_statut %}statut={{ filtre_statut }}&{% endif %}{% if filtre_priorite %}priorite={{ filtre_priorite }}&{% endif %}{% if filtre_phase %}phase={{ filtre_phase }}{% endif %}"
+         class="btn-close"></a>
+    </span>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Tableau moderne -->
+  <div class="pmo-card p-0">
+
+    <div class="table-responsive">
+      <table class="table pmo-table mb-0">
+        <thead>
+          <tr>
+            <th style="width:40px;">
+              <input type="checkbox" id="selectAll" class="form-check-input">
+            </th>
+            <th class="sortable-col" data-sort="phase">
+              Phase
+            </th>
+            <th class="sortable-col" data-sort="code_commande">
+              Code Commande
+            </th>
+            <th class="sortable-col" data-sort="nom">
+              Nom / Projet
+            </th>
+            <th>Contractor</th>
+            <th>Statut / Priorité</th>
+            <th class="sortable-col" data-sort="date_signature">
+              Responsable
+            </th>
+            <th style="width:90px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for commande in commandes %}
+          <tr>
+            <td>
+              <input type="checkbox" class="form-check-input row-checkbox" value="{{ commande.pk }}">
+            </td>
+            <td>
+              {% if commande.phase %}
+              <span class="badge bg-secondary pmo-badge">
+                {{ commande.phase.code }}
+              </span>
+              {% else %}
+              <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'contracts:detail' commande.pk %}"
+                 class="pmo-mono fw-semibold text-primary text-decoration-none">
+                {{ commande.code_commande }}
+              </a>
+            </td>
+            <td>
+              <div class="fw-medium text-dark">{{ commande.nom|truncatechars:45 }}</div>
+              <div class="small text-muted mt-1">
+                {% if commande.projet %}
+                <i class="bi bi-folder-fill me-1"></i>{{ commande.projet.nom|truncatechars:30 }}
+                {% else %}
+                <span class="text-muted fst-italic">Pas de projet</span>
+                {% endif %}
+              </div>
+            </td>
+            <td>
+              <div class="small">
+                {% if commande.contractor %}
+                <i class="bi bi-building me-1 text-muted"></i>
+                {{ commande.contractor|truncatechars:30 }}
+                {% elif commande.entite_contractor %}
+                <i class="bi bi-building me-1 text-muted"></i>
+                {{ commande.entite_contractor.nom|truncatechars:30 }}
+                {% else %}
+                <span class="text-muted">—</span>
+                {% endif %}
+              </div>
+            </td>
+            <td>
+              {% if commande.statut %}
+              <span class="badge pmo-badge
+                {% if commande.statut == 'En cours' %}bg-warning
+                {% elif commande.statut in 'Terminée,Finalisé,Clôturé' %}bg-success
+                {% elif commande.statut == 'En attente' %}bg-info
+                {% elif commande.statut == 'Suspendu' %}bg-secondary
+                {% else %}bg-danger{% endif %}">
+                {{ commande.statut }}
+              </span>
+              {% endif %}
+              {% if commande.priorite %}
+              <br>
+              <span class="badge pmo-badge mt-1
+                {% if commande.priorite == 'Critique' %}bg-danger
+                {% elif commande.priorite == 'Haute' %}bg-warning
+                {% elif commande.priorite == 'Moyenne' %}bg-info
+                {% else %}bg-secondary{% endif %}">
+                {{ commande.priorite }}
+              </span>
+              {% endif %}
+            </td>
+            <td class="small">
+              {% if commande.responsable %}
+              <i class="bi bi-person-fill me-1 text-muted"></i>
+              <span class="text-dark">{{ commande.responsable.nom_complet|truncatechars:25 }}</span>
+              {% else %}
+              <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="d-flex gap-1">
+                <a href="{% url 'contracts:detail' commande.pk %}"
+                   class="btn-pmo-icon" title="Voir" data-bs-toggle="tooltip">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a href="{% url 'contracts:update' commande.pk %}"
+                   class="btn-pmo-icon" title="Modifier" data-bs-toggle="tooltip">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <div class="dropdown">
+                  <button class="btn-pmo-icon" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <li>
+                      <a class="dropdown-item" href="#">
+                        <i class="bi bi-list-check me-2"></i>Tâches
+                      </a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="#">
+                        <i class="bi bi-file-earmark-pdf me-2"></i>Générer PDF
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item text-danger" href="{% url 'contracts:delete' commande.pk %}">
+                        <i class="bi bi-trash me-2"></i>Supprimer
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8">
+              <div class="pmo-empty-state">
+                <div class="pmo-empty-icon"><i class="bi bi-cart-x"></i></div>
+                <div class="pmo-empty-title">Aucune commande trouvée</div>
+                <div class="pmo-empty-sub">
+                  Modifiez vos filtres ou créez une nouvelle commande pour commencer.
+                </div>
+                <a href="{% url 'contracts:create' %}" class="btn-pmo-primary mt-3">
+                  <i class="bi bi-plus-lg me-1"></i>Nouvelle Commande
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="px-4 py-3 border-top bg-light">
+      {% include "components/pagination.html" with commandes=commandes %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

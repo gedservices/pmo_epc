@@ -1,0 +1,79 @@
+<div class="card shadow-sm border-0" xmlns="http://www.w3.org/1999/html">
+
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+
+        <h5 class="mb-0">
+            <i class="bi bi-bar-chart-steps"></i>
+            Diagramme de Gantt
+        </h5>
+
+        {% if toolbar %}
+            {{ toolbar }}
+        {% endif %}
+
+    </div>
+
+    <div class="card-body">
+
+        {% if items %}
+
+            <div id="planning-gantt-container">
+                <table class="table table-sm">
+
+                    {# Le diagramme JS sera injecté ici (Frappe Gantt / DHTMLX / autre) #}
+                    <thead>
+
+                        <tr>
+
+                        <th>Tâche</th>
+
+                        <th>Début</th>
+
+                        <th>Fin</th>
+
+                        <th>Progression</th>
+
+                        <th>Statut</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        {% for t in items %}
+
+                        {% if t.type != "project" %}
+
+                        <tr>
+
+                        <td>{{ t.text }}</td>
+
+                        <td>{{ t.start_date }}</td>
+
+                        <td>{{ t.end_date }}</td>
+
+                        <td>{{ t.progress|floatformat:0 }} %</td>
+
+                        <td>{{ t.statut }}</td>
+
+                        </tr>
+
+                        {% endif %}
+
+                        {% endfor %}
+
+                        </tbody>
+                </table>
+            </div>
+
+        {% else %}
+
+            {% include "base/components/states/empty_state.html" with title="Aucune donnée" message="Aucun élément à afficher dans le diagramme de Gantt." %}
+
+        {% endif %}
+
+
+    </div>
+
+</div>

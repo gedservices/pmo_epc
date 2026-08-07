@@ -1,0 +1,93 @@
+<div class="card shadow-sm border-0">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-people-fill"></i>
+
+            Tableau de charge
+
+        </h5>
+
+    </div>
+
+    <div class="card-body p-0">
+
+        {% if charges %}
+
+        <table class="table table-hover align-middle mb-0">
+
+            <thead class="table-light">
+
+                <tr>
+
+                    <th>Responsable</th>
+
+                    <th>Nb tâches</th>
+
+                    <th>Charge (%)</th>
+
+                    <th>Retard</th>
+
+                    <th>Disponibilité</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            {% for item in charges %}
+
+                <tr>
+
+                    <td>{{ item.nom }}</td>
+
+                    <td>{{ item.nb_taches }}</td>
+
+                    <td>{{ item.charge }} %</td>
+
+                    <td>{{ item.retards }}</td>
+
+                    <td>
+
+                        {% if item.charge < 80 %}
+
+                            <span class="badge bg-success">
+                                Disponible
+                            </span>
+
+                        {% elif item.charge <= 100 %}
+
+                            <span class="badge bg-warning text-dark">
+                                Chargé
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge bg-danger">
+                                Surchargé
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        {% else %}
+
+            {% include "base/components/states/empty_state.html" with  title="Aucune charge" message="Aucune ressource disponible." %}
+
+        {% endif %}
+
+    </div>
+
+</div>

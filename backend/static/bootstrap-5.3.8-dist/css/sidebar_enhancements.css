@@ -1,0 +1,317 @@
+/* ============================================
+   SIDEBAR ENHANCEMENTS - BOOTSTRAP 5
+   ============================================ */
+
+:root {
+  --pmo-sidebar-width: 280px;
+  --pmo-sidebar-collapsed: 70px;
+  --pmo-primary: #2c3e50;
+  --pmo-accent: #3498db;
+  --pmo-hover: #34495e;
+  --pmo-active: #e74c3c;
+  --pmo-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   ACCORDÉON PERSONNALISÉ
+   ============================================ */
+
+.pmo-accordion {
+  --bs-accordion-bg: transparent;
+  --bs-accordion-border-width: 0;
+  --bs-accordion-border-radius: 0;
+}
+
+.pmo-accordion-item {
+  background: transparent;
+  border: none;
+  margin-bottom: 0.25rem;
+}
+
+/* Bouton accordéon */
+.pmo-accordion-button {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  border: none;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: none;
+  transition: var(--pmo-transition);
+  position: relative;
+}
+
+.pmo-accordion-button:not(.collapsed) {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  box-shadow: none;
+}
+
+.pmo-accordion-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.pmo-accordion-button:focus {
+  box-shadow: none;
+  border: none;
+  outline: 2px solid var(--pmo-accent);
+  outline-offset: -2px;
+}
+
+.pmo-accordion-button::after {
+  display: none; /* On utilise notre propre icône chevron */
+}
+
+/* Icône de section */
+.pmo-section-icon {
+  font-size: 1rem;
+  margin-right: 0.75rem;
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+
+.pmo-section-label {
+  flex: 1;
+  text-align: left;
+}
+
+/* Chevron personnalisé */
+.pmo-chevron {
+  font-size: 0.75rem;
+  transition: transform 0.3s ease;
+  margin-left: auto;
+  opacity: 0.6;
+}
+
+.pmo-accordion-button:not(.collapsed) .pmo-chevron {
+  transform: rotate(180deg);
+}
+
+/* Corps de l'accordéon */
+.pmo-accordion-body {
+  padding: 0.5rem 0 0.5rem 1rem;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   ITEMS DE NAVIGATION (sous-items)
+   ============================================ */
+
+.pmo-nav-subitem {
+  display: flex;
+  align-items: center;
+  padding: 0.65rem 1rem 0.65rem 2.5rem;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  font-size: 0.875rem;
+  border-left: 3px solid transparent;
+  transition: var(--pmo-transition);
+  position: relative;
+}
+
+.pmo-nav-subitem:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-left-color: rgba(255, 255, 255, 0.3);
+  padding-left: 2.75rem;
+}
+
+.pmo-nav-subitem.active {
+  background: rgba(52, 152, 219, 0.15);
+  color: #fff;
+  border-left-color: var(--pmo-accent);
+  font-weight: 500;
+}
+
+.pmo-nav-subitem .pmo-nav-icon {
+  margin-right: 0.75rem;
+  font-size: 1rem;
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
+.pmo-nav-subitem .pmo-nav-label {
+  flex: 1;
+}
+
+/* ============================================
+   ITEM DASHBOARD (direct, hors accordéon)
+   ============================================ */
+
+.pmo-nav-item {
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  font-size: 0.9rem;
+  border-left: 3px solid transparent;
+  transition: var(--pmo-transition);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.pmo-nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-left-color: rgba(255, 255, 255, 0.3);
+  padding-left: 1.25rem;
+}
+
+.pmo-nav-item.active {
+  background: rgba(52, 152, 219, 0.2);
+  color: #fff;
+  border-left-color: var(--pmo-accent);
+  font-weight: 600;
+}
+
+.pmo-nav-item .pmo-nav-icon {
+  margin-right: 0.75rem;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   BADGES (pour notifications futures)
+   ============================================ */
+
+.pmo-badge-count {
+  margin-left: auto;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  background: var(--pmo-active);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ============================================
+   MODE RÉDUIT (collapsed sidebar)
+   ============================================ */
+
+.pmo-sidebar.collapsed .pmo-accordion-button .pmo-section-label,
+.pmo-sidebar.collapsed .pmo-nav-label,
+.pmo-sidebar.collapsed .pmo-chevron {
+  display: none;
+}
+
+.pmo-sidebar.collapsed .pmo-accordion-button {
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+.pmo-sidebar.collapsed .pmo-section-icon,
+.pmo-sidebar.collapsed .pmo-nav-icon {
+  margin-right: 0;
+  font-size: 1.3rem;
+}
+
+.pmo-sidebar.collapsed .pmo-nav-subitem {
+  padding-left: 1rem;
+  justify-content: center;
+}
+
+/* Tooltips en mode réduit */
+.pmo-sidebar.collapsed [data-bs-toggle="tooltip"] {
+  cursor: pointer;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.accordion-collapse.collapsing,
+.accordion-collapse.show {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .pmo-accordion-button {
+    font-size: 0.8rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .pmo-nav-subitem {
+    padding: 0.5rem 0.8rem 0.5rem 2rem;
+    font-size: 0.8rem;
+  }
+
+  .pmo-section-icon,
+  .pmo-nav-icon {
+    font-size: 0.9rem;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITÉ
+   ============================================ */
+
+.pmo-accordion-button:focus-visible,
+.pmo-nav-subitem:focus-visible,
+.pmo-nav-item:focus-visible {
+  outline: 2px solid var(--pmo-accent);
+  outline-offset: -2px;
+}
+
+/* Amélioration contraste */
+@media (prefers-contrast: high) {
+  .pmo-accordion-button,
+  .pmo-nav-subitem,
+  .pmo-nav-item {
+    color: #fff;
+  }
+}
+
+/* Réduction des animations si préférence utilisateur */
+@media (prefers-reduced-motion: reduce) {
+  .pmo-accordion-button,
+  .pmo-nav-subitem,
+  .pmo-nav-item,
+  .pmo-chevron {
+    transition: none;
+  }
+
+  .accordion-collapse {
+    animation: none;
+  }
+}
+
+/* ============================================
+   ÉTATS DE CHARGEMENT (optionnel)
+   ============================================ */
+
+.pmo-nav-subitem.loading::after {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-left: auto;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,79 @@
+<div class="timeline">
+
+
+{% for event in events %}
+
+
+<div class="d-flex mb-3">
+
+
+<div class="me-3">
+
+
+<span class="badge rounded-pill bg-primary">
+
+<i class="bi bi-clock"></i>
+
+</span>
+
+
+</div>
+
+
+
+<div>
+
+
+<div class="fw-bold">
+
+{{ event.title }}
+
+</div>
+
+
+
+<div class="text-muted small">
+
+{{ event.date }}
+
+{% if event.user %}
+
+- {{ event.user }}
+
+{% endif %}
+
+
+</div>
+
+
+
+{% if event.description %}
+
+<div class="mt-1">
+
+{{ event.description }}
+
+</div>
+
+
+{% endif %}
+
+
+
+</div>
+
+
+</div>
+
+
+
+{% empty %}
+
+
+{% include "base/components/empty_state.html" with empty_message="Aucun historique disponible." %}
+
+
+{% endfor %}
+
+
+</div>

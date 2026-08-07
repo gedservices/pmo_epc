@@ -1,0 +1,32 @@
+{% extends "planning/dashboard.html" %}
+
+{% block title %}
+Tableau de charge
+{% endblock %}
+
+{% block content %}
+
+{% include "base/components/plannings/planning_header.html"
+    with titre="Charge des ressources" %}
+
+<div class="container-fluid">
+
+    {% include "base/components/plannings/planning_toolbar.html" %}
+
+    {% include "base/components/plannings/planning_filters.html" %}
+
+    {% include "base/components/plannings/planning_statistics.html" %}
+
+    <div class="row mt-4">
+
+        <div class="col-12">
+
+            {% include "base/components/plannings/planning_load.html" %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

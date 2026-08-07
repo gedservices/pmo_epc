@@ -1,0 +1,211 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+
+{% block title %}Commande{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2>
+
+                {{ commande.code_commande }}
+
+            </h2>
+
+            <p class="text-muted">
+
+                {{ commande.nom }}
+
+            </p>
+
+        </div>
+
+        <div>
+
+            <a href="{% url 'contracts:update' commande.id %}"
+               class="btn btn-warning">
+
+                <i class="bi bi-pencil"></i>
+
+                Modifier
+
+            </a>
+
+            <a href="{% url 'contracts:list' %}"
+               class="btn btn-secondary">
+
+                Retour
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="row">
+
+        <div class="col-lg-6">
+
+            <div class="card shadow-sm mb-4">
+
+                <div class="card-header">
+
+                    Informations générales
+
+                </div>
+
+                <div class="card-body">
+
+                    <table class="table">
+
+                        <tr>
+                            <th>Projet</th>
+                            <td>{{ commande.projet }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Code</th>
+                            <td>{{ commande.code_commande }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Nom</th>
+                            <td>{{ commande.nom }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Description</th>
+                            <td>{{ commande.description|default:"-" }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Contractor</th>
+                            <td>{{ commande.contractor|default:"-" }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Entité</th>
+                            <td>{{ commande.entite_contractor|default:"-" }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Responsable</th>
+                            <td>{{ commande.responsable|default:"-" }}</td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-lg-6">
+
+            <div class="card shadow-sm mb-4">
+
+                <div class="card-header">
+
+                    Suivi
+
+                </div>
+
+                <div class="card-body">
+
+                    <table class="table">
+
+                        <tr>
+                            <th>Phase</th>
+                            <td>{{ commande.phase }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Statut</th>
+                            <td>{{ commande.statut }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Priorité</th>
+                            <td>{{ commande.priorite|default:"-" }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Progression</th>
+                            <td>{{ commande.progression_calculee }} %</td>
+                        </tr>
+
+                        <tr>
+                            <th>Budget prévu</th>
+                            <td>{{ commande.budget_prevu|intcomma }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Budget réel</th>
+                            <td>{{ commande.budget_reel|intcomma }}</td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="card shadow-sm">
+
+        <div class="card-header">
+
+            Planning
+
+        </div>
+
+        <div class="card-body">
+
+            <table class="table">
+
+                <tr>
+
+                    <th>Date début prévue</th>
+
+                    <td>{{ commande.date_debut_prevue }}</td>
+
+                    <th>Date fin prévue</th>
+
+                    <td>{{ commande.date_fin_prevue }}</td>
+
+                </tr>
+
+                <tr>
+
+                    <th>Date début réelle</th>
+
+                    <td>{{ commande.date_debut_reelle|default:"-" }}</td>
+
+                    <th>Date fin réelle</th>
+
+                    <td>{{ commande.date_fin_reelle|default:"-" }}</td>
+
+                </tr>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

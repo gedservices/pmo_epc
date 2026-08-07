@@ -1,0 +1,49 @@
+{% extends "base/base.html" %}
+
+{% block title %}Planning par projet{% endblock %}
+
+{% block content %}
+
+{% include "base/components/plannings/planning_header.html" %}
+
+<div class="container-fluid">
+
+    {% include "base/components/plannings/planning_toolbar.html" %}
+
+    {% include "base/components/plannings/planning_filters.html" %}
+
+    {% for projet in projets %}
+
+        {% include "base/components/plannings/planning_project_card.html" with projet=projet %}
+
+        {% for commande in projet.commandes %}
+
+            {% include "base/components/plannings/planning_command_card.html" with commande=commande.commande %}
+
+            {% include "base/components/plannings/planning_task_table.html" with tasks=commande.taches table_title=commande.commande.nom %}
+
+        {% empty %}
+
+            {% include "base/components/states/empty_state.html"
+                with
+                title="Aucune commande"
+                message="Ce projet ne contient aucune commande."
+            %}
+
+        {% endfor %}
+
+        <hr class="my-5">
+
+    {% empty %}
+
+        {% include "base/components/states/empty_state.html"
+            with
+            title="Aucun projet"
+            message="Aucun projet disponible."
+        %}
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

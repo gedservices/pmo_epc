@@ -1,0 +1,69 @@
+{% comment %}
+Badge statut générique
+
+Variables attendues :
+- statut
+
+Exemples :
+Ouvert
+En cours
+Suspendu
+Terminé
+Annulé
+{% endcomment %}
+
+
+{% if statut %}
+
+{% if statut == "Ouvert" %}
+
+<span class="badge bg-success">
+    {{ statut }}
+</span>
+
+
+{% elif statut == "En cours" %}
+
+<span class="badge bg-primary">
+    {{ statut }}
+</span>
+
+
+{% elif statut == "En attente" %}
+
+<span class="badge bg-warning text-dark">
+    {{ statut }}
+</span>
+
+
+{% elif statut == "Suspendu" %}
+
+<span class="badge bg-secondary">
+    {{ statut }}
+</span>
+
+
+{% elif statut == "Terminé" or statut == "Terminée" %}
+
+<span class="badge bg-success">
+    {{ statut }}
+</span>
+
+
+{% elif statut == "Annulé" or statut == "Annulée" %}
+
+<span class="badge bg-danger">
+    {{ statut }}
+</span>
+
+
+{% else %}
+
+<span class="badge bg-light text-dark">
+    {{ statut }}
+</span>
+
+{% endif %}
+
+
+{% endif %}

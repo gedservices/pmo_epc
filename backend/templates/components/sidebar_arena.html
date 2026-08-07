@@ -1,0 +1,398 @@
+{% load static %}
+
+<aside class="pmo-sidebar" id="pmoSidebar">
+
+  <!-- ============================================ -->
+  <!-- LOGO & BRAND -->
+  <!-- ============================================ -->
+  <div class="pmo-sidebar-brand">
+    <a href="{% url 'dashboard:index' %}" class="pmo-brand-link">
+      <div class="pmo-brand-icon">
+        <i class="bi bi-hexagon-fill"></i>
+      </div>
+      <div class="pmo-brand-text">
+        <span class="pmo-brand-name">PMO EPC</span>
+        <span class="pmo-brand-sub">Platform</span>
+      </div>
+    </a>
+    <button class="pmo-sidebar-toggle" id="sidebarToggle" title="Réduire le menu">
+      <i class="bi bi-layout-sidebar-reverse"></i>
+    </button>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- NAVIGATION -->
+  <!-- ============================================ -->
+  <nav class="pmo-nav">
+
+    <!-- Dashboard - Accès direct -->
+    <a href="{% url 'dashboard:index' %}"
+       class="pmo-nav-item {% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}">
+      <i class="bi bi-grid-1x2-fill pmo-nav-icon"></i>
+      <span class="pmo-nav-label">Dashboard</span>
+    </a>
+
+    <!-- ============================================ -->
+    <!-- ACCORDÉONS BOOTSTRAP 5 -->
+    <!-- ============================================ -->
+    <div class="accordion accordion-flush pmo-accordion" id="sidebarAccordion">
+
+      <!-- ==================== PORTEFEUILLE ==================== -->
+      {% with portfolio_active=request.resolver_match.namespace == 'projects' or request.resolver_match.namespace == 'contracts' %}
+      <div class="accordion-item pmo-accordion-item">
+        <h2 class="accordion-header" id="headingPortfolio">
+          <button class="accordion-button pmo-accordion-button {% if not portfolio_active %}collapsed{% endif %}"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapsePortfolio"
+                  aria-expanded="{% if portfolio_active %}true{% else %}false{% endif %}"
+                  aria-controls="collapsePortfolio">
+            <i class="bi bi-briefcase pmo-section-icon"></i>
+            <span class="pmo-section-label">Portefeuille</span>
+            <i class="bi bi-chevron-down pmo-chevron"></i>
+          </button>
+        </h2>
+        <div id="collapsePortfolio"
+             class="accordion-collapse collapse {% if portfolio_active %}show{% endif %}"
+             aria-labelledby="headingPortfolio"
+             data-bs-parent="#sidebarAccordion">
+          <div class="accordion-body pmo-accordion-body">
+            
+            <a href="{% url 'projects:list' %}"
+               class="pmo-nav-subitem {% if request.resolver_match.namespace == 'projects' %}active{% endif %}">
+              <i class="bi bi-folder2-open pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Projets</span>
+            </a>
+
+            <a href="{% url 'contracts:list' %}"
+               class="pmo-nav-subitem {% if request.resolver_match.namespace == 'contracts' %}active{% endif %}">
+              <i class="bi bi-file-earmark-text pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Commandes</span>
+            </a>
+
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+
+      <!-- ==================== EXÉCUTION ==================== -->
+      {% with execution_active=request.resolver_match.namespace == 'tasks' and 'gantt' not in request.path %}
+      <div class="accordion-item pmo-accordion-item">
+        <h2 class="accordion-header" id="headingExecution">
+          <button class="accordion-button pmo-accordion-button {% if not execution_active %}collapsed{% endif %}"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseExecution"
+                  aria-expanded="{% if execution_active %}true{% else %}false{% endif %}"
+                  aria-controls="collapseExecution">
+            <i class="bi bi-lightning-charge pmo-section-icon"></i>
+            <span class="pmo-section-label">Exécution</span>
+            <i class="bi bi-chevron-down pmo-chevron"></i>
+          </button>
+        </h2>
+        <div id="collapseExecution"
+             class="accordion-collapse collapse {% if execution_active %}show{% endif %}"
+             aria-labelledby="headingExecution"
+             data-bs-parent="#sidebarAccordion">
+          <div class="accordion-body pmo-accordion-body">
+            
+            <a href="{% url 'tasks:list' %}"
+               class="pmo-nav-subitem {% if request.resolver_match.namespace == 'tasks' and 'gantt' not in request.path %}active{% endif %}">
+              <i class="bi bi-check2-square pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Tâches</span>
+            </a>
+
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+
+      <!-- ==================== PLANNING ==================== -->
+      {% with planning_active='/planning/' in request.path or 'gantt' in request.path %}
+      <div class="accordion-item pmo-accordion-item">
+        <h2 class="accordion-header" id="headingPlanning">
+          <button class="accordion-button pmo-accordion-button {% if not planning_active %}collapsed{% endif %}"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapsePlanning"
+                  aria-expanded="{% if planning_active %}true{% else %}false{% endif %}"
+                  aria-controls="collapsePlanning">
+            <i class="bi bi-calendar-event pmo-section-icon"></i>
+            <span class="pmo-section-label">Planning</span>
+            <i class="bi bi-chevron-down pmo-chevron"></i>
+          </button>
+        </h2>
+        <div id="collapsePlanning"
+             class="accordion-collapse collapse {% if planning_active %}show{% endif %}"
+             aria-labelledby="headingPlanning"
+             data-bs-parent="#sidebarAccordion">
+          <div class="accordion-body pmo-accordion-body">
+            
+            <a href="{% url 'planning:dashboard' %}"
+               class="pmo-nav-subitem {% if request.path == '/planning/' %}active{% endif %}">
+              <i class="bi bi-speedometer2 pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Tableau de bord</span>
+            </a>
+
+            <a href="{% url 'planning:projets' %}"
+               class="pmo-nav-subitem {% if '/planning/projets/' in request.path %}active{% endif %}">
+              <i class="bi bi-folder2-open pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Par projet</span>
+            </a>
+
+            <a href="{% url 'planning:commandes' %}"
+               class="pmo-nav-subitem {% if '/planning/commandes/' in request.path %}active{% endif %}">
+              <i class="bi bi-file-earmark-text pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Par commande</span>
+            </a>
+
+            <a href="{% url 'planning:responsables' %}"
+               class="pmo-nav-subitem {% if '/planning/responsables/' in request.path %}active{% endif %}">
+              <i class="bi bi-person-workspace pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Par responsable</span>
+            </a>
+
+            <a href="{% url 'tasks:gantt' %}"
+               class="pmo-nav-subitem {% if 'tasks/gantt' in request.path %}active{% endif %}">
+              <i class="bi bi-bar-chart-steps pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Gantt Projets</span>
+            </a>
+
+            <a href="{% url 'planning:gantt' %}"
+               class="pmo-nav-subitem {% if '/planning/gantt/' in request.path %}active{% endif %}">
+              <i class="bi bi-diagram-3 pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Diagramme de Gantt</span>
+            </a>
+
+            <a href="{% url 'planning:calendrier' %}"
+               class="pmo-nav-subitem {% if '/planning/calendrier/' in request.path %}active{% endif %}">
+              <i class="bi bi-calendar3 pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Calendrier</span>
+            </a>
+
+            <a href="{% url 'planning:retards' %}"
+               class="pmo-nav-subitem {% if '/planning/retards/' in request.path %}active{% endif %}">
+              <i class="bi bi-exclamation-triangle pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Retards</span>
+            </a>
+
+            <a href="{% url 'planning:jalons' %}"
+               class="pmo-nav-subitem {% if '/planning/jalons/' in request.path %}active{% endif %}">
+              <i class="bi bi-flag pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Jalons</span>
+            </a>
+
+            <a href="{% url 'planning:charge' %}"
+               class="pmo-nav-subitem {% if '/planning/charge/' in request.path %}active{% endif %}">
+              <i class="bi bi-bar-chart-line pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Charge</span>
+            </a>
+
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+
+      <!-- ==================== PLANIFICATION ==================== -->
+      {% with planif_active=request.resolver_match.namespace == 'planning_project' %}
+      <div class="accordion-item pmo-accordion-item">
+        <h2 class="accordion-header" id="headingPlanification">
+          <button class="accordion-button pmo-accordion-button {% if not planif_active %}collapsed{% endif %}"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapsePlanification"
+                  aria-expanded="{% if planif_active %}true{% else %}false{% endif %}"
+                  aria-controls="collapsePlanification">
+            <i class="bi bi-calendar-check pmo-section-icon"></i>
+            <span class="pmo-section-label">Planification</span>
+            <i class="bi bi-chevron-down pmo-chevron"></i>
+          </button>
+        </h2>
+        <div id="collapsePlanification"
+             class="accordion-collapse collapse {% if planif_active %}show{% endif %}"
+             aria-labelledby="headingPlanification"
+             data-bs-parent="#sidebarAccordion">
+          <div class="accordion-body pmo-accordion-body">
+            
+            <a href="{% url 'planning_project:dashboard' %}"
+               class="pmo-nav-subitem {% if request.resolver_match.namespace == 'planning_project' %}active{% endif %}">
+              <i class="bi bi-calendar3 pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Plannings Projets</span>
+            </a>
+
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+
+      <!-- ==================== PILOTAGE ==================== -->
+      {% with pilotage_active=request.resolver_match.namespace == 'costs' or request.resolver_match.namespace == 'risks' %}
+      <div class="accordion-item pmo-accordion-item">
+        <h2 class="accordion-header" id="headingPilotage">
+          <button class="accordion-button pmo-accordion-button {% if not pilotage_active %}collapsed{% endif %}"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapsePilotage"
+                  aria-expanded="{% if pilotage_active %}true{% else %}false{% endif %}"
+                  aria-controls="collapsePilotage">
+            <i class="bi bi-bullseye pmo-section-icon"></i>
+            <span class="pmo-section-label">Pilotage</span>
+            <i class="bi bi-chevron-down pmo-chevron"></i>
+          </button>
+        </h2>
+        <div id="collapsePilotage"
+             class="accordion-collapse collapse {% if pilotage_active %}show{% endif %}"
+             aria-labelledby="headingPilotage"
+             data-bs-parent="#sidebarAccordion">
+          <div class="accordion-body pmo-accordion-body">
+            
+            <a href="{% url 'costs:list' %}"
+               class="pmo-nav-subitem {% if request.resolver_match.namespace == 'costs' %}active{% endif %}">
+              <i class="bi bi-currency-euro pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Coûts</span>
+            </a>
+
+            <a href="{% url 'risks:list' %}"
+               class="pmo-nav-subitem {% if request.resolver_match.namespace == 'risks' %}active{% endif %}">
+              <i class="bi bi-exclamation-triangle pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Risques</span>
+            </a>
+
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+
+      <!-- ==================== GED ==================== -->
+      {% with ged_active=request.resolver_match.namespace == 'documents' %}
+      <div class="accordion-item pmo-accordion-item">
+        <h2 class="accordion-header" id="headingGED">
+          <button class="accordion-button pmo-accordion-button {% if not ged_active %}collapsed{% endif %}"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseGED"
+                  aria-expanded="{% if ged_active %}true{% else %}false{% endif %}"
+                  aria-controls="collapseGED">
+            <i class="bi bi-file-earmark-arrow-up pmo-section-icon"></i>
+            <span class="pmo-section-label">GED</span>
+            <i class="bi bi-chevron-down pmo-chevron"></i>
+          </button>
+        </h2>
+        <div id="collapseGED"
+             class="accordion-collapse collapse {% if ged_active %}show{% endif %}"
+             aria-labelledby="headingGED"
+             data-bs-parent="#sidebarAccordion">
+          <div class="accordion-body pmo-accordion-body">
+            
+            {# TODO : remplacer par documents:list lorsque le module GED sera finalisé #}
+            <a href="#"
+               class="pmo-nav-subitem {% if request.resolver_match.namespace == 'documents' %}active{% endif %}">
+              <i class="bi bi-folder2-open pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Documents</span>
+            </a>
+
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+
+      <!-- ==================== REPORTING ==================== -->
+      {% with reporting_active=request.resolver_match.namespace == 'reporting' %}
+      <div class="accordion-item pmo-accordion-item">
+        <h2 class="accordion-header" id="headingReporting">
+          <button class="accordion-button pmo-accordion-button {% if not reporting_active %}collapsed{% endif %}"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseReporting"
+                  aria-expanded="{% if reporting_active %}true{% else %}false{% endif %}"
+                  aria-controls="collapseReporting">
+            <i class="bi bi-graph-up-arrow pmo-section-icon"></i>
+            <span class="pmo-section-label">Reporting</span>
+            <i class="bi bi-chevron-down pmo-chevron"></i>
+          </button>
+        </h2>
+        <div id="collapseReporting"
+             class="accordion-collapse collapse {% if reporting_active %}show{% endif %}"
+             aria-labelledby="headingReporting"
+             data-bs-parent="#sidebarAccordion">
+          <div class="accordion-body pmo-accordion-body">
+            
+            <a href="{% url 'reporting:dashboard' %}"
+               class="pmo-nav-subitem {% if request.resolver_match.namespace == 'reporting' and 'evm' not in request.path %}active{% endif %}">
+              <i class="bi bi-pie-chart pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Dashboard Reporting</span>
+            </a>
+
+            <a href="{% url 'reporting:evm' %}"
+               class="pmo-nav-subitem {% if 'evm' in request.path %}active{% endif %}">
+              <i class="bi bi-activity pmo-nav-icon"></i>
+              <span class="pmo-nav-label">EVM</span>
+            </a>
+
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+
+      <!-- ==================== ADMINISTRATION ==================== -->
+      {% with admin_active=request.resolver_match.namespace == 'accounts' or request.resolver_match.namespace == 'core_ref' %}
+      <div class="accordion-item pmo-accordion-item">
+        <h2 class="accordion-header" id="headingAdmin">
+          <button class="accordion-button pmo-accordion-button {% if not admin_active %}collapsed{% endif %}"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseAdmin"
+                  aria-expanded="{% if admin_active %}true{% else %}false{% endif %}"
+                  aria-controls="collapseAdmin">
+            <i class="bi bi-gear-fill pmo-section-icon"></i>
+            <span class="pmo-section-label">Administration</span>
+            <i class="bi bi-chevron-down pmo-chevron"></i>
+          </button>
+        </h2>
+        <div id="collapseAdmin"
+             class="accordion-collapse collapse {% if admin_active %}show{% endif %}"
+             aria-labelledby="headingAdmin"
+             data-bs-parent="#sidebarAccordion">
+          <div class="accordion-body pmo-accordion-body">
+            
+            <a href="{% url 'accounts:profile' %}"
+               class="pmo-nav-subitem {% if request.resolver_match.namespace == 'accounts' %}active{% endif %}">
+              <i class="bi bi-people pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Utilisateurs</span>
+            </a>
+
+            <a href="{% url 'core_ref:index' %}"
+               class="pmo-nav-subitem {% if request.resolver_match.namespace == 'core_ref' %}active{% endif %}">
+              <i class="bi bi-gear pmo-nav-icon"></i>
+              <span class="pmo-nav-label">Référentiels</span>
+            </a>
+
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+
+    </div>
+    <!-- Fin des accordéons -->
+
+  </nav>
+
+  <!-- ============================================ -->
+  <!-- USER INFO -->
+  <!-- ============================================ -->
+  <div class="pmo-sidebar-user">
+    <div class="pmo-user-avatar">
+      {{ request.user.initiales|default:"??" }}
+    </div>
+    <div class="pmo-user-info">
+      <div class="pmo-user-name">{{ request.user.nom_complet }}</div>
+      <div class="pmo-user-role">
+        {{ request.user.get_role_display }}
+      </div>
+    </div>
+    <a href="{% url 'accounts:logout' %}" class="pmo-user-logout" title="Déconnexion">
+      <i class="bi bi-box-arrow-right"></i>
+    </a>
+  </div>
+
+</aside>

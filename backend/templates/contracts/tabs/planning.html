@@ -1,0 +1,23 @@
+{% include "base/components/detail/section_title.html" with title="Planning" icon="bi-calendar3" %}
+
+<div class="row">
+
+    <div class="col-lg-6">
+
+        {% include "base/components/detail/info_row.html"         with         label="Début prévu"         value=commande.date_debut_prevue         icon="bi-calendar-event"         %}
+
+        {% include "base/components/detail/info_row.html"         with         label="Fin prévue"         value=commande.date_fin_prevue         icon="bi-calendar-check"         %}
+
+        {% include "base/components/detail/info_row.html"         with         label="Début réel"         value=commande.date_debut_reelle         icon="bi-play-circle"         %}
+
+        {% include "base/components/detail/info_row.html"         with         label="Fin réelle"         value=commande.date_fin_reelle         icon="bi-stop-circle"         %}
+
+    </div>
+
+    <div class="col-lg-6">
+
+        {% include "base/components/detail/progress_card.html"         with         title="Progression"         value=commande.progression_calculee         unit="%"         icon="bi-graph-up-arrow"         %}
+
+    </div>
+
+</div>

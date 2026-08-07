@@ -1,0 +1,37 @@
+<div class="card shadow-sm border-0">
+
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+
+        <h5 class="mb-0">
+
+            <i class="bi bi-calendar3"></i>
+
+            Calendrier
+
+        </h5>
+
+        {% if toolbar %}
+            {{ toolbar }}
+        {% endif %}
+
+    </div>
+
+    <div class="card-body">
+
+        {% if events %}
+
+            <div id="planning-calendar">
+
+                {# FullCalendar sera injecté ici #}
+
+            </div>
+
+        {% else %}
+
+            {% include "base/components/states/empty_state.html" with  title="Calendrier vide" message="Aucun événement disponible." %}
+
+        {% endif %}
+
+    </div>
+
+</div>

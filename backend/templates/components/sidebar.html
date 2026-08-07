@@ -1,0 +1,336 @@
+{% load static %}
+
+<aside class="pmo-sidebar" id="pmoSidebar">
+
+  <!-- ============================================ -->
+  <!-- LOGO & BRAND -->
+  <!-- ============================================ -->
+  <div class="pmo-sidebar-brand">
+    <a href="{% url 'dashboard:index' %}" class="pmo-brand-link">
+      <div class="pmo-brand-icon">
+        <i class="bi bi-hexagon-fill"></i>
+      </div>
+      <div class="pmo-brand-text">
+        <span class="pmo-brand-name">PMO EPC</span>
+        <span class="pmo-brand-sub">Platform v1.0</span>
+      </div>
+    </a>
+    <button class="pmo-sidebar-toggle" id="sidebarToggle" title="Réduire le menu">
+      <i class="bi bi-layout-sidebar-reverse"></i>
+    </button>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- NAVIGATION -->
+  <!-- ============================================ -->
+  <nav class="pmo-nav" id="sidebarNav">
+
+    <!-- CATÉGORIE : VUE D'ENSEMBLE -->
+    <div class="pmo-nav-category">Vue d'ensemble</div>
+
+    <!-- Dashboard - Accès direct -->
+    <a href="{% url 'dashboard:index' %}"
+       class="pmo-nav-link {% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}">
+      <i class="bi bi-grid-1x2-fill pmo-nav-icon"></i>
+      <span class="pmo-nav-label">Dashboard</span>
+    </a>
+
+    <!-- CATÉGORIE : OPÉRATIONNEL -->
+    <div class="pmo-nav-category">Gestion Opérationnelle</div>
+
+    <!-- ==================== PORTEFEUILLE ==================== -->
+    <div class="pmo-nav-group">
+      <button class="pmo-nav-link pmo-nav-toggle {% if request.resolver_match.namespace != 'projects' and request.resolver_match.namespace != 'contracts' %}collapsed{% endif %}"
+              type="button" data-bs-toggle="collapse" data-bs-target="#collapsePortfolio"
+              aria-expanded="{% if request.resolver_match.namespace == 'projects' or request.resolver_match.namespace == 'contracts' %}true{% else %}false{% endif %}">
+        <i class="bi bi-briefcase-fill pmo-nav-icon"></i>
+        <span class="pmo-nav-label">Portefeuille</span>
+        <i class="bi bi-chevron-right pmo-chevron"></i>
+      </button>
+
+      <div id="collapsePortfolio" class="collapse pmo-submenu {% if request.resolver_match.namespace == 'projects' or request.resolver_match.namespace == 'contracts' %}show{% endif %}">
+        <div class="pmo-submenu-inner">
+          <a href="{% url 'projects:list' %}" class="pmo-sublink {% if request.resolver_match.namespace == 'projects' %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Projets</span>
+          </a>
+          <a href="{% url 'contracts:list' %}" class="pmo-sublink {% if request.resolver_match.namespace == 'contracts' %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Commandes</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== EXÉCUTION ==================== -->
+    <div class="pmo-nav-group">
+      <button class="pmo-nav-link pmo-nav-toggle {% if request.resolver_match.namespace != 'tasks' or 'gantt' in request.path %}collapsed{% endif %}"
+              type="button" data-bs-toggle="collapse" data-bs-target="#collapseExecution"
+              aria-expanded="{% if request.resolver_match.namespace == 'tasks' and 'gantt' not in request.path %}true{% else %}false{% endif %}">
+        <i class="bi bi-lightning-charge-fill pmo-nav-icon"></i>
+        <span class="pmo-nav-label">Exécution</span>
+        <i class="bi bi-chevron-right pmo-chevron"></i>
+      </button>
+
+      <div id="collapseExecution" class="collapse pmo-submenu {% if request.resolver_match.namespace == 'tasks' and 'gantt' not in request.path %}show{% endif %}">
+        <div class="pmo-submenu-inner">
+          <a href="{% url 'tasks:list' %}" class="pmo-sublink {% if request.resolver_match.namespace == 'tasks' and 'gantt' not in request.path %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Tâches</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PLANIFICATION ==================== -->
+    <div class="pmo-nav-group">
+      <button class="pmo-nav-link pmo-nav-toggle {% if request.resolver_match.namespace != 'planning_project' %}collapsed{% endif %}"
+              type="button" data-bs-toggle="collapse" data-bs-target="#collapsePlanif"
+              aria-expanded="{% if request.resolver_match.namespace == 'planning_project' %}true{% else %}false{% endif %}">
+        <i class="bi bi-calendar-check-fill pmo-nav-icon"></i>
+        <span class="pmo-nav-label">Planification</span>
+        <i class="bi bi-chevron-right pmo-chevron"></i>
+      </button>
+
+      <div id="collapsePlanif" class="collapse pmo-submenu {% if request.resolver_match.namespace == 'planning_project' %}show{% endif %}">
+        <div class="pmo-submenu-inner">
+          <a href="{% url 'planning_project:dashboard' %}" class="pmo-sublink {% if request.resolver_match.namespace == 'planning_project' %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Plannings Projets</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATÉGORIE : ANALYTIQUE & PILOTAGE -->
+    <div class="pmo-nav-category">Pilotage & Suivi</div>
+
+    <!-- ==================== PLANNING (Gantt, Retards...) ==================== -->
+    <div class="pmo-nav-group">
+      <button class="pmo-nav-link pmo-nav-toggle {% if '/planning/' not in request.path and 'gantt' not in request.path %}collapsed{% endif %}"
+              type="button" data-bs-toggle="collapse" data-bs-target="#collapsePlanning"
+              aria-expanded="{% if '/planning/' in request.path or 'gantt' in request.path %}true{% else %}false{% endif %}">
+        <i class="bi bi-bar-chart-steps pmo-nav-icon"></i>
+        <span class="pmo-nav-label">Suivi Planning</span>
+        <i class="bi bi-chevron-right pmo-chevron"></i>
+      </button>
+
+      <div id="collapsePlanning" class="collapse pmo-submenu {% if '/planning/' in request.path or 'gantt' in request.path %}show{% endif %}">
+        <div class="pmo-submenu-inner">
+          <a href="{% url 'planning:dashboard' %}" class="pmo-sublink {% if request.path == '/planning/' %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Tableau de bord</span>
+          </a>
+          <a href="{% url 'planning:projets' %}" class="pmo-sublink {% if '/planning/projets/' in request.path %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Par projet</span>
+          </a>
+          <a href="{% url 'planning:commandes' %}" class="pmo-sublink {% if '/planning/commandes/' in request.path %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Par commande</span>
+          </a>
+          <a href="{% url 'planning:responsables' %}" class="pmo-sublink {% if '/planning/responsables/' in request.path %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Par responsable</span>
+          </a>
+          <a href="{% url 'tasks:gantt' %}" class="pmo-sublink {% if 'tasks/gantt' in request.path %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Gantt Projets</span>
+          </a>
+          <a href="{% url 'planning:gantt' %}" class="pmo-sublink {% if '/planning/gantt/' in request.path %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Diagramme de Gantt</span>
+          </a>
+          <a href="{% url 'planning:calendrier' %}" class="pmo-sublink {% if '/planning/calendrier/' in request.path %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Calendrier</span>
+          </a>
+          <a href="{% url 'planning:retards' %}" class="pmo-sublink {% if '/planning/retards/' in request.path %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Retards</span>
+          </a>
+          <a href="{% url 'planning:jalons' %}" class="pmo-sublink {% if '/planning/jalons/' in request.path %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Jalons</span>
+          </a>
+          <a href="{% url 'planning:charge' %}" class="pmo-sublink {% if '/planning/charge/' in request.path %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Charge</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PILOTAGE ==================== -->
+    <div class="pmo-nav-group">
+      <button class="pmo-nav-link pmo-nav-toggle {% if request.resolver_match.namespace != 'costs' and request.resolver_match.namespace != 'risks' %}collapsed{% endif %}"
+              type="button" data-bs-toggle="collapse" data-bs-target="#collapsePilotage"
+              aria-expanded="{% if request.resolver_match.namespace == 'costs' or request.resolver_match.namespace == 'risks' %}true{% else %}false{% endif %}">
+        <i class="bi bi-bullseye pmo-nav-icon"></i>
+        <span class="pmo-nav-label">Pilotage</span>
+        <i class="bi bi-chevron-right pmo-chevron"></i>
+      </button>
+
+      <div id="collapsePilotage" class="collapse pmo-submenu {% if request.resolver_match.namespace == 'costs' or request.resolver_match.namespace == 'risks' %}show{% endif %}">
+        <div class="pmo-submenu-inner">
+          <a href="{% url 'costs:list' %}" class="pmo-sublink {% if request.resolver_match.namespace == 'costs' %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Coûts</span>
+          </a>
+          <a href="{% url 'risks:list' %}" class="pmo-sublink {% if request.resolver_match.namespace == 'risks' %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Risques</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== REPORTING ==================== -->
+    <div class="pmo-nav-group">
+      <button class="pmo-nav-link pmo-nav-toggle {% if request.resolver_match.namespace != 'reporting' %}collapsed{% endif %}"
+              type="button" data-bs-toggle="collapse" data-bs-target="#collapseReporting"
+              aria-expanded="{% if request.resolver_match.namespace == 'reporting' %}true{% else %}false{% endif %}">
+        <i class="bi bi-pie-chart-fill pmo-nav-icon"></i>
+        <span class="pmo-nav-label">Reporting</span>
+        <i class="bi bi-chevron-right pmo-chevron"></i>
+      </button>
+
+      <div id="collapseReporting" class="collapse pmo-submenu {% if request.resolver_match.namespace == 'reporting' %}show{% endif %}">
+        <div class="pmo-submenu-inner">
+          <a href="{% url 'reporting:dashboard' %}" class="pmo-sublink {% if request.resolver_match.namespace == 'reporting' and 'evm' not in request.path %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Dashboard</span>
+          </a>
+          <a href="{% url 'reporting:evm' %}" class="pmo-sublink {% if 'evm' in request.path %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">EVM</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATÉGORIE : SYSTÈME & DOCS -->
+    <div class="pmo-nav-category">Système</div>
+
+
+
+    <!-- ==================== GED ==================== -->
+<div class="pmo-nav-group">
+  <button class="pmo-nav-link pmo-nav-toggle {% if request.resolver_match.namespace != 'documents' %}collapsed{% endif %}"
+          type="button" data-bs-toggle="collapse" data-bs-target="#collapseGED"
+          aria-expanded="{% if request.resolver_match.namespace == 'documents' %}true{% else %}false{% endif %}">
+    <i class="bi bi-folder-symlink-fill pmo-nav-icon"></i>
+    <span class="pmo-nav-label">GED</span>
+    <i class="bi bi-chevron-right pmo-chevron"></i>
+  </button>
+
+  <div id="collapseGED" class="collapse pmo-submenu {% if request.resolver_match.namespace == 'documents' %}show{% endif %}">
+    <div class="pmo-submenu-inner">
+      <a href="{% url 'documents:dashboard' %}" class="pmo-sublink {% if request.resolver_match.url_name == 'dashboard' and request.resolver_match.namespace == 'documents' %}active{% endif %}">
+        <span class="pmo-bullet"></span>
+        <span class="pmo-nav-label">Dashboard</span>
+      </a>
+      <a href="{% url 'documents:list' %}" class="pmo-sublink {% if request.resolver_match.url_name == 'list' %}active{% endif %}">
+        <span class="pmo-bullet"></span>
+        <span class="pmo-nav-label">Liste Documents</span>
+      </a>
+      <a href="{% url 'documents:lifecycle' %}" class="pmo-sublink {% if request.resolver_match.url_name == 'lifecycle' %}active{% endif %}">
+        <span class="pmo-bullet"></span>
+        <span class="pmo-nav-label">Cycle de Vie</span>
+      </a>
+      <a href="{% url 'documents:status' %}" class="pmo-sublink {% if request.resolver_match.url_name == 'status' %}active{% endif %}">
+        <span class="pmo-bullet"></span>
+        <span class="pmo-nav-label">États Documents</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+
+    <!-- ==================== GED ==================== -->
+          <!-- ==================== GED ==================== -->
+<!--      <div class="pmo-nav-group">-->
+<!--        <button class="pmo-nav-link pmo-nav-toggle {% if request.resolver_match.namespace != 'documents' %}collapsed{% endif %}"-->
+<!--                type="button" data-bs-toggle="collapse" data-bs-target="#collapseGED"-->
+<!--                aria-expanded="{% if request.resolver_match.namespace == 'documents' %}true{% else %}false{% endif %}">-->
+<!--          <i class="bi bi-folder-symlink-fill pmo-nav-icon"></i>-->
+<!--          <span class="pmo-nav-label">GED</span>-->
+<!--          <i class="bi bi-chevron-right pmo-chevron"></i>-->
+<!--        </button>-->
+
+<!--        <div id="collapseGED" class="collapse pmo-submenu {% if request.resolver_match.namespace == 'documents' %}show{% endif %}">-->
+<!--          <div class="pmo-submenu-inner">-->
+<!--            <a href="{% url 'documents:list' %}" class="pmo-sublink {% if request.resolver_match.namespace == 'documents' %}active{% endif %}">-->
+<!--              <span class="pmo-bullet"></span>-->
+<!--              <span class="pmo-nav-label">Documents</span>-->
+<!--            </a>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+
+
+    <!-- ================================================================================== -->
+<!--    <div class="pmo-nav-group">-->
+<!--      <button class="pmo-nav-link pmo-nav-toggle {% if request.resolver_match.namespace != 'documents' %}collapsed{% endif %}"-->
+<!--              type="button" data-bs-toggle="collapse" data-bs-target="#collapseGED"-->
+<!--              aria-expanded="{% if request.resolver_match.namespace == 'documents' %}true{% else %}false{% endif %}">-->
+<!--        <i class="bi bi-folder-symlink-fill pmo-nav-icon"></i>-->
+<!--        <span class="pmo-nav-label">GED</span>-->
+<!--        <i class="bi bi-chevron-right pmo-chevron"></i>-->
+<!--      </button>-->
+
+<!--      <div id="collapseGED" class="collapse pmo-submenu {% if request.resolver_match.namespace == 'documents' %}show{% endif %}">-->
+<!--        <div class="pmo-submenu-inner">-->
+<!--          <a href="{% url 'documents:list' %}" class="pmo-sublink {% if request.resolver_match.namespace == 'documents' %}active{% endif %}">-->
+<!--            <span class="pmo-bullet"></span>-->
+<!--            <span class="pmo-nav-label">Documentsss</span>-->
+<!--          </a>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+
+    <!-- ==================== ADMINISTRATION ==================== -->
+    <div class="pmo-nav-group">
+      <button class="pmo-nav-link pmo-nav-toggle {% if request.resolver_match.namespace != 'accounts' and request.resolver_match.namespace != 'core_ref' %}collapsed{% endif %}"
+              type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdmin"
+              aria-expanded="{% if request.resolver_match.namespace == 'accounts' or request.resolver_match.namespace == 'core_ref' %}true{% else %}false{% endif %}">
+        <i class="bi bi-shield-lock-fill pmo-nav-icon"></i>
+        <span class="pmo-nav-label">Administration</span>
+        <i class="bi bi-chevron-right pmo-chevron"></i>
+      </button>
+
+      <div id="collapseAdmin" class="collapse pmo-submenu {% if request.resolver_match.namespace == 'accounts' or request.resolver_match.namespace == 'core_ref' %}show{% endif %}">
+        <div class="pmo-submenu-inner">
+          <a href="{% url 'accounts:profile' %}" class="pmo-sublink {% if request.resolver_match.namespace == 'accounts' %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Utilisateurs</span>
+          </a>
+          <a href="{% url 'core_ref:index' %}" class="pmo-sublink {% if request.resolver_match.namespace == 'core_ref' %}active{% endif %}">
+            <span class="pmo-bullet"></span>
+            <span class="pmo-nav-label">Référentiels</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </nav>
+
+  <!-- ============================================ -->
+  <!-- USER INFO (Widget Flottant Pro) -->
+  <!-- ============================================ -->
+  <div class="pmo-sidebar-footer">
+    <div class="pmo-user-card">
+      <div class="pmo-user-avatar">
+        {{ request.user.initiales|default:"GS" }}
+      </div>
+      <div class="pmo-user-info">
+        <div class="pmo-user-name">{{ request.user.nom_complet|default:"Utilisateur" }}</div>
+        <div class="pmo-user-role">{{ request.user.get_role_display|default:"Membre" }}</div>
+      </div>
+      <a href="{% url 'accounts:logout' %}" class="pmo-user-logout" title="Déconnexion" data-bs-toggle="tooltip">
+        <i class="bi bi-box-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+</aside>

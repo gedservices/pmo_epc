@@ -1,0 +1,53 @@
+<div class="d-flex mb-3">
+
+    <div class="me-3">
+
+        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+             style="width:35px;height:35px;">
+
+            {% if icon %}
+                <i class="bi {{ icon }}"></i>
+            {% else %}
+                <i class="bi bi-clock"></i>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <div class="flex-grow-1">
+
+        <div class="small text-muted">
+            {{ date }}
+        </div>
+
+
+        <div class="fw-bold">
+            {{ title }}
+        </div>
+
+
+        {% if description %}
+
+        <div>
+            {{ description }}
+        </div>
+
+        {% endif %}
+
+
+        {% if user %}
+
+        <div class="small text-muted mt-1">
+
+            <i class="bi bi-person"></i>
+            {{ user }}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>

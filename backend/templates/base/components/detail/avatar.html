@@ -1,0 +1,30 @@
+<div class="d-flex align-items-center">
+
+    <div class="me-2">
+        {% if image %}
+            <img src="{{ image }}"
+                 class="rounded-circle"
+                 width="40"
+                 height="40"
+                 alt="{{ name }}">
+        {% else %}
+            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+                 style="width:40px;height:40px;">
+                {{ initials }}
+            </div>
+        {% endif %}
+    </div>
+
+    <div>
+        <div class="fw-bold">
+            {{ name }}
+        </div>
+
+        {% if role %}
+        <div class="small text-muted">
+            {{ role }}
+        </div>
+        {% endif %}
+    </div>
+
+</div>

@@ -1,0 +1,60 @@
+<div class="card shadow-sm h-100">
+
+    <div class="card-body">
+
+        {% if title %}
+        <h6 class="text-muted mb-3">
+            {% if icon %}
+                <i class="bi {{ icon }}"></i>
+            {% endif %}
+            {{ title }}
+        </h6>
+        {% endif %}
+
+
+        <div class="row text-center">
+
+            <div class="col">
+                <div class="fs-4 fw-bold">
+                    {{ total|default:"0" }}
+                </div>
+                <div class="small text-muted">
+                    Total
+                </div>
+            </div>
+
+
+            <div class="col">
+                <div class="fs-4 fw-bold text-success">
+                    {{ approved|default:"0" }}
+                </div>
+                <div class="small text-muted">
+                    Approuvés
+                </div>
+            </div>
+
+
+            <div class="col">
+                <div class="fs-4 fw-bold text-warning">
+                    {{ review|default:"0" }}
+                </div>
+                <div class="small text-muted">
+                    Révision
+                </div>
+            </div>
+
+
+            <div class="col">
+                <div class="fs-4 fw-bold text-danger">
+                    {{ pending|default:"0" }}
+                </div>
+                <div class="small text-muted">
+                    Attente
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

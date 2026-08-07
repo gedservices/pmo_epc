@@ -1,0 +1,204 @@
+{% extends "base/layout/form.html" %}
+
+
+{% block page_header %}
+
+{% include "base/components/cards/section_title.html" with title="Commande" icon="bi-cart" subtitle="Création / modification d'une commande" %}
+
+{% endblock %}
+
+
+{% block form_content %}
+
+
+{% include "base/components/forms/form_section_begin.html" with title="Informations générales" icon="bi-card-text" %}
+
+<div class="row g-3">
+
+    <div class="col-md-4">
+
+        {% include "base/components/forms/field_select.html" with field=form.projet %}
+
+    </div>
+
+    <div class="col-md-4">
+
+        {% include "base/components/forms/field.html" with field=form.code_commande %}
+
+    </div>
+
+    <div class="col-md-4">
+
+        {% include "base/components/forms/field.html" with field=form.code_originator %}
+
+    </div>
+
+    <div class="col-12">
+
+        {% include "base/components/forms/field.html" with field=form.nom %}
+
+    </div>
+
+</div>
+
+{% include "base/components/forms/form_section_end.html" %}
+
+
+
+{% include "base/components/forms/form_section_begin.html" with title="Organisation" icon="bi-diagram-3" %}
+
+<div class="row g-3">
+
+    <div class="col-md-6">
+
+        {% include "base/components/forms/field.html" with field=form.contractor %}
+
+    </div>
+
+    <div class="col-md-6">
+
+        {% include "base/components/forms/field_select.html" with field=form.entite_contractor %}
+
+    </div>
+
+    <div class="col-md-6">
+
+        {% include "base/components/forms/field_select.html" with field=form.responsable %}
+
+    </div>
+
+    <div class="col-md-6">
+
+        {% include "base/components/forms/field_select.html" with field=form.phase %}
+
+    </div>
+
+</div>
+
+{% include "base/components/forms/form_section_end.html" %}
+
+
+
+{% include "base/components/forms/form_section_begin.html" with title="Pilotage" icon="bi-speedometer2" %}
+
+<div class="row g-3">
+
+    <div class="col-md-4">
+
+        {% include "base/components/forms/field_select.html" with field=form.statut %}
+
+    </div>
+
+    <div class="col-md-4">
+
+        {% include "base/components/forms/field_select.html" with field=form.priorite %}
+
+    </div>
+
+    <div class="col-md-4">
+
+        {% include "base/components/forms/field_money.html" with field=form.poids %}
+
+    </div>
+
+</div>
+
+{% include "base/components/forms/form_section_end.html" %}
+
+
+
+{% include "base/components/forms/form_section_begin.html" with title="Localisation" icon="bi-geo-alt" %}
+
+<div class="row g-3">
+
+    <div class="col-md-4">
+
+        {% include "base/components/forms/field_select.html" with field=form.pays %}
+
+    </div>
+
+    <div class="col-md-4">
+
+        {% include "base/components/forms/field_select.html" with field=form.site %}
+
+    </div>
+
+    <div class="col-md-4">
+
+        {% include "base/components/forms/field_select.html" with field=form.secteur %}
+
+    </div>
+
+</div>
+
+{% include "base/components/forms/form_section_end.html" %}
+
+
+
+{% include "base/components/forms/form_section_begin.html" with title="Planning" icon="bi-calendar-event" %}
+
+<div class="row g-3">
+
+    <div class="col-md-6">
+
+        {% include "base/components/forms/field_date.html" with field=form.date_debut_prevue %}
+
+    </div>
+
+    <div class="col-md-6">
+
+        {% include "base/components/forms/field_date.html" with field=form.date_fin_prevue %}
+
+    </div>
+
+</div>
+
+{% include "base/components/forms/form_section_end.html" %}
+
+
+
+{% include "base/components/forms/form_section_begin.html" with title="Budget" icon="bi-cash-stack" %}
+
+<div class="row g-3">
+
+    <div class="col-md-6">
+
+        {% include "base/components/forms/field_money.html" with field=form.budget_prevu %}
+
+    </div>
+
+    <div class="col-md-6">
+
+        {% include "base/components/forms/field_money.html" with field=form.budget_reel %}
+
+    </div>
+
+</div>
+
+{% include "base/components/forms/form_section_end.html" %}
+
+
+
+{% include "base/components/forms/form_section_begin.html" with title="Description" icon="bi-card-text" %}
+
+<div class="row">
+
+    <div class="col-12">
+
+        {% include "base/components/forms/field_textarea.html" with field=form.description %}
+
+    </div>
+
+</div>
+
+{% include "base/components/forms/form_section_end.html" %}
+
+
+{% endblock %}
+
+
+{% block form_actions %}
+
+{% include "base/components/forms/form_actions.html" with cancel_url="contracts:list" submit_label="Enregistrer" %}
+
+{% endblock %}

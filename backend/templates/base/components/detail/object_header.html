@@ -1,0 +1,73 @@
+<div class="card shadow-sm mb-3">
+
+    <div class="card-body">
+
+        <div class="d-flex align-items-center">
+
+            {% if icon %}
+            <div class="me-3">
+                <i class="bi {{ icon }} fs-2"></i>
+            </div>
+            {% endif %}
+
+            <div class="flex-grow-1">
+
+                <div class="text-muted small">
+                    {{ object_type }}
+                </div>
+
+                <h4 class="fw-bold mb-1">
+                    {{ object_code }}
+                </h4>
+
+                <div>
+                    {{ object_name }}
+                </div>
+
+                {% if subtitle %}
+                <div class="text-muted small mt-1">
+                    {{ subtitle }}
+                </div>
+                {% endif %}
+
+            </div>
+
+
+            {% if status %}
+            <div>
+                {% include "base/components/badges/badge_statut.html" with statut=status %}
+            </div>
+            {% endif %}
+
+        </div>
+
+
+        {% if metadata %}
+
+        <hr>
+
+        <div class="row">
+
+            {% for item in metadata %}
+
+            <div class="col-md-3">
+
+                <div class="text-muted small">
+                    {{ item.label }}
+                </div>
+
+                <div class="fw-semibold">
+                    {{ item.value }}
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>

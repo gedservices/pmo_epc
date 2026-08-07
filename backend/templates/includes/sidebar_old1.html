@@ -1,0 +1,61 @@
+<nav class="sidebar bg-dark text-white vh-100">
+
+    <div class="p-3">
+
+        <h5 class="mb-4">
+
+            <i class="bi bi-diagram-3"></i>
+
+            PMO EPC
+
+        </h5>
+
+        <ul class="nav flex-column">
+
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'dashboard:index' %}">
+                    <i class="bi bi-speedometer2"></i>
+                    Dashboard
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'projects:list' %}">
+                    <i class="bi bi-kanban"></i>
+                    Projets
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'contracts:list' %}">
+                    <i class="bi bi-cart"></i>
+                    Commandes
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'documents:list' %}">
+                    <i class="bi bi-folder2-open"></i>
+                    Documents
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'tasks:list' %}">
+                    <i class="bi bi-list-check"></i>
+                    Tâches
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'risks:list' %}">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Risques
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+
+</nav>

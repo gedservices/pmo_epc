@@ -1,0 +1,223 @@
+{% extends "base/list_base.html" %}
+
+
+{% block page_title %}
+Commandes
+{% endblock %}
+
+
+
+{% block toolbar_action %}
+
+<a href="{% url 'contracts:create' %}"
+   class="btn btn-primary">
+
+    <i class="bi bi-plus-circle"></i>
+    Nouvelle commande
+
+</a>
+
+{% endblock %}
+
+
+
+{% block table_content %}
+
+{% if commandes %}
+
+<div class="table-responsive">
+
+<table class="table table-hover align-middle mb-0">
+
+<thead class="table-light">
+
+<tr>
+
+    <th style="width:120px;">Phase</th>
+    <th style="width:140px;">Commande</th>
+    <th>Nom</th>
+    <th>Projet</th>
+    <th>Contractor</th>
+    <th>Statut</th>
+    <th>Priorité</th>
+    <th class="text-center" style="width:130px;">Actions</th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+{% for commande in commandes %}
+
+<tr>
+
+<td>
+
+{% if commande.phase %}
+
+    {% if commande.phase.code == "PRE" or commande.phase.code == "FEA" or commande.phase.code == "FS" %}
+
+        <span class="badge rounded-pill text-bg-secondary">
+            {{ commande.phase.code }}
+        </span>
+
+    {% elif commande.phase.code == "BAS" or commande.phase.code == "CON" or commande.phase.code == "FEED" or commande.phase.code == "DED" %}
+
+        <span class="badge rounded-pill text-bg-success">
+            {{ commande.phase.code }}
+        </span>
+
+    {% elif commande.phase.code == "PROC" or commande.phase.code == "PUR" or commande.phase.code == "BUY" %}
+
+        <span class="badge rounded-pill text-bg-warning">
+            {{ commande.phase.code }}
+        </span>
+
+    {% elif commande.phase.code == "CONS" or commande.phase.code == "CTR" or commande.phase.code == "CONST" %}
+
+        <span class="badge rounded-pill text-bg-primary">
+            {{ commande.phase.code }}
+        </span>
+
+    {% elif commande.phase.code == "COM" or commande.phase.code == "PRECOM" or commande.phase.code == "SAT" %}
+
+        <span class="badge rounded-pill text-bg-danger">
+            {{ commande.phase.code }}
+        </span>
+
+    {% elif commande.phase.code == "OPS" %}
+
+        <span class="badge rounded-pill text-bg-dark">
+            {{ commande.phase.code }}
+        </span>
+
+    {% else %}
+
+        <span class="badge rounded-pill text-bg-secondary">
+            {{ commande.phase.code }}
+        </span>
+
+    {% endif %}
+
+{% else %}
+
+    -
+
+{% endif %}
+
+</td>
+
+
+<td>
+
+<strong>
+
+{{ commande.code_commande }}
+
+</strong>
+
+</td>
+
+
+<td>
+
+{{ commande.nom }}
+
+</td>
+
+
+<td>
+
+{% if commande.projet %}
+
+{{ commande.projet.nom }}
+
+{% else %}
+
+-
+
+{% endif %}
+
+</td>
+
+
+<td>
+
+{{ commande.contractor|default:"-" }}
+
+</td>
+
+
+<td>
+
+{% include "base/components/badges/badge_statut.html" with statut=commande.statut %}
+
+</td>
+
+
+<td>
+
+{% if commande.priorite %}
+
+{% include "base/components/badges/badge_priorite.html" with priorite=commande.priorite %}
+
+{% else %}
+
+-
+
+{% endif %}
+
+</td>
+
+
+<td class="text-center">
+
+<div class="btn-group btn-group-sm">
+
+<a href="{% url 'contracts:detail' commande.id %}"
+class="btn btn-outline-primary"
+title="Voir">
+
+<i class="bi bi-eye"></i>
+
+</a>
+
+<a href="{% url 'contracts:update' commande.id %}"
+class="btn btn-outline-warning"
+title="Modifier">
+
+<i class="bi bi-pencil"></i>
+
+</a>
+
+<a href="{% url 'contracts:delete' commande.id %}"
+class="btn btn-outline-danger"
+title="Supprimer">
+
+<i class="bi bi-trash"></i>
+
+</a>
+
+</div>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+{% else %}
+
+{% include "base/components/empty.html" with empty_title="Aucune commande" empty_message="Aucune commande n'est encore enregistrée." empty_icon="bi-cart" %}
+
+{% endif %}
+
+{% endblock %}

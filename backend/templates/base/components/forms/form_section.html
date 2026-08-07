@@ -1,0 +1,29 @@
+<div class="card shadow-sm mb-4">
+
+    {% if title %}
+
+    <div class="card-header">
+
+        <strong>
+
+            {% if icon %}
+
+            <i class="bi {{ icon }} me-2"></i>
+
+            {% endif %}
+
+            {{ title }}
+
+        </strong>
+
+    </div>
+
+    {% endif %}
+
+    <div class="card-body">
+
+        {{ content|safe }}
+
+    </div>
+
+</div>

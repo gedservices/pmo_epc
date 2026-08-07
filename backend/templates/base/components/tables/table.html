@@ -1,0 +1,23 @@
+<div class="card shadow-sm">
+
+    {% if title %}
+
+    <div class="card-header">
+
+        <strong>{{ title }}</strong>
+
+    </div>
+
+    {% endif %}
+
+    <div class="table-responsive">
+
+        <table class="table table-hover align-middle mb-0">
+
+            {{ content|safe }}
+
+        </table>
+
+    </div>
+
+</div>

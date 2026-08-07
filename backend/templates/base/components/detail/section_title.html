@@ -1,0 +1,19 @@
+<div class="mb-3 mt-4">
+
+    <h5 class="fw-bold mb-1">
+
+        {% if icon %}
+            <i class="bi {{ icon }} me-2"></i>
+        {% endif %}
+
+        {{ title }}
+
+    </h5>
+
+    {% if subtitle %}
+    <div class="text-muted small">
+        {{ subtitle }}
+    </div>
+    {% endif %}
+
+</div>

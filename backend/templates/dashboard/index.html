@@ -1,0 +1,391 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Dashboard</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-3">
+
+  <!-- Page Header -->
+  <div class="d-flex align-items-start justify-content-between mb-4">
+    <div>
+      <h1 class="pmo-page-title">
+        <i class="bi bi-grid-1x2-fill text-primary me-2"></i>
+        Dashboard PMO
+      </h1>
+      <p class="pmo-page-subtitle mb-0">
+        {{ conteneur.libelle|default:"Running Projects" }} ·
+        Mis à jour maintenant
+      </p>
+    </div>
+    <div class="pmo-page-actions">
+      <button class="btn-pmo-ghost">
+        <i class="bi bi-arrow-clockwise me-1"></i>Actualiser
+      </button>
+      <button class="btn-pmo-ghost">
+        <i class="bi bi-filetype-pdf me-1"></i>Export PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI ROW -->
+  <div class="row g-3 mb-4">
+
+    <!-- Projets actifs -->
+    <div class="col-6 col-md-4 col-xl-2">
+      <div class="pmo-kpi-card">
+        <div class="d-flex align-items-center justify-content-between">
+          <span class="pmo-kpi-label">Projets</span>
+          <div class="pmo-kpi-icon bg-primary-subtle text-primary">
+            <i class="bi bi-folder2-open"></i>
+          </div>
+        </div>
+        <div class="pmo-kpi-value">{{ nb_projets }}</div>
+        <div class="pmo-kpi-sub">actifs — {{ conteneur.libelle }}</div>
+      </div>
+    </div>
+
+    <!-- En retard -->
+    <div class="col-6 col-md-4 col-xl-2">
+      <div class="pmo-kpi-card {% if nb_en_retard > 0 %}border-danger{% endif %}">
+        <div class="d-flex align-items-center justify-content-between">
+          <span class="pmo-kpi-label">En retard</span>
+          <div class="pmo-kpi-icon bg-danger-subtle text-danger">
+            <i class="bi bi-exclamation-triangle"></i>
+          </div>
+        </div>
+        <div class="pmo-kpi-value {% if nb_en_retard > 0 %}text-danger{% endif %}">
+          {{ nb_en_retard }}
+        </div>
+        <div class="pmo-kpi-sub">{{ pct_en_retard }}% du portefeuille</div>
+      </div>
+    </div>
+
+    <!-- Avancement moyen -->
+    <div class="col-6 col-md-4 col-xl-2">
+      <div class="pmo-kpi-card">
+        <div class="d-flex align-items-center justify-content-between">
+          <span class="pmo-kpi-label">Avancement</span>
+          <div class="pmo-kpi-icon bg-success-subtle text-success">
+            <i class="bi bi-graph-up"></i>
+          </div>
+        </div>
+        <div class="pmo-kpi-value">{{ avg_progression }}%</div>
+        <div class="pmo-kpi-sub">
+          <div class="pmo-progress mt-1">
+            <div class="pmo-progress-bar bg-success"
+                 style="width: {{ avg_progression }}%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Budget -->
+    <div class="col-6 col-md-4 col-xl-2">
+      <div class="pmo-kpi-card">
+        <div class="d-flex align-items-center justify-content-between">
+          <span class="pmo-kpi-label">Budget consommé</span>
+          <div class="pmo-kpi-icon bg-warning-subtle text-warning">
+            <i class="bi bi-currency-euro"></i>
+          </div>
+        </div>
+        <div class="pmo-kpi-value" style="font-size:20px;">
+          {{ budget_reel|floatformat:0|intcomma }} €
+        </div>
+        <div class="pmo-kpi-sub">
+          {{ budget_pct }}% / {{ budget_prevu|floatformat:0|intcomma }} € prévu
+        </div>
+      </div>
+    </div>
+
+    <!-- Risques critiques -->
+    <div class="col-6 col-md-4 col-xl-2">
+      <div class="pmo-kpi-card {% if nb_risques_critiques > 0 %}border-danger{% endif %}">
+        <div class="d-flex align-items-center justify-content-between">
+          <span class="pmo-kpi-label">Risques critiques</span>
+          <div class="pmo-kpi-icon bg-danger-subtle text-danger">
+            <i class="bi bi-shield-exclamation"></i>
+          </div>
+        </div>
+        <div class="pmo-kpi-value {% if nb_risques_critiques > 0 %}text-danger{% endif %}">
+          {{ nb_risques_critiques }}
+        </div>
+        <div class="pmo-kpi-sub">Criticité ≥ 15/25</div>
+      </div>
+    </div>
+
+    <!-- Tâches en retard -->
+    <div class="col-6 col-md-4 col-xl-2">
+      <div class="pmo-kpi-card">
+        <div class="d-flex align-items-center justify-content-between">
+          <span class="pmo-kpi-label">Tâches retard</span>
+          <div class="pmo-kpi-icon bg-warning-subtle text-warning">
+            <i class="bi bi-clock-history"></i>
+          </div>
+        </div>
+        <div class="pmo-kpi-value text-warning">{{ taches_en_retard }}</div>
+        <div class="pmo-kpi-sub">tâche(s) en dépassement</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- GRAPHIQUES ROW -->
+  <div class="row g-3 mb-4">
+
+    <!-- Courbe en S -->
+    <div class="col-12 col-xl-7">
+      <div class="pmo-card h-100">
+        <div class="pmo-card-header">
+          <h6 class="pmo-card-title">
+            <i class="bi bi-graph-up-arrow me-2 text-primary"></i>
+            Courbe en S — Portefeuille
+          </h6>
+          <span class="badge bg-light text-muted border">EVM</span>
+        </div>
+        <div style="height: 280px;">
+          <canvas id="chartSCurve"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVM Projets -->
+    <div class="col-12 col-xl-5">
+      <div class="pmo-card h-100">
+        <div class="pmo-card-header">
+          <h6 class="pmo-card-title">
+            <i class="bi bi-bar-chart-fill me-2 text-info"></i>
+            SPI / CPI par Projet
+          </h6>
+        </div>
+        <div style="height: 280px;">
+          <canvas id="chartEVM"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SYNTHESE PROJETS + ALERTES -->
+  <div class="row g-3 mb-4">
+
+    <!-- Tableau projets -->
+    <div class="col-12 col-xl-7">
+      <div class="pmo-card">
+        <div class="pmo-card-header">
+          <h6 class="pmo-card-title">
+            <i class="bi bi-folder2-open me-2 text-primary"></i>
+            Projets — Synthèse
+          </h6>
+          <a href="{% url 'projects:list' %}"
+             class="btn btn-sm btn-link text-primary p-0">
+            Voir tout →
+          </a>
+        </div>
+        <table class="table pmo-table mb-0">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Nom</th>
+              <th>Avancement</th>
+              <th>SPI</th>
+              <th>CPI</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in projets %}
+            <tr>
+              <td>
+                <a href="{% url 'projects:detail' p.pk %}"
+                   class="pmo-mono fw-semibold text-decoration-none text-primary">
+                  {{ p.code }}
+                </a>
+              </td>
+              <td>
+                <div class="fw-medium" style="max-width:180px;
+                     white-space:nowrap;overflow:hidden;
+                     text-overflow:ellipsis;">
+                  {{ p.nom }}
+                </div>
+                {% if p.est_en_retard %}
+                <span class="badge bg-danger-subtle text-danger border
+                             border-danger-subtle" style="font-size:10px;">
+                  <i class="bi bi-clock"></i> Retard
+                </span>
+                {% endif %}
+              </td>
+              <td style="min-width:120px;">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="pmo-progress flex-grow-1">
+                    <div class="pmo-progress-bar bg-{{ p.couleur_progression }}"
+                         style="width:{{ p.progression_calculee }}%">
+                    </div>
+                  </div>
+                  <span class="small fw-semibold"
+                        style="min-width:30px;">
+                    {{ p.progression_calculee|floatformat:0 }}%
+                  </span>
+                </div>
+              </td>
+              <td>
+                {% if p.spi %}
+                <span class="pmo-spi-value fw-semibold">{{ p.spi }}</span>
+                {% else %}—{% endif %}
+              </td>
+              <td>
+                {% if p.cpi %}
+                <span class="pmo-spi-value fw-semibold">{{ p.cpi }}</span>
+                {% else %}—{% endif %}
+              </td>
+              <td>
+                <span class="badge pmo-badge
+                  {% if p.statut == 'En cours' %}bg-warning text-dark
+                  {% elif p.statut == 'Terminée' or p.statut == 'Finalisé' %}bg-success
+                  {% elif p.statut == 'En attente' %}bg-info text-dark
+                  {% elif p.statut == 'Suspendu' %}bg-secondary
+                  {% else %}bg-danger{% endif %}">
+                  {{ p.statut }}
+                </span>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">
+                Aucun projet dans ce conteneur
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Alertes -->
+    <div class="col-12 col-xl-5">
+      <div class="pmo-card">
+        <div class="pmo-card-header">
+          <h6 class="pmo-card-title">
+            <i class="bi bi-bell-fill me-2 text-warning"></i>
+            Alertes & Actions requises
+          </h6>
+        </div>
+
+        {% if nb_en_retard > 0 %}
+        {% for p in projets %}{% if p.est_en_retard %}
+        <div class="d-flex align-items-start gap-2 mb-2 p-2 rounded
+                    bg-danger-subtle border border-danger-subtle">
+          <i class="bi bi-exclamation-triangle-fill text-danger mt-1"
+             style="font-size:14px;flex-shrink:0;"></i>
+          <div>
+            <div class="small fw-semibold">{{ p.code }} — Retard planning</div>
+            <div class="small text-muted">
+              Avancement: {{ p.progression_calculee|floatformat:0 }}%
+              · Fin prévue: {{ p.date_fin_prevue|date:"d/m/Y"|default:"—" }}
+            </div>
+          </div>
+          <a href="{% url 'projects:detail' p.pk %}"
+             class="btn btn-sm btn-outline-danger ms-auto py-0 px-2"
+             style="font-size:11px;">Voir</a>
+        </div>
+        {% endif %}{% endfor %}
+        {% endif %}
+
+        {% for r in risques_critiques %}
+        <div class="d-flex align-items-start gap-2 mb-2 p-2 rounded
+                    bg-warning-subtle border border-warning-subtle">
+          <i class="bi bi-shield-exclamation text-warning mt-1"
+             style="font-size:14px;flex-shrink:0;"></i>
+          <div>
+            <div class="small fw-semibold">
+              {{ r.titre|truncatechars:50 }}
+            </div>
+            <div class="small text-muted">
+              Criticité: {{ r.criticite }}/25
+              · {{ r.projet.code }}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+
+        {% if nb_en_retard == 0 and not risques_critiques %}
+        <div class="pmo-empty-state py-4">
+          <div class="pmo-empty-icon"><i class="bi bi-check-circle"></i></div>
+          <div class="small text-muted">Aucune alerte critique</div>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MINI GANTT PORTEFEUILLE -->
+  <div class="pmo-card mb-4">
+    <div class="pmo-card-header">
+      <h6 class="pmo-card-title">
+        <i class="bi bi-bar-chart-steps me-2 text-secondary"></i>
+        Planning Portefeuille — Vue Synthèse
+      </h6>
+      <a href="{% url 'tasks:gantt' %}" class="btn btn-sm btn-link p-0 text-primary">
+        Gantt complet →
+      </a>
+    </div>
+    {% for p in projets %}
+    <div class="d-flex align-items-center gap-3 mb-2 py-1">
+      <a href="{% url 'projects:detail' p.pk %}"
+         class="pmo-mono text-decoration-none text-primary"
+         style="min-width:80px;font-size:12px;">
+        {{ p.code }}
+      </a>
+      <div class="small text-muted" style="min-width:120px;
+           white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+        {{ p.nom|truncatechars:25 }}
+      </div>
+      <div class="flex-grow-1 position-relative" style="height:20px;">
+        <div class="pmo-progress h-100 w-100 position-absolute" style="top:0;">
+          <div class="pmo-progress-bar bg-{{ p.couleur_progression }}"
+               data-width="{{ p.progression_calculee }}"
+               style="width:0%;height:100%;">
+          </div>
+        </div>
+      </div>
+      <span class="small fw-semibold" style="min-width:35px;text-align:right;">
+        {{ p.progression_calculee|floatformat:0 }}%
+      </span>
+      <span class="small text-muted" style="min-width:90px;">
+        → {{ p.date_fin_prevue|date:"M Y"|default:"—" }}
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  const historiques = {{ historiques_json|safe }};
+  const evmLabels   = {{ evm_labels_json|safe }};
+  const evmSpi      = {{ evm_spi_json|safe }};
+  const evmCpi      = {{ evm_cpi_json|safe }};
+
+  // S-Curve
+  if (historiques.length) {
+    const labels = historiques.map(h => h.date);
+    const pv     = historiques.map(h => h.pv);
+    const ev     = historiques.map(h => h.ev);
+    const ac     = historiques.map(h => h.ac);
+    window.PMO.drawSCurve('chartSCurve', labels, pv, ev, ac);
+  }
+
+  // EVM Bar
+  if (evmLabels.length) {
+    window.PMO.drawEVMBar('chartEVM', evmLabels, evmSpi, evmCpi);
+  }
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,56 @@
+<div class="card shadow-sm h-100">
+
+    <div class="card-body">
+        {% if title %}
+        <h6 class="text-muted mb-3">
+            {% if icon %}
+                <i class="bi {{ icon }}"></i>
+            {% endif %}
+
+            {{ title }}
+        </h6>
+
+        {% endif %}
+
+        <div class="d-flex align-items-center">
+
+            {% if object_icon %}
+
+            <div class="me-3">
+                <i class="bi {{ object_icon }} fs-3"></i>
+            </div>
+
+            {% endif %}
+
+            <div class="flex-grow-1">
+                <div class="fw-bold">
+
+                    {{ object_code }}
+                </div>
+
+                <div>
+                    {{ object_name }}
+                </div>
+
+                {% if object_description %}
+
+                <div class="small text-muted">
+                    {{ object_description }}
+                </div>
+
+                {% endif %}
+            </div>
+
+
+            {% if url %}
+            <div>
+                <a href="{{ url }}"
+                   class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-eye"></i>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>

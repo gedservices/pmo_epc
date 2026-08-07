@@ -1,0 +1,22 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h2 class="mb-1">
+            {{ page_title|default:"Suivi des tâches" }}
+        </h2>
+
+        <p class="text-muted mb-0">
+            {{ page_subtitle|default:"Pilotage opérationnel des projets et des commandes" }}
+        </p>
+
+    </div>
+
+    <div>
+
+        {% block planning_header_actions %}
+        {% endblock %}
+
+    </div>
+
+</div>

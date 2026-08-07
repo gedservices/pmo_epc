@@ -1,0 +1,239 @@
+{% extends "base/base.html" %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+  <a href="{% url 'documents:dashboard' %}">Documents</a>
+</li>
+<li class="breadcrumb-item active">Cycle de Vie</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <!-- Header -->
+  <div class="d-flex align-items-start justify-content-between mb-4">
+    <div>
+      <h1 class="pmo-page-title">
+        <i class="bi bi-arrow-repeat text-primary"></i>
+        Cycle de Vie des Documents
+      </h1>
+      <p class="pmo-page-subtitle mb-0">
+        <span class="fw-semibold">{{ nb_total }}</span> document{{ nb_total|pluralize }}
+      </p>
+    </div>
+    <div class="pmo-page-actions">
+      <a href="{% url 'documents:dashboard' %}" class="btn-pmo-ghost">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+      </a>
+      <a href="{% url 'documents:create' %}" class="btn-pmo-primary">
+        <i class="bi bi-plus-lg"></i>
+        Nouveau Document
+      </a>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="pmo-filters mb-4">
+    <form method="get" class="row g-3 align-items-end">
+
+      <!-- Recherche -->
+      <div class="col-12 col-md-4 col-lg-3">
+        <label class="form-label small fw-semibold text-muted mb-1">
+          <i class="bi bi-search me-1"></i>Recherche
+        </label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" class="form-control"
+                 placeholder="Code, titre..."
+                 value="{{ search }}">
+        </div>
+      </div>
+
+      <!-- Projet -->
+      <div class="col-6 col-md-3 col-lg-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Projet</label>
+        <select name="projet" class="form-select pmo-auto-submit">
+          <option value="">Tous les projets</option>
+          {% for projet in filterset.filters.projet.field.queryset %}
+          <option value="{{ projet.id }}" {% if filtre_projet == projet.id|stringformat:"s" %}selected{% endif %}>
+            {{ projet.code }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Phase -->
+      <div class="col-6 col-md-3 col-lg-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Phase</label>
+        <select name="phase" class="form-select pmo-auto-submit">
+          <option value="">Toutes phases</option>
+          {% for phase in filterset.filters.phase.field.queryset %}
+          <option value="{{ phase.id }}" {% if filtre_phase == phase.id|stringformat:"s" %}selected{% endif %}>
+            {{ phase.code }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Classe -->
+      <div class="col-6 col-md-3 col-lg-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Classe</label>
+        <select name="classe_documentaire" class="form-select pmo-auto-submit">
+          <option value="">Toutes classes</option>
+          {% for classe in filterset.filters.classe_documentaire.field.queryset %}
+          <option value="{{ classe.id }}" {% if filtre_classe == classe.id|stringformat:"s" %}selected{% endif %}>
+            Classe {{ classe.numero }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Boutons -->
+      <div class="col-auto ms-auto">
+        <button type="submit" class="btn btn-sm btn-pmo-primary">
+          <i class="bi bi-funnel me-1"></i>
+          Filtrer
+        </button>
+        <a href="{% url 'documents:lifecycle' %}" class="btn btn-sm btn-pmo-ghost ms-2">
+          <i class="bi bi-x-lg me-1"></i>
+          Réinitialiser
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tableau -->
+  <div class="pmo-card p-0">
+    <div class="table-responsive">
+      <table class="table pmo-table mb-0">
+        <thead>
+          <tr>
+            <th>Code Document</th>
+            <th>Titre</th>
+            <th>Projet</th>
+            <th>Phase / Classe</th>
+            <th style="min-width: 300px;">Cycle de Vie</th>
+            <th>Progression</th>
+            <th style="width:80px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in documents_page %}
+          <tr>
+            <td>
+              <a href="{% url 'documents:detail' item.document.pk %}"
+                 class="pmo-mono fw-semibold text-primary text-decoration-none">
+                {{ item.document.code_documentaire }}
+              </a>
+            </td>
+            <td>
+              <div class="fw-medium text-dark">{{ item.document.titre|truncatechars:50 }}</div>
+              <div class="small text-muted">
+                Rev. {{ item.document.revision_actuelle }}
+              </div>
+            </td>
+            <td class="small">
+              {% if item.document.projet %}
+              <i class="bi bi-folder me-1 text-muted"></i>
+              {{ item.document.projet.code }}
+              {% else %}
+              <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if item.document.phase %}
+              <span class="badge bg-secondary pmo-badge">
+                {{ item.document.phase.code }}
+              </span>
+              {% endif %}
+              <br>
+              {% if item.document.classe_documentaire %}
+              <span class="badge bg-{% if item.document.classe_documentaire.numero == 1 %}danger{% elif item.document.classe_documentaire.numero == 2 %}warning{% else %}info{% endif %} pmo-badge mt-1">
+                Cl.{{ item.document.classe_documentaire.numero }}
+              </span>
+              {% endif %}
+            </td>
+            <td>
+              <!-- Timeline du cycle de vie -->
+              <div class="d-flex align-items-center gap-1 mb-2">
+                {% for statut in item.sequence %}
+                <div class="pmo-lifecycle-step {% if forloop.counter0 == item.index_actuel %}active{% elif forloop.counter0 < item.index_actuel %}completed{% endif %}"
+                     title="{{ statut.libelle }}" data-bs-toggle="tooltip">
+                  {{ statut.code }}
+                </div>
+                {% if not forloop.last %}
+                <i class="bi bi-arrow-right small text-muted"></i>
+                {% endif %}
+                {% endfor %}
+              </div>
+              {% if item.document.statut_actuel %}
+              <div class="small text-muted">
+                Statut actuel : <strong>{{ item.document.statut_actuel.code }}</strong>
+              </div>
+              {% endif %}
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div class="pmo-progress flex-grow-1">
+                  <div class="pmo-progress-bar bg-{% if item.progression_cycle >= 100 %}success{% elif item.progression_cycle >= 50 %}warning{% else %}info{% endif %}"
+                       style="width:{{ item.progression_cycle }}%">
+                  </div>
+                </div>
+                <span class="small fw-semibold" style="min-width:38px;">
+                  {{ item.progression_cycle }}%
+                </span>
+              </div>
+            </td>
+            <td>
+              <a href="{% url 'documents:detail' item.document.pk %}"
+                 class="btn-pmo-icon" title="Voir" data-bs-toggle="tooltip">
+                <i class="bi bi-eye"></i>
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7">
+              <div class="pmo-empty-state">
+                <div class="pmo-empty-icon"><i class="bi bi-folder-x"></i></div>
+                <div class="pmo-empty-title">Aucun document trouvé</div>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="px-4 py-3 border-top bg-light">
+      {% include "components/pagination.html" with documents=documents_page %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .pmo-lifecycle-step {
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    background: #e2e8f0;
+    color: #64748b;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .pmo-lifecycle-step.active {
+    background: #3b82f6;
+    color: #fff;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+  }
+  .pmo-lifecycle-step.completed {
+    background: #10b981;
+    color: #fff;
+  }
+</style>
+{% endblock %}

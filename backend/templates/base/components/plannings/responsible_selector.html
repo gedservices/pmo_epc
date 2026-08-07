@@ -1,0 +1,25 @@
+<div class="col-md-4">
+
+    <label class="form-label fw-semibold">
+        Responsable
+    </label>
+
+    <select class="form-select"
+            name="responsable">
+
+        <option value="">
+            Tous les responsables
+        </option>
+
+        {% for responsable in responsables %}
+            <option value="{{ responsable.id }}"
+                {% if responsable.id == responsable_selectionne.id %}
+                    selected
+                {% endif %}>
+                {{ responsable.nom_complet }}
+            </option>
+        {% endfor %}
+
+    </select>
+
+</div>

@@ -1,0 +1,557 @@
+{% extends "base/base.html" %}
+
+
+{% block title %}
+{{ page_title|default:"Projet" }}
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<div class="container-fluid px-4 py-3">
+
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+
+    <div class="d-flex justify-content-between align-items-start mb-4">
+
+
+        <div>
+
+
+            <h1 class="pmo-page-title">
+
+
+                <i class="bi bi-folder-plus text-primary me-2"></i>
+
+
+                {% if mode == "edit" %}
+
+                    Modifier le projet
+
+                {% else %}
+
+                    Nouveau projet
+
+                {% endif %}
+
+
+            </h1>
+
+
+
+            <p class="pmo-page-subtitle">
+
+
+                Gestion des informations projet PMO
+
+
+            </p>
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+
+    <!-- =====================================================
+         FORMULAIRE
+    ====================================================== -->
+
+
+    <form method="post">
+
+
+        {% csrf_token %}
+
+
+
+
+
+        <!-- =================================================
+             INFORMATIONS GENERALES
+        ================================================== -->
+
+
+        <div class="pmo-card mb-3">
+
+
+            <h5 class="mb-3">
+
+
+                <i class="bi bi-info-circle me-2 text-primary"></i>
+
+
+                Informations générales
+
+
+            </h5>
+
+
+
+            <div class="row g-3">
+
+
+
+                {% for field in form %}
+
+
+
+                    {% if field.name in "code nom description type_projet" %}
+
+
+                    <div class="col-md-6">
+
+
+                        <label class="form-label fw-semibold">
+
+                            {{ field.label }}
+
+                        </label>
+
+
+
+                        {{ field }}
+
+
+
+                        {% if field.errors %}
+
+                        <div class="text-danger small">
+
+                            {{ field.errors }}
+
+                        </div>
+
+                        {% endif %}
+
+
+
+                    </div>
+
+
+
+                    {% endif %}
+
+
+
+                {% endfor %}
+
+
+
+            </div>
+
+
+
+        </div>
+
+
+
+
+
+
+        <!-- =================================================
+             ORGANISATION
+        ================================================== -->
+
+
+        <div class="pmo-card mb-3">
+
+
+            <h5>
+
+
+                <i class="bi bi-diagram-3 me-2 text-primary"></i>
+
+
+                Organisation
+
+
+            </h5>
+
+
+
+            <div class="row g-3">
+
+
+
+            {% for field in form %}
+
+
+
+
+                {% if field.name in "conteneur statut priorite responsable entite pays site secteur" %}
+
+
+
+                <div class="col-md-4">
+
+
+                    <label class="form-label fw-semibold">
+
+                        {{ field.label }}
+
+                    </label>
+
+
+
+                    {{ field }}
+
+
+
+                    {% if field.errors %}
+
+                    <div class="text-danger small">
+
+                        {{ field.errors }}
+
+                    </div>
+
+                    {% endif %}
+
+
+
+                </div>
+
+
+
+                {% endif %}
+
+
+
+            {% endfor %}
+
+
+
+            </div>
+
+
+
+        </div>
+
+
+
+
+
+
+
+        <!-- =================================================
+             PLANNING
+        ================================================== -->
+
+
+        <div class="pmo-card mb-3">
+
+
+            <h5>
+
+
+                <i class="bi bi-calendar-event me-2 text-primary"></i>
+
+
+                Planning
+
+
+            </h5>
+
+
+
+            <div class="row g-3">
+
+
+            {% for field in form %}
+
+
+
+                {% if field.name in "date_debut_prevue date_fin_prevue date_debut_reelle date_fin_reelle" %}
+
+
+
+                <div class="col-md-3">
+
+
+                    <label class="form-label fw-semibold">
+
+
+                        {{ field.label }}
+
+
+                    </label>
+
+
+
+                    {{ field }}
+
+
+
+                    {% if field.errors %}
+
+                    <div class="text-danger small">
+
+                        {{ field.errors }}
+
+                    </div>
+
+                    {% endif %}
+
+
+
+                </div>
+
+
+
+                {% endif %}
+
+
+
+            {% endfor %}
+
+
+
+            </div>
+
+
+
+        </div>
+
+
+
+
+
+
+
+        <!-- =================================================
+             BUDGET
+        ================================================== -->
+
+
+        <div class="pmo-card mb-3">
+
+
+            <h5>
+
+
+                <i class="bi bi-currency-euro me-2 text-primary"></i>
+
+
+                Budget
+
+
+            </h5>
+
+
+
+            <div class="row g-3">
+
+
+            {% for field in form %}
+
+
+
+                {% if field.name in "budget_prevu budget_reel" %}
+
+
+
+                <div class="col-md-6">
+
+
+                    <label class="form-label fw-semibold">
+
+
+                        {{ field.label }}
+
+
+                    </label>
+
+
+
+                    {{ field }}
+
+
+
+                    {% if field.errors %}
+
+                    <div class="text-danger small">
+
+                        {{ field.errors }}
+
+                    </div>
+
+                    {% endif %}
+
+
+
+                </div>
+
+
+
+                {% endif %}
+
+
+
+            {% endfor %}
+
+
+
+            </div>
+
+
+
+        </div>
+
+
+
+
+
+
+
+        <!-- =================================================
+             EVM
+        ================================================== -->
+
+
+        <div class="pmo-card mb-3">
+
+
+            <h5>
+
+
+                <i class="bi bi-graph-up-arrow me-2 text-primary"></i>
+
+
+                Earned Value Management
+
+
+            </h5>
+
+
+
+            <div class="row g-3">
+
+
+            {% for field in form %}
+
+
+
+                {% if field.name in "planned_value earned_value actual_cost" %}
+
+
+
+                <div class="col-md-4">
+
+
+                    <label class="form-label fw-semibold">
+
+
+                        {{ field.label }}
+
+
+                    </label>
+
+
+
+                    {{ field }}
+
+
+
+                    {% if field.errors %}
+
+                    <div class="text-danger small">
+
+                        {{ field.errors }}
+
+                    </div>
+
+                    {% endif %}
+
+
+
+                </div>
+
+
+
+                {% endif %}
+
+
+
+            {% endfor %}
+
+
+
+            </div>
+
+
+
+        </div>
+
+
+
+
+
+
+        <!-- =================================================
+             ACTIONS
+        ================================================== -->
+
+
+        <div class="d-flex justify-content-end gap-2 mb-4">
+
+
+
+            <a href="{% url 'projects:list' %}"
+               class="btn btn-secondary">
+
+
+                <i class="bi bi-x-lg"></i>
+
+
+                Annuler
+
+
+            </a>
+
+
+
+
+            <button type="submit"
+                    class="btn btn-primary">
+
+
+                <i class="bi bi-check-lg"></i>
+
+
+                Enregistrer
+
+
+            </button>
+
+
+
+        </div>
+
+
+
+
+
+    </form>
+
+
+
+
+</div>
+
+
+
+{% endblock %}

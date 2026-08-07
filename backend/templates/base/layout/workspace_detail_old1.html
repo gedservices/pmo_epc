@@ -1,0 +1,154 @@
+{% extends "base/base.html" %}
+
+
+{% block content %}
+
+<div class="container-fluid py-3">
+
+    {% block object_header %}
+    {% endblock %}
+
+
+    <!-- Navigation workspace -->
+
+    <ul class="nav nav-tabs mb-3">
+
+        {% block workspace_tabs %}
+
+        <li class="nav-item">
+            <a class="nav-link active"
+               data-bs-toggle="tab"
+               href="#dashboard">
+                <i class="bi bi-speedometer2"></i>
+                Dashboard
+            </a>
+        </li>
+
+
+        <li class="nav-item">
+            <a class="nav-link"
+               data-bs-toggle="tab"
+               href="#general">
+                Général
+            </a>
+        </li>
+
+
+        <li class="nav-item">
+    <a class="nav-link"
+       data-bs-toggle="tab"
+       href="#organisation">
+        Organisation
+    </a>
+</li>
+
+
+        <li class="nav-item">
+            <a class="nav-link"
+               data-bs-toggle="tab"
+               href="#planning">
+                Planning
+            </a>
+        </li>
+
+
+        <li class="nav-item">
+            <a class="nav-link"
+               data-bs-toggle="tab"
+               href="#budget">
+                Budget
+            </a>
+        </li>
+
+
+        <li class="nav-item">
+            <a class="nav-link"
+               data-bs-toggle="tab"
+               href="#ged">
+                GED
+            </a>
+        </li>
+
+
+        <li class="nav-item">
+            <a class="nav-link"
+               data-bs-toggle="tab"
+               href="#history">
+                Historique
+            </a>
+        </li>
+
+
+        {% endblock %}
+
+    </ul>
+
+
+    <div class="tab-content">
+
+        <div class="tab-pane fade show active"
+             id="dashboard">
+
+            {% block dashboard %}
+            {% endblock %}
+
+        </div>
+
+        <div class="tab-pane fade"
+             id="general">
+
+            {% block general %}
+            {% endblock %}
+
+        </div>
+
+
+        <div class="tab-pane fade"
+             id="organisation">
+
+            {% block organisation %}
+            {% endblock %}
+
+        </div>
+
+
+
+        <div class="tab-pane fade"
+             id="planning">
+
+            {% block planning %}
+            {% endblock %}
+
+        </div>
+
+
+        <div class="tab-pane fade"
+             id="budget">
+
+            {% block budget %}
+            {% endblock %}
+        </div>
+
+
+        <div class="tab-pane fade"
+             id="ged">
+
+            {% block ged %}
+            {% endblock %}
+
+        </div>
+
+
+        <div class="tab-pane fade"
+             id="history">
+
+            {% block history %}
+            {% endblock %}
+        </div>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

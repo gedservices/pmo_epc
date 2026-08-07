@@ -1,0 +1,2895 @@
+--modele
+
+-- =========================================================
+-- PMO EPC DATABASE - FULL SCHEMA - POSTGRESQL
+-- VERSION 1.0 - SCHEMA COMPLET TOUTES VERSIONS
+-- =========================================================
+
+-- =========================
+-- CLEAN RESET
+-- =========================
+drop table if exists tache_documents cascade;
+drop table if exists historique_taches cascade;
+drop table if exists historique_avancement cascade;
+drop table if exists evm_snapshots cascade;
+drop table if exists risques cascade;
+drop table if exists couts cascade;
+drop table if exists taches cascade;
+drop table if exists transmittal_documents cascade;
+drop table if exists transmittals cascade;
+drop table if exists commentaires_revue cascade;
+drop table if exists assignations_revue cascade;
+drop table if exists revues cascade;
+drop table if exists mddm_lignes cascade;
+drop table if exists mddm cascade;
+drop table if exists document_revisions cascade;
+drop table if exists documents_mdr cascade;
+drop table if exists mdr cascade;
+drop table if exists commandes cascade;
+drop table if exists projet_entites cascade;
+drop table if exists projet_sites cascade;
+drop table if exists projets cascade;
+drop table if exists migration_conteneur_log cascade;
+drop table if exists conteneurs cascade;
+drop table if exists notifications cascade;
+drop table if exists utilisateurs cascade;
+drop table if exists tags cascade;
+drop table if exists sous_systemes cascade;
+drop table if exists systemes cascade;
+drop table if exists secteurs cascade;
+drop table if exists sites cascade;
+drop table if exists pays cascade;
+drop table if exists entites cascade;
+drop table if exists doc_types_correspondance cascade;
+drop table if exists doc_types_technique cascade;
+drop table if exists disciplines cascade;
+drop table if exists classes_documentaires cascade;
+drop table if exists phases cascade;
+drop table if exists statuts_cycle_vie cascade;
+drop table if exists sequences_statuts cascade;
+
+-- =========================================================
+-- REFERENTIELS DE BASE
+-- =========================================================
+
+-- -------------------------
+-- PHASES EPC
+-- -------------------------
+create table phases (
+    id bigint generated always as identity primary key,
+    code varchar(10) not null unique,
+    nom varchar(100) not null,
+    ordre int not null default 0,
+    actif boolean default true
+);
+
+-- -------------------------
+-- CLASSES DOCUMENTAIRES
+-- -------------------------
+create table classes_documentaires (
+    id bigint generated always as identity primary key,
+    numero int not null unique check (numero between 1 and 6),
+    libelle varchar(50) not null,
+    description text,
+    cycle_simplifie boolean default false
+    -- cycle_simplifie = true pour classes 4,5,6
+);
+
+-- -------------------------
+-- STATUTS CYCLE DE VIE
+-- -------------------------
+create table statuts_cycle_vie (
+    id bigint generated always as identity primary key,
+    code varchar(10) not null unique,
+    libelle varchar(100) not null,
+    description text,
+    est_terminal boolean default false
+);
+
+-- -------------------------
+-- SEQUENCES DE STATUTS
+-- (phase + classe => sequence ordonnee)
+-- -------------------------
+create table sequences_statuts (
+    id bigint generated always as identity primary key,
+    phase_id bigint not null references phases(id),
+    classe_num int not null check (classe_num between 1 and 6),
+    statut_id bigint not null references statuts_cycle_vie(id),
+    ordre int not null,
+    est_statut_final boolean default false,
+    unique (phase_id, classe_num, ordre)
+);
+
+-- -------------------------
+-- DISCIPLINES
+-- -------------------------
+create table disciplines (
+    id bigint generated always as identity primary key,
+    code varchar(10) not null unique,
+    nom varchar(100) not null,
+    actif boolean default true
+);
+
+-- -------------------------
+-- TYPES DE DOCUMENTS TECHNIQUES
+-- -------------------------
+create table doc_types_technique (
+    id bigint generated always as identity primary key,
+    code varchar(20) not null unique,
+    libelle varchar(100) not null,
+    classe_num int references classes_documentaires(numero),
+    discipline_id bigint references disciplines(id),
+    actif boolean default true
+);
+
+-- -------------------------
+-- TYPES DE DOCUMENTS CORRESPONDANCE
+-- -------------------------
+create table doc_types_correspondance (
+    id bigint generated always as identity primary key,
+    code varchar(20) not null unique,
+    libelle varchar(100) not null,
+    actif boolean default true
+);
+
+-- =========================================================
+-- GEOGRAPHIE
+-- =========================================================
+
+-- -------------------------
+-- PAYS
+-- -------------------------
+create table pays (
+    id bigint generated always as identity primary key,
+    code_pays varchar(5) not null unique,
+    nom varchar(100) not null
+);
+
+-- -------------------------
+-- SITES
+-- -------------------------
+create table sites (
+    id bigint generated always as identity primary key,
+    code_site varchar(10) not null unique,
+    nom varchar(100) not null,
+    pays_id bigint not null references pays(id),
+    actif boolean default true
+);
+
+-- -------------------------
+-- SECTEURS
+-- -------------------------
+create table secteurs (
+    id bigint generated always as identity primary key,
+    code_secteur varchar(10) not null unique,
+    nom varchar(100) not null,
+    site_id bigint not null references sites(id),
+    actif boolean default true
+);
+
+-- -------------------------
+-- SYSTEMES
+-- -------------------------
+create table systemes (
+    id bigint generated always as identity primary key,
+    code_systeme varchar(20) not null unique,
+    nom varchar(100) not null,
+    secteur_id bigint not null references secteurs(id),
+    actif boolean default true
+);
+
+-- -------------------------
+-- SOUS-SYSTEMES (UNITES)
+-- -------------------------
+create table sous_systemes (
+    id bigint generated always as identity primary key,
+    code_sous_systeme varchar(20) not null unique,
+    nom varchar(100) not null,
+    systeme_id bigint not null references systemes(id),
+    actif boolean default true
+);
+
+-- -------------------------
+-- TAGS
+-- -------------------------
+create table tags (
+    id bigint generated always as identity primary key,
+    code_tag varchar(50) not null unique,
+    description text,
+    type_equipement varchar(100),
+    discipline_id bigint references disciplines(id),
+    sous_systeme_id bigint references sous_systemes(id),
+    actif boolean default true
+);
+
+-- =========================================================
+-- ORGANISATION
+-- =========================================================
+
+-- -------------------------
+-- ENTITES
+-- -------------------------
+create table entites (
+    id bigint generated always as identity primary key,
+    nom varchar(100) not null unique,
+    type varchar(20) not null default 'INTERNE'
+        check (type in ('INTERNE','EXTERNE')),
+    description text,
+    actif boolean default true
+);
+
+-- -------------------------
+-- UTILISATEURS
+-- -------------------------
+create table utilisateurs (
+    id bigint generated always as identity primary key,
+    nom varchar(100) not null,
+    prenom varchar(100) not null,
+    email varchar(150) not null unique,
+    entite_id bigint references entites(id),
+    role varchar(30) not null default 'MEMBER'
+        check (role in (
+            'ADMIN',
+            'PMO',
+            'MANAGER',
+            'LEAD_DOC_CONTROLLER',
+            'DOC_CONTROLLER',
+            'LEADER_TECHNIQUE',
+            'SPECIALIST',
+            'MEMBER',
+            'CONTRACTOR'
+        )),
+    est_contractor boolean default false,
+    actif boolean default true,
+    date_creation timestamptz default now(),
+    date_modification timestamptz default now()
+);
+
+-- =========================================================
+-- CONTENEURS DE CYCLE DE VIE
+-- =========================================================
+
+create table conteneurs (
+    id bigint generated always as identity primary key,
+    code varchar(20) not null unique,
+    libelle varchar(100) not null,
+    description text,
+    ordre int default 0,
+    est_archive boolean default false,
+    actif boolean default true
+);
+
+-- =========================================================
+-- PROJETS
+-- =========================================================
+
+create table projets (
+    id bigint generated always as identity primary key,
+    code varchar(50) not null unique,
+    nom varchar(255) not null,
+    description text,
+    type_projet varchar(50),
+
+    conteneur_id bigint not null references conteneurs(id),
+
+    statut varchar(30) not null default 'Ouvert'
+        check (statut in (
+            'Ouvert','En cours','En attente',
+            'Suspendu','Clôturé','Annulé','Finalisé'
+        )),
+
+    priorite varchar(30)
+        check (priorite in ('Critique','Haute','Moyenne','Basse')),
+
+    responsable_id bigint references utilisateurs(id),
+    entite_id bigint references entites(id),
+
+    -- geographie principale
+    pays_id bigint references pays(id),
+    site_id bigint references sites(id),
+    secteur_id bigint references secteurs(id),
+
+    date_debut_prevue date,
+    date_fin_prevue date,
+    date_debut_reelle date,
+    date_fin_reelle date,
+
+    budget_prevu numeric(15,2) default 0,
+    budget_reel numeric(15,2) default 0,
+
+    progression_calculee numeric(5,2) default 0
+        check (progression_calculee >= 0 and progression_calculee <= 100),
+
+    poids_portefeuille numeric(5,2) default 0,
+
+    -- EVM
+    planned_value numeric(15,2) default 0,
+    earned_value numeric(15,2) default 0,
+    actual_cost numeric(15,2) default 0,
+
+    est_generique boolean default false,
+    est_lecture_seule boolean default false,
+
+    date_creation timestamptz default now(),
+    date_modification timestamptz default now(),
+    cree_par bigint references utilisateurs(id),
+    modifie_par bigint references utilisateurs(id)
+);
+
+-- -------------------------
+-- PROJET <-> ENTITES (M2M)
+-- -------------------------
+create table projet_entites (
+    projet_id bigint not null references projets(id) on delete cascade,
+    entite_id bigint not null references entites(id) on delete cascade,
+    role_entite varchar(100),
+    primary key (projet_id, entite_id)
+);
+
+-- -------------------------
+-- PROJET <-> SITES (M2M)
+-- -------------------------
+create table projet_sites (
+    projet_id bigint not null references projets(id) on delete cascade,
+    site_id bigint not null references sites(id) on delete cascade,
+    primary key (projet_id, site_id)
+);
+
+-- -------------------------
+-- LOG MIGRATIONS CONTENEURS
+-- -------------------------
+create table migration_conteneur_log (
+    id bigint generated always as identity primary key,
+    projet_id bigint not null references projets(id),
+    conteneur_source_id bigint not null references conteneurs(id),
+    conteneur_cible_id bigint not null references conteneurs(id),
+    date_migration timestamptz default now(),
+    migre_par bigint references utilisateurs(id),
+    commentaire text
+);
+
+-- =========================================================
+-- COMMANDES / CONTRATS
+-- =========================================================
+
+create table commandes (
+    id bigint generated always as identity primary key,
+    projet_id bigint not null references projets(id) on delete cascade,
+
+    code_commande varchar(50) not null unique,
+    code_originator varchar(4) not null,
+    nom varchar(255) not null,
+    description text,
+
+    contractor varchar(255),
+    entite_contractor_id bigint references entites(id),
+
+    phase_id bigint references phases(id),
+
+    statut varchar(30) not null default 'Ouvert'
+        check (statut in (
+            'Ouvert','En cours','En attente',
+            'Suspendu','Terminée','Annulée'
+        )),
+
+    priorite varchar(30)
+        check (priorite in ('Critique','Haute','Moyenne','Basse')),
+
+    responsable_id bigint references utilisateurs(id),
+
+    -- geographie specifique commande
+    pays_id bigint references pays(id),
+    site_id bigint references sites(id),
+    secteur_id bigint references secteurs(id),
+
+    date_debut_prevue date,
+    date_fin_prevue date,
+    date_debut_reelle date,
+    date_fin_reelle date,
+
+    budget_prevu numeric(15,2) default 0,
+    budget_reel numeric(15,2) default 0,
+
+    poids numeric(5,2) default 0
+        check (poids >= 0 and poids <= 100),
+
+    progression_calculee numeric(5,2) default 0
+        check (progression_calculee >= 0 and progression_calculee <= 100),
+
+    -- durees de revue par defaut pour cette commande
+    duree_revue_company_defaut int default 15,
+    duree_revue_contractor_defaut int default 15,
+
+    -- EVM commande
+    planned_value numeric(15,2) default 0,
+    earned_value numeric(15,2) default 0,
+    actual_cost numeric(15,2) default 0,
+
+    est_generique boolean default false,
+
+    date_creation timestamptz default now(),
+    date_modification timestamptz default now(),
+    cree_par bigint references utilisateurs(id),
+    modifie_par bigint references utilisateurs(id)
+);
+
+-- =========================================================
+-- TACHES
+-- =========================================================
+
+create table taches (
+    id bigint generated always as identity primary key,
+    projet_id bigint not null references projets(id) on delete cascade,
+    commande_id bigint references commandes(id) on delete set null,
+
+    nom varchar(255) not null,
+    description text,
+
+    phase_id bigint references phases(id),
+    discipline_id bigint references disciplines(id),
+    responsable_id bigint references utilisateurs(id),
+
+    statut varchar(30) not null default 'En attente'
+        check (statut in (
+            'En attente','En cours','Terminée',
+            'Suspendue','Annulée'
+        )),
+
+    poids numeric(5,2) default 0
+        check (poids >= 0 and poids <= 100),
+
+    avancement numeric(5,2) default 0
+        check (avancement >= 0 and avancement <= 100),
+
+    date_debut_prevue date,
+    date_fin_prevue date,
+    date_debut_reelle date,
+    date_fin_reelle date,
+
+    cout_prevu numeric(15,2) default 0,
+    cout_reel numeric(15,2) default 0,
+
+    -- EVM tache
+    planned_value numeric(15,2) default 0,
+    earned_value numeric(15,2) default 0,
+    actual_cost numeric(15,2) default 0,
+
+    est_en_retard boolean default false,
+    est_jalon boolean default false,
+
+    date_creation timestamptz default now(),
+    date_modification timestamptz default now(),
+    cree_par bigint references utilisateurs(id),
+    modifie_par bigint references utilisateurs(id)
+);
+
+-- -------------------------
+-- TACHE <-> DOCUMENTS (M2M informatif)
+-- -------------------------
+create table tache_documents (
+    tache_id bigint not null references taches(id) on delete cascade,
+    document_mdr_id bigint not null,
+    -- FK vers documents_mdr ajoutée après creation de la table
+    commentaire text,
+    primary key (tache_id, document_mdr_id)
+);
+
+-- -------------------------
+-- HISTORIQUE TACHES
+-- -------------------------
+create table historique_taches (
+    id bigint generated always as identity primary key,
+    tache_id bigint not null references taches(id) on delete cascade,
+    champ_modifie varchar(50),
+    ancienne_valeur text,
+    nouvelle_valeur text,
+    date_modification timestamptz default now(),
+    modifie_par bigint references utilisateurs(id)
+);
+
+-- =========================================================
+-- COUTS
+-- =========================================================
+
+create table couts (
+    id bigint generated always as identity primary key,
+    projet_id bigint not null references projets(id) on delete cascade,
+    commande_id bigint references commandes(id) on delete cascade,
+    tache_id bigint references taches(id) on delete set null,
+
+    libelle varchar(255) not null,
+    categorie varchar(100),
+
+    cout_prevu numeric(15,2) default 0,
+    cout_reel numeric(15,2) default 0,
+
+    date_cout date,
+    date_creation timestamptz default now(),
+    cree_par bigint references utilisateurs(id)
+);
+
+-- =========================================================
+-- RISQUES
+-- =========================================================
+
+create table risques (
+    id bigint generated always as identity primary key,
+    projet_id bigint not null references projets(id) on delete cascade,
+    commande_id bigint references commandes(id) on delete cascade,
+
+    titre varchar(255) not null,
+    description text,
+
+    probabilite int not null check (probabilite between 1 and 5),
+    impact int not null check (impact between 1 and 5),
+    criticite int generated always as (probabilite * impact) stored,
+
+    statut varchar(30) default 'Ouvert'
+        check (statut in ('Ouvert','En cours','Clôturé','Accepté')),
+
+    plan_mitigation text,
+    responsable_id bigint references utilisateurs(id),
+
+    date_identification date default current_date,
+    date_echeance date,
+    date_creation timestamptz default now(),
+    date_modification timestamptz default now()
+);
+
+-- =========================================================
+-- HISTORIQUE AVANCEMENT & EVM SNAPSHOTS
+-- =========================================================
+
+create table historique_avancement (
+    id bigint generated always as identity primary key,
+    projet_id bigint not null references projets(id) on delete cascade,
+    commande_id bigint references commandes(id) on delete cascade,
+
+    date_snapshot date not null,
+    avancement_reel numeric(5,2),
+    avancement_prevu numeric(5,2),
+
+    -- EVM snapshot
+    planned_value numeric(15,2),
+    earned_value numeric(15,2),
+    actual_cost numeric(15,2),
+    spi numeric(8,4),
+    cpi numeric(8,4)
+);
+
+create table evm_snapshots (
+    id bigint generated always as identity primary key,
+    projet_id bigint not null references projets(id) on delete cascade,
+    commande_id bigint references commandes(id) on delete cascade,
+    tache_id bigint references taches(id) on delete cascade,
+
+    date_snapshot date not null,
+
+    budget_total numeric(15,2),
+    planned_value numeric(15,2),
+    earned_value numeric(15,2),
+    actual_cost numeric(15,2),
+
+    spi numeric(8,4)
+        generated always as (
+            case when planned_value > 0
+                then earned_value / planned_value
+                else null end
+        ) stored,
+
+    cpi numeric(8,4)
+        generated always as (
+            case when actual_cost > 0
+                then earned_value / actual_cost
+                else null end
+        ) stored,
+
+    sv numeric(15,2)
+        generated always as (earned_value - planned_value) stored,
+
+    cv numeric(15,2)
+        generated always as (earned_value - actual_cost) stored,
+
+    date_creation timestamptz default now()
+);
+
+-- =========================================================
+-- MDR — MASTER DOCUMENT REGISTER
+-- =========================================================
+
+-- -------------------------
+-- MDR (entete par commande)
+-- -------------------------
+create table mdr (
+    id bigint generated always as identity primary key,
+    commande_id bigint not null unique references commandes(id) on delete cascade,
+    projet_id bigint not null references projets(id),
+    titre varchar(255),
+    description text,
+    date_creation timestamptz default now(),
+    date_modification timestamptz default now(),
+    cree_par bigint references utilisateurs(id)
+);
+
+-- -------------------------
+-- DOCUMENTS MDR (lignes)
+-- -------------------------
+create table documents_mdr (
+    id bigint generated always as identity primary key,
+    mdr_id bigint not null references mdr(id) on delete cascade,
+    commande_id bigint not null references commandes(id) on delete cascade,
+    projet_id bigint not null references projets(id),
+
+    -- IDENTIFICATION
+    numero_document varchar(100) not null unique,
+    titre varchar(255) not null,
+
+    -- CLASSIFICATION
+    phase_id bigint references phases(id),
+    discipline_id bigint references disciplines(id),
+    classe_num int not null default 1
+        references classes_documentaires(numero),
+    doc_type_id bigint references doc_types_technique(id),
+
+    -- GEOGRAPHIE & HIERARCHIE
+    pays_id bigint references pays(id),
+    site_id bigint references sites(id),
+    secteur_id bigint references secteurs(id),
+    systeme_id bigint references systemes(id),
+    sous_systeme_id bigint references sous_systemes(id),
+    tag_id bigint references tags(id),
+
+    -- PARAMETRES DE REVUE
+    duree_revue_company int default 15,
+    duree_revue_contractor int default 15,
+
+    -- SEQUENCE ET STATUT FINAL ATTENDU
+    statut_final_attendu varchar(10),
+    sequence_statuts text,
+    -- sequence_statuts : stockage JSON ou texte delimiteur
+    -- ex : 'IFR,IFA,IFC' calculé à la création
+
+    -- SUIVI COURANT
+    revision_courante varchar(5) default '00',
+    statut_courant varchar(10),
+    code_retour_courant varchar(1)
+        check (code_retour_courant in ('A','B','C','D')),
+
+    est_finalise boolean default false,
+    date_finalisation date,
+
+    -- DATES PREVISIONNELLES ET REELLES
+    date_emission_prevue date,
+    date_emission_reelle date,
+    date_retour_prevu date,
+    date_retour_reel date,
+    date_prochaine_emission_prevue date,
+
+    -- FICHIER COURANT
+    fichier_natif varchar(500),
+
+    -- METADATA
+    commentaire_interne text,
+    date_creation timestamptz default now(),
+    date_modification timestamptz default now(),
+    cree_par bigint references utilisateurs(id),
+    modifie_par bigint references utilisateurs(id)
+);
+
+-- FK differee tache_documents -> documents_mdr
+alter table tache_documents
+    add constraint fk_tache_doc_mdr
+    foreign key (document_mdr_id)
+    references documents_mdr(id) on delete cascade;
+
+-- -------------------------
+-- REVISIONS DOCUMENTS (historique complet)
+-- -------------------------
+create table document_revisions (
+    id bigint generated always as identity primary key,
+    document_mdr_id bigint not null references documents_mdr(id) on delete cascade,
+
+    numero_revision varchar(5) not null,
+    statut_emission varchar(10) not null,
+    code_retour varchar(1)
+        check (code_retour in ('A','B','C','D')),
+
+    date_emission_contractor date,
+    date_reception_company date,
+    date_retour_company date,
+    date_limite_retour date,
+
+    fichier_revision varchar(500),
+
+    transmittal_entrant_id bigint,
+    transmittal_sortant_id bigint,
+    -- FK vers transmittals ajoutees apres
+
+    commentaires_revue_consolides text,
+    est_en_retard boolean default false,
+
+    date_creation timestamptz default now(),
+    cree_par bigint references utilisateurs(id),
+
+    unique (document_mdr_id, numero_revision)
+);
+
+-- =========================================================
+-- TRANSMITTALS
+-- =========================================================
+
+create table transmittals (
+    id bigint generated always as identity primary key,
+    numero_transmittal varchar(50) not null unique,
+
+    type varchar(20) not null
+        check (type in ('ENTRANT','SORTANT')),
+    sens varchar(20) not null
+        check (sens in ('COMPANY_TO_CONTRACTOR','CONTRACTOR_TO_COMPANY')),
+
+    projet_id bigint not null references projets(id),
+    commande_id bigint references commandes(id),
+
+    emetteur_id bigint references utilisateurs(id),
+    destinataire_nom varchar(255),
+
+    date_emission date,
+    date_reception date,
+    date_limite_reponse date,
+
+    statut varchar(30) default 'Brouillon'
+        check (statut in (
+            'Brouillon','Émis','Reçu','En attente','Clôturé'
+        )),
+
+    objet text,
+    commentaire text,
+
+    genere_automatiquement boolean default false,
+    date_creation timestamptz default now(),
+    date_modification timestamptz default now(),
+    cree_par bigint references utilisateurs(id)
+);
+
+create table transmittal_documents (
+    id bigint generated always as identity primary key,
+    transmittal_id bigint not null references transmittals(id) on delete cascade,
+    document_mdr_id bigint not null references documents_mdr(id),
+    revision_id bigint references document_revisions(id),
+    commentaire text
+);
+
+-- FK differees sur document_revisions
+alter table document_revisions
+    add constraint fk_rev_transmittal_entrant
+    foreign key (transmittal_entrant_id)
+    references transmittals(id) on delete set null;
+
+alter table document_revisions
+    add constraint fk_rev_transmittal_sortant
+    foreign key (transmittal_sortant_id)
+    references transmittals(id) on delete set null;
+
+-- =========================================================
+-- REVUE DOCUMENTAIRE
+-- =========================================================
+
+create table revues (
+    id bigint generated always as identity primary key,
+    document_mdr_id bigint not null references documents_mdr(id) on delete cascade,
+    revision_id bigint references document_revisions(id),
+
+    statut varchar(30) not null default 'En attente'
+        check (statut in (
+            'En attente','Ouverte','En cours',
+            'En attente validation','Fermée','Annulée'
+        )),
+
+    date_ouverture date,
+    date_limite date,
+    date_fermeture date,
+
+    code_retour_propose varchar(1)
+        check (code_retour_propose in ('A','B','C','D')),
+    code_retour_final varchar(1)
+        check (code_retour_final in ('A','B','C','D')),
+
+    -- acteurs
+    doc_controller_id bigint references utilisateurs(id),
+    leader_technique_id bigint references utilisateurs(id),
+    gestionnaire_projet_id bigint references utilisateurs(id),
+
+    commentaire_global text,
+    date_creation timestamptz default now(),
+    date_modification timestamptz default now(),
+    cree_par bigint references utilisateurs(id)
+);
+
+create table assignations_revue (
+    id bigint generated always as identity primary key,
+    revue_id bigint not null references revues(id) on delete cascade,
+    specialiste_id bigint not null references utilisateurs(id),
+
+    statut varchar(20) default 'Assignée'
+        check (statut in ('Assignée','En cours','Complétée','Refusée')),
+
+    date_assignation timestamptz default now(),
+    date_limite date,
+    date_completion timestamptz
+);
+
+create table commentaires_revue (
+    id bigint generated always as identity primary key,
+    revue_id bigint not null references revues(id) on delete cascade,
+    assignation_id bigint references assignations_revue(id),
+    auteur_id bigint not null references utilisateurs(id),
+
+    type_auteur varchar(20)
+        check (type_auteur in (
+            'SPECIALISTE','LEADER_TECHNIQUE',
+            'GESTIONNAIRE','DOC_CONTROLLER'
+        )),
+
+    commentaire text not null,
+    reference_document varchar(100),
+    numero_commentaire int,
+
+    statut varchar(20) default 'Ouvert'
+        check (statut in ('Ouvert','Accepté','Rejeté','En attente')),
+
+    reponse_contractor text,
+    valide_par bigint references utilisateurs(id),
+
+    date_creation timestamptz default now(),
+    date_modification timestamptz default now()
+);
+
+-- =========================================================
+-- MDDM — MASTER DOCUMENT DISTRIBUTION MATRIX
+-- =========================================================
+
+create table mddm (
+    id bigint generated always as identity primary key,
+    commande_id bigint not null references commandes(id) on delete cascade,
+    projet_id bigint not null references projets(id),
+    type varchar(10) not null default 'INTERNE'
+        check (type in ('INTERNE','EXTERNE')),
+    description text,
+    date_creation timestamptz default now(),
+    date_modification timestamptz default now(),
+    cree_par bigint references utilisateurs(id)
+);
+
+create table mddm_lignes (
+    id bigint generated always as identity primary key,
+    mddm_id bigint not null references mddm(id) on delete cascade,
+    document_mdr_id bigint not null references documents_mdr(id),
+    utilisateur_id bigint references utilisateurs(id),
+
+    role_distribution varchar(30)
+        check (role_distribution in (
+            'REVISEUR','LEADER_TECHNIQUE',
+            'GESTIONNAIRE','POUR_INFO','CONTRACTOR'
+        )),
+
+    mode_assignation varchar(20) default 'MANUEL'
+        check (mode_assignation in ('MANUEL','AUTO_DISCIPLINE','AUTO_DOCTYPE')),
+
+    actif boolean default true,
+    date_assignation timestamptz default now()
+);
+
+-- =========================================================
+-- NOTIFICATIONS
+-- =========================================================
+
+create table notifications (
+    id bigint generated always as identity primary key,
+    destinataire_id bigint not null references utilisateurs(id) on delete cascade,
+
+    type varchar(50) not null,
+    titre varchar(255) not null,
+    message text,
+
+    lien varchar(500),
+    est_lue boolean default false,
+    est_email_envoye boolean default false,
+
+    projet_id bigint references projets(id),
+    commande_id bigint references commandes(id),
+    document_mdr_id bigint references documents_mdr(id),
+    revue_id bigint references revues(id),
+    transmittal_id bigint references transmittals(id),
+
+    date_creation timestamptz default now(),
+    date_lecture timestamptz
+);
+
+-- =========================================================
+-- INDEX UTILES
+-- =========================================================
+
+create index idx_projets_conteneur on projets(conteneur_id);
+create index idx_projets_statut on projets(statut);
+create index idx_commandes_projet on commandes(projet_id);
+create index idx_commandes_phase on commandes(phase_id);
+create index idx_taches_projet on taches(projet_id);
+create index idx_taches_commande on taches(commande_id);
+create index idx_taches_statut on taches(statut);
+create index idx_docs_mdr_mdr on documents_mdr(mdr_id);
+create index idx_docs_mdr_commande on documents_mdr(commande_id);
+create index idx_docs_mdr_finalise on documents_mdr(est_finalise);
+create index idx_revisions_document on document_revisions(document_mdr_id);
+create index idx_revues_document on revues(document_mdr_id);
+create index idx_transmittals_commande on transmittals(commande_id);
+create index idx_notifications_destinataire on notifications(destinataire_id);
+create index idx_notifications_lue on notifications(est_lue);
+create index idx_evm_projet_date on evm_snapshots(projet_id, date_snapshot);
+
+-- =========================================================
+-- END SCHEMA
+-- =========================================================
+
+
+-- =========================================================
+-- SEED DATA — PMO EPC
+-- 4 PROJETS / 15 COMMANDES / ~10 TACHES PAR COMMANDE
+-- 10 DOCUMENTS PAR COMMANDE
+-- =========================================================
+
+-- -------------------------
+-- PHASES
+-- -------------------------
+insert into phases (code, nom, ordre) values
+('FEED','Front End Engineering Design',1),
+('BE','Basic Engineering',2),
+('DE','Detailed Engineering',3),
+('BE-DE','Basic & Detailed Engineering',4),
+('PRO','Procurement',5),
+('EPC','Construction',6),
+('COM','Commissioning',7),
+('OTH','Autres Phases',8);
+
+-- -------------------------
+-- CLASSES DOCUMENTAIRES
+-- -------------------------
+insert into classes_documentaires (numero, libelle, description, cycle_simplifie) values
+(1,'Important','Documents techniques critiques soumis à revue complète',false),
+(2,'Normal','Documents techniques standards',false),
+(3,'Information','Émis pour information uniquement',false),
+(4,'Correspondance','Courriers, lettres, transmittals',true),
+(5,'Administratif','Documents administratifs et contractuels',true),
+(6,'Autre','Divers',true);
+
+-- -------------------------
+-- STATUTS CYCLE DE VIE
+-- -------------------------
+insert into statuts_cycle_vie (code, libelle, est_terminal) values
+('IFR','Issued For Review',false),
+('IFA','Issued For Approval',false),
+('IFD','Issued For Design',true),
+('IFC','Issued For Construction',true),
+('MKP','Markup',false),
+('ASB','As-Built',true),
+('IFI','Issued For Information',true),
+('EMIS','Émis',false),
+('RECU','Reçu',false),
+('ARCH','Archivé',true);
+
+-- -------------------------
+-- SEQUENCES STATUTS
+-- -------------------------
+insert into sequences_statuts (phase_id, classe_num, statut_id, ordre, est_statut_final) values
+-- BE Classe 1
+(2,1,(select id from statuts_cycle_vie where code='IFR'),1,false),
+(2,1,(select id from statuts_cycle_vie where code='IFA'),2,false),
+(2,1,(select id from statuts_cycle_vie where code='IFD'),3,true),
+-- BE Classe 2
+(2,2,(select id from statuts_cycle_vie where code='IFR'),1,false),
+(2,2,(select id from statuts_cycle_vie where code='IFC'),2,true),
+-- BE Classe 3
+(2,3,(select id from statuts_cycle_vie where code='IFI'),1,true),
+-- DE Classe 1
+(3,1,(select id from statuts_cycle_vie where code='IFR'),1,false),
+(3,1,(select id from statuts_cycle_vie where code='IFA'),2,false),
+(3,1,(select id from statuts_cycle_vie where code='IFC'),3,true),
+-- DE Classe 2
+(3,2,(select id from statuts_cycle_vie where code='IFR'),1,false),
+(3,2,(select id from statuts_cycle_vie where code='IFC'),2,true),
+-- DE Classe 3
+(3,3,(select id from statuts_cycle_vie where code='IFI'),1,true),
+-- PRO Classe 1
+(5,1,(select id from statuts_cycle_vie where code='IFR'),1,false),
+(5,1,(select id from statuts_cycle_vie where code='IFA'),2,false),
+(5,1,(select id from statuts_cycle_vie where code='IFC'),3,true),
+-- PRO Classe 2
+(5,2,(select id from statuts_cycle_vie where code='IFR'),1,false),
+(5,2,(select id from statuts_cycle_vie where code='IFC'),2,true),
+-- EPC Classe 1
+(6,1,(select id from statuts_cycle_vie where code='IFR'),1,false),
+(6,1,(select id from statuts_cycle_vie where code='IFA'),2,false),
+(6,1,(select id from statuts_cycle_vie where code='IFC'),3,false),
+(6,1,(select id from statuts_cycle_vie where code='MKP'),4,false),
+(6,1,(select id from statuts_cycle_vie where code='ASB'),5,true),
+-- EPC Classe 2
+(6,2,(select id from statuts_cycle_vie where code='IFR'),1,false),
+(6,2,(select id from statuts_cycle_vie where code='IFC'),2,true),
+-- EPC Classe 3
+(6,3,(select id from statuts_cycle_vie where code='IFI'),1,true);
+
+-- -------------------------
+-- DISCIPLINES
+-- -------------------------
+insert into disciplines (code, nom) values
+('ELE','Électricité'),
+('INS','Instrumentation'),
+('MEC','Mécanique'),
+('PJM','Project Management'),
+('QUA','Qualité'),
+('HSE','Hygiène, Sécurité & Environnement'),
+('CIV','Génie Civil'),
+('STR','Structure'),
+('COR','Corrosion / Revêtement'),
+('PIP','Tuyauterie / Piping'),
+('PRO','Procédé / Process'),
+('ARC','Architecture'),
+('TEL','Télécommunications'),
+('AUT','Automatisme / SCADA'),
+('ENV','Environnement');
+
+-- -------------------------
+-- TYPES DE DOCUMENTS TECHNIQUES
+-- -------------------------
+insert into doc_types_technique (code, libelle, classe_num, discipline_id) values
+('PID','P&ID - Piping & Instrumentation Diagram',1,
+    (select id from disciplines where code='PRO')),
+('PFD','Process Flow Diagram',1,
+    (select id from disciplines where code='PRO')),
+('ISO','Isométrique Tuyauterie',1,
+    (select id from disciplines where code='PIP')),
+('SPC','Spécification Technique',1,null),
+('DTS','Datasheet Équipement',2,null),
+('NCT','Note de Calcul',1,null),
+('PRO','Procédure',2,null),
+('LST','Liste / Index',2,null),
+('RPT','Rapport Technique',2,null),
+('SCH','Schéma Électrique',1,
+    (select id from disciplines where code='ELE')),
+('PLN','Plan / Dessin',1,null),
+('MDR','Master Document Register',2,
+    (select id from disciplines where code='PJM'));
+
+-- -------------------------
+-- TYPES CORRESPONDANCE
+-- -------------------------
+insert into doc_types_correspondance (code, libelle) values
+('LTR','Lettre'),
+('TRM','Transmittal'),
+('NTI','Note Interne'),
+('CRR','Compte-Rendu de Réunion'),
+('PVR','Procès-Verbal'),
+('EML','Email Officiel');
+
+-- -------------------------
+-- PAYS
+-- -------------------------
+insert into pays (code_pays, nom) values
+('GA','Gabon'),
+('CG','Congo'),
+('CM','Cameroun'),
+('CI','Côte d''Ivoire');
+
+-- -------------------------
+-- SITES
+-- -------------------------
+insert into sites (code_site, nom, pays_id) values
+('MDJ','Mandji',
+    (select id from pays where code_pays='GA')),
+('POG','Port-Gentil',
+    (select id from pays where code_pays='GA')),
+('LBV','Libreville',
+    (select id from pays where code_pays='GA')),
+('BZV','Brazzaville',
+    (select id from pays where code_pays='CG'));
+
+-- -------------------------
+-- SECTEURS
+-- -------------------------
+insert into secteurs (code_secteur, nom, site_id) values
+('AGM','Anguille',
+    (select id from sites where code_site='MDJ')),
+('GND','Gamba Nord',
+    (select id from sites where code_site='MDJ')),
+('OFC','Offshore Central',
+    (select id from sites where code_site='POG')),
+('ONS','Onshore Sud',
+    (select id from sites where code_site='LBV')),
+('BZN','Brazza Nord',
+    (select id from sites where code_site='BZV'));
+
+-- -------------------------
+-- SYSTEMES
+-- -------------------------
+insert into systemes (code_systeme, nom, secteur_id) values
+('SYS-ELE-01','Système Électrique Principal',
+    (select id from secteurs where code_secteur='AGM')),
+('SYS-PRC-01','Système de Process Séparation',
+    (select id from secteurs where code_secteur='AGM')),
+('SYS-INS-01','Système Instrumentation & Contrôle',
+    (select id from secteurs where code_secteur='AGM')),
+('SYS-CIV-01','Système Génie Civil',
+    (select id from secteurs where code_secteur='GND')),
+('SYS-PIP-01','Système Tuyauterie',
+    (select id from secteurs where code_secteur='OFC'));
+
+-- -------------------------
+-- SOUS-SYSTEMES
+-- -------------------------
+insert into sous_systemes (code_sous_systeme, nom, systeme_id) values
+('SS-ELE-01A','Distribution HTA',
+    (select id from systemes where code_systeme='SYS-ELE-01')),
+('SS-ELE-01B','Distribution BTA',
+    (select id from systemes where code_systeme='SYS-ELE-01')),
+('SS-PRC-01A','Séparateur Tri-phasique',
+    (select id from systemes where code_systeme='SYS-PRC-01')),
+('SS-INS-01A','Boucles de régulation',
+    (select id from systemes where code_systeme='SYS-INS-01')),
+('SS-PIP-01A','Lignes haute pression',
+    (select id from systemes where code_systeme='SYS-PIP-01'));
+
+-- -------------------------
+-- TAGS
+-- -------------------------
+insert into tags (code_tag, description, type_equipement,
+    discipline_id, sous_systeme_id) values
+('TR-001','Transformateur HTA/BTA 1600kVA','Transformateur',
+    (select id from disciplines where code='ELE'),
+    (select id from sous_systemes where code_sous_systeme='SS-ELE-01A')),
+('SEP-001','Séparateur tri-phasique horizontal','Séparateur',
+    (select id from disciplines where code='PRO'),
+    (select id from sous_systemes where code_sous_systeme='SS-PRC-01A')),
+('FT-101','Débitmètre ultrasonique gaz','Débitmètre',
+    (select id from disciplines where code='INS'),
+    (select id from sous_systemes where code_sous_systeme='SS-INS-01A')),
+('PMP-001','Pompe centrifuge injection eau','Pompe',
+    (select id from disciplines where code='MEC'),
+    (select id from sous_systemes where code_sous_systeme='SS-PRC-01A')),
+('VLV-101','Vanne de régulation DN200','Vanne',
+    (select id from disciplines where code='PIP'),
+    (select id from sous_systemes where code_sous_systeme='SS-PIP-01A'));
+
+-- -------------------------
+-- ENTITES
+-- -------------------------
+insert into entites (nom, type, description) values
+('Direction Générale','INTERNE','Direction générale'),
+('Finance & Contrôle','INTERNE','Direction financière'),
+('IT & Systèmes','INTERNE','Direction IT'),
+('Maintenance','INTERNE','Département maintenance'),
+('RH','INTERNE','Ressources humaines'),
+('Production','INTERNE','Direction production'),
+('HSE','INTERNE','Hygiène sécurité environnement'),
+('Ingénierie','INTERNE','Bureau d''étude interne'),
+('TECHNIP','EXTERNE','Contractor ingénierie'),
+('SAIPEM','EXTERNE','Contractor construction'),
+('TOTAL ENERGIES','EXTERNE','Partenaire JV'),
+('ABB GABON','EXTERNE','Contractor électricité'),
+('VALLOUREC','EXTERNE','Fournisseur tuyauterie'),
+('SIEMENS ENERGY','EXTERNE','Contractor instrumentation'),
+('BOURBON OFFSHORE','EXTERNE','Contractor maritime');
+
+-- -------------------------
+-- UTILISATEURS
+-- -------------------------
+insert into utilisateurs (nom, prenom, email, entite_id, role) values
+('MBA OYONE','Joel','joel.mba@company.ga',
+    (select id from entites where nom='Direction Générale'),'PMO'),
+('ETENDINO','Yorick','yorick.etendino@company.ga',
+    (select id from entites where nom='Maintenance'),'MANAGER'),
+('OBIANG','Jean-Marie','jm.obiang@company.ga',
+    (select id from entites where nom='IT & Systèmes'),'MANAGER'),
+('NGUEMA','Patrick','p.nguema@company.ga',
+    (select id from entites where nom='Ingénierie'),'LEAD_DOC_CONTROLLER'),
+('MBOUMBA','Alice','a.mboumba@company.ga',
+    (select id from entites where nom='Ingénierie'),'DOC_CONTROLLER'),
+('NZAMBA','Pierre','p.nzamba@company.ga',
+    (select id from entites where nom='Ingénierie'),'LEADER_TECHNIQUE'),
+('KOUMBA','Sarah','s.koumba@company.ga',
+    (select id from entites where nom='Ingénierie'),'SPECIALIST'),
+('BOUNDONO','Marc','m.boundono@company.ga',
+    (select id from entites where nom='Production'),'MEMBER'),
+('LECLERC','François','f.leclerc@technip.com',
+    (select id from entites where nom='TECHNIP'),'CONTRACTOR'),
+('ROSSI','Marco','m.rossi@saipem.com',
+    (select id from entites where nom='SAIPEM'),'CONTRACTOR'),
+('DUBOIS','Claire','c.dubois@abb.com',
+    (select id from entites where nom='ABB GABON'),'CONTRACTOR'),
+('MARTIN','Luc','l.martin@siemens.com',
+    (select id from entites where nom='SIEMENS ENERGY'),'CONTRACTOR'),
+('ADMIN','System','admin@company.ga',
+    (select id from entites where nom='IT & Systèmes'),'ADMIN');
+
+-- -------------------------
+-- CONTENEURS
+-- -------------------------
+insert into conteneurs (code, libelle, description, ordre, est_archive) values
+('RUNNING','Running Projects','Projets actifs en cours',1,false),
+('COM','Commissioning','Projets en phase commissioning',2,false),
+('ASBUILT','As-Built / Finalized','Projets clôturés et archivés',3,true);
+
+-- =========================================================
+-- PROJETS
+-- =========================================================
+insert into projets (
+    code, nom, description, type_projet,
+    conteneur_id, statut, priorite,
+    responsable_id, entite_id,
+    pays_id, site_id, secteur_id,
+    date_debut_prevue, date_fin_prevue,
+    budget_prevu, budget_reel,
+    progression_calculee,
+    planned_value, earned_value, actual_cost,
+    cree_par
+) values
+(
+    'PRJ-001',
+    'Anguille Gas Compression Project',
+    'Projet de compression gaz sur le champ Anguille - augmentation capacité 20%',
+    'EPC',
+    (select id from conteneurs where code='RUNNING'),
+    'En cours','Critique',
+    (select id from utilisateurs where email='joel.mba@company.ga'),
+    (select id from entites where nom='Direction Générale'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='AGM'),
+    '2025-01-15'::date,'2026-12-31'::date,
+    45000000,38500000,42,
+    42000000,18500000,20000000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    'PRJ-002',
+    'Mandji Water Injection Upgrade',
+    'Modernisation du système d''injection eau - remplacement pompes et lignes',
+    'BE-DE',
+    (select id from conteneurs where code='RUNNING'),
+    'En cours','Haute',
+    (select id from utilisateurs where email='yorick.etendino@company.ga'),
+    (select id from entites where nom='Maintenance'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='GND'),
+    '2025-03-01'::date,'2026-09-30'::date,
+    18000000,14200000,58,
+    16000000,9500000,10200000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    'PRJ-003',
+    'Offshore Electrical Upgrade',
+    'Refonte système électrique offshore - remplacement transformateurs et tableaux HTA',
+    'EPC',
+    (select id from conteneurs where code='RUNNING'),
+    'En cours','Haute',
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    (select id from entites where nom='IT & Systèmes'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='POG'),
+    (select id from secteurs where code_secteur='OFC'),
+    '2025-06-01'::date,'2027-03-31'::date,
+    32000000,8500000,18,
+    25000000,4800000,5200000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    'PRJ-004',
+    'HSE Compliance & Environmental Program',
+    'Programme de mise en conformité HSE et environnementale - sites Gabon',
+    'OTH',
+    (select id from conteneurs where code='RUNNING'),
+    'En attente','Moyenne',
+    (select id from utilisateurs where email='joel.mba@company.ga'),
+    (select id from entites where nom='HSE'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='LBV'),
+    (select id from secteurs where code_secteur='ONS'),
+    '2025-09-01'::date,'2026-06-30'::date,
+    5500000,800000,8,
+    4500000,400000,450000,
+    (select id from utilisateurs where email='admin@company.ga')
+);
+
+-- associations M2M projets-entites
+insert into projet_entites (projet_id, entite_id, role_entite) values
+((select id from projets where code='PRJ-001'),
+ (select id from entites where nom='TECHNIP'),'Contractor Ingénierie'),
+((select id from projets where code='PRJ-001'),
+ (select id from entites where nom='SAIPEM'),'Contractor Construction'),
+((select id from projets where code='PRJ-002'),
+ (select id from entites where nom='TECHNIP'),'Contractor Ingénierie'),
+((select id from projets where code='PRJ-003'),
+ (select id from entites where nom='ABB GABON'),'Contractor Électricité'),
+((select id from projets where code='PRJ-003'),
+ (select id from entites where nom='SIEMENS ENERGY'),'Contractor Instrumentation'),
+((select id from projets where code='PRJ-004'),
+ (select id from entites where nom='HSE'),'Coordinateur HSE');
+
+-- associations M2M projets-sites
+insert into projet_sites (projet_id, site_id) values
+((select id from projets where code='PRJ-001'),
+ (select id from sites where code_site='MDJ')),
+((select id from projets where code='PRJ-002'),
+ (select id from sites where code_site='MDJ')),
+((select id from projets where code='PRJ-003'),
+ (select id from sites where code_site='POG')),
+((select id from projets where code='PRJ-004'),
+ (select id from sites where code_site='LBV')),
+((select id from projets where code='PRJ-004'),
+ (select id from sites where code_site='MDJ'));
+
+-- =========================================================
+-- COMMANDES
+-- =========================================================
+insert into commandes (
+    projet_id, code_commande, code_originator,
+    nom, description, contractor, entite_contractor_id,
+    phase_id, statut, priorite, responsable_id,
+    pays_id, site_id, secteur_id,
+    date_debut_prevue, date_fin_prevue,
+    budget_prevu, budget_reel, poids,
+    progression_calculee,
+    duree_revue_company_defaut, duree_revue_contractor_defaut,
+    planned_value, earned_value, actual_cost,
+    cree_par
+) values
+-- PRJ-001 : 5 commandes
+(
+    (select id from projets where code='PRJ-001'),
+    'CMD-001-TPGC','TPGC',
+    'TECHNIP - Basic & Detailed Engineering Compression',
+    'Ingénierie BE-DE pour la station de compression gaz',
+    'TECHNIP GC',
+    (select id from entites where nom='TECHNIP'),
+    (select id from phases where code='BE-DE'),
+    'En cours','Critique',
+    (select id from utilisateurs where email='yorick.etendino@company.ga'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='AGM'),
+    '2025-01-15'::date,'2025-12-31'::date,
+    8500000,7200000,20,55,
+    15,15,8000000,4400000,4800000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    'CMD-002-SAIP','SAIP',
+    'SAIPEM - Construction Génie Civil',
+    'Travaux de génie civil pour fondations et infrastructure',
+    'SAIPEM SA',
+    (select id from entites where nom='SAIPEM'),
+    (select id from phases where code='EPC'),
+    'En cours','Haute',
+    (select id from utilisateurs where email='yorick.etendino@company.ga'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='AGM'),
+    '2025-06-01'::date,'2026-08-31'::date,
+    12000000,9500000,25,30,
+    15,21,10000000,3000000,3200000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    'CMD-003-SAIP','SAIM',
+    'SAIPEM - Montage Mécanique Compresseurs',
+    'Montage et installation des compresseurs centrifuges',
+    'SAIPEM SA',
+    (select id from entites where nom='SAIPEM'),
+    (select id from phases where code='EPC'),
+    'En attente','Haute',
+    (select id from utilisateurs where email='m.boundono@company.ga'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='AGM'),
+    '2025-09-01'::date,'2026-10-31'::date,
+    9500000,2100000,22,15,
+    15,21,8500000,1275000,1400000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    'CMD-004-ABBC','ABBC',
+    'ABB - Électricité & Automatisme',
+    'Fourniture et installation tableaux électriques et systèmes de contrôle',
+    'ABB GABON',
+    (select id from entites where nom='ABB GABON'),
+    (select id from phases where code='EPC'),
+    'En cours','Critique',
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='AGM'),
+    '2025-04-01'::date,'2026-09-30'::date,
+    9000000,7800000,20,45,
+    15,15,8000000,3600000,3900000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    'CMD-005-SIMC','SIMC',
+    'SIEMENS - Instrumentation & Contrôle Commande',
+    'Instrumentation processus et système de contrôle SCADA',
+    'SIEMENS ENERGY',
+    (select id from entites where nom='SIEMENS ENERGY'),
+    (select id from phases where code='EPC'),
+    'En attente','Haute',
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='AGM'),
+    '2025-07-01'::date,'2026-11-30'::date,
+    6000000,1900000,13,10,
+    15,15,5500000,550000,600000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+-- PRJ-002 : 4 commandes
+(
+    (select id from projets where code='PRJ-002'),
+    'CMD-006-TPWI','TPWI',
+    'TECHNIP - Ingénierie Water Injection',
+    'Basic & Detailed Engineering système injection eau',
+    'TECHNIP GC',
+    (select id from entites where nom='TECHNIP'),
+    (select id from phases where code='BE-DE'),
+    'Terminée','Haute',
+    (select id from utilisateurs where email='yorick.etendino@company.ga'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='GND'),
+    '2025-03-01'::date,'2025-10-31'::date,
+    4500000,4200000,25,100,
+    15,15,4500000,4500000,4200000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-002'),
+    'CMD-007-VLRC','VLRC',
+    'VALLOUREC - Fourniture Tuyauterie',
+    'Fourniture lignes haute pression injection eau',
+    'VALLOUREC',
+    (select id from entites where nom='VALLOUREC'),
+    (select id from phases where code='PRO'),
+    'En cours','Haute',
+    (select id from utilisateurs where email='yorick.etendino@company.ga'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='GND'),
+    '2025-07-01'::date,'2026-03-31'::date,
+    5500000,3800000,30,60,
+    15,21,5000000,3000000,3200000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-002'),
+    'CMD-008-SAIP','SAWI',
+    'SAIPEM - Construction Water Injection',
+    'Travaux d''installation et raccordement système injection',
+    'SAIPEM SA',
+    (select id from entites where nom='SAIPEM'),
+    (select id from phases where code='EPC'),
+    'En cours','Haute',
+    (select id from utilisateurs where email='m.boundono@company.ga'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='GND'),
+    '2025-10-01'::date,'2026-07-31'::date,
+    5500000,4100000,30,40,
+    15,21,5000000,2000000,2200000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-002'),
+    'CMD-009-ABWI','ABWI',
+    'ABB - Électricité Water Injection',
+    'Installations électriques système water injection',
+    'ABB GABON',
+    (select id from entites where nom='ABB GABON'),
+    (select id from phases where code='EPC'),
+    'En attente','Moyenne',
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='GND'),
+    '2026-01-01'::date,'2026-08-31'::date,
+    2500000,100000,15,5,
+    15,15,2000000,100000,120000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+-- PRJ-003 : 4 commandes
+(
+    (select id from projets where code='PRJ-003'),
+    'CMD-010-TPOE','TPOE',
+    'TECHNIP - Engineering Électrique Offshore',
+    'Basic & Detailed Engineering refonte électrique',
+    'TECHNIP GC',
+    (select id from entites where nom='TECHNIP'),
+    (select id from phases where code='BE-DE'),
+    'En cours','Haute',
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='POG'),
+    (select id from secteurs where code_secteur='OFC'),
+    '2025-06-01'::date,'2026-02-28'::date,
+    6500000,2800000,20,35,
+    15,15,6000000,2100000,2300000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-003'),
+    'CMD-011-ABOE','ABOE',
+    'ABB - Fourniture Transformateurs HTA',
+    'Fourniture et installation transformateurs HTA/BTA',
+    'ABB GABON',
+    (select id from entites where nom='ABB GABON'),
+    (select id from phases where code='PRO'),
+    'En cours','Critique',
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='POG'),
+    (select id from secteurs where code_secteur='OFC'),
+    '2025-09-01'::date,'2026-06-30'::date,
+    12000000,3500000,38,20,
+    15,15,10000000,2000000,2200000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-003'),
+    'CMD-012-SIOE','SIOE',
+    'SIEMENS - Tableaux Électriques Offshore',
+    'Fourniture tableaux de distribution HTA/BTA offshore',
+    'SIEMENS ENERGY',
+    (select id from entites where nom='SIEMENS ENERGY'),
+    (select id from phases where code='PRO'),
+    'En attente','Haute',
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='POG'),
+    (select id from secteurs where code_secteur='OFC'),
+    '2026-01-01'::date,'2026-09-30'::date,
+    8500000,0,25,0,
+    15,15,7000000,0,0,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-003'),
+    'CMD-013-SAOE','SAOE',
+    'SAIPEM - Construction Offshore Electricité',
+    'Installation et raccordement équipements électriques offshore',
+    'SAIPEM SA',
+    (select id from entites where nom='SAIPEM'),
+    (select id from phases where code='EPC'),
+    'En attente','Haute',
+    (select id from utilisateurs where email='m.boundono@company.ga'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='POG'),
+    (select id from secteurs where code_secteur='OFC'),
+    '2026-04-01'::date,'2027-02-28'::date,
+    5000000,0,17,0,
+    15,21,4000000,0,0,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+-- PRJ-004 : 2 commandes
+(
+    (select id from projets where code='PRJ-004'),
+    'CMD-014-TPHS','TPHS',
+    'TECHNIP - Audit HSE & Environmental',
+    'Audit de conformité HSE et études environnementales',
+    'TECHNIP GC',
+    (select id from entites where nom='TECHNIP'),
+    (select id from phases where code='OTH'),
+    'En attente','Moyenne',
+    (select id from utilisateurs where email='joel.mba@company.ga'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='LBV'),
+    (select id from secteurs where code_secteur='ONS'),
+    '2025-09-01'::date,'2026-03-31'::date,
+    3000000,500000,55,8,
+    15,15,2500000,200000,220000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-004'),
+    'CMD-015-INHS','INHS',
+    'Ingénierie Interne - Plan HSE',
+    'Élaboration plan de gestion HSE interne sites Gabon',
+    'Ingénierie Interne',
+    (select id from entites where nom='Ingénierie'),
+    (select id from phases where code='OTH'),
+    'En attente','Basse',
+    (select id from utilisateurs where email='joel.mba@company.ga'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='LBV'),
+    (select id from secteurs where code_secteur='ONS'),
+    '2025-10-01'::date,'2026-06-30'::date,
+    2500000,300000,45,8,
+    15,15,2000000,160000,180000,
+    (select id from utilisateurs where email='admin@company.ga')
+);
+
+-- =========================================================
+-- TACHES
+-- =========================================================
+
+-- --------------------
+-- PRJ-001 TACHES
+-- --------------------
+insert into taches (
+    projet_id, commande_id, nom, description,
+    phase_id, discipline_id, responsable_id,
+    statut, poids, avancement,
+    date_debut_prevue, date_fin_prevue,
+    date_debut_reelle, date_fin_reelle,
+    cout_prevu, cout_reel,
+    planned_value, earned_value, actual_cost,
+    cree_par
+) values
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-001-TPGC'),
+    'Étude de faisabilité et FEED',
+    'Étude de faisabilité et Front End Engineering Design compression gaz',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='PRO'),
+    (select id from utilisateurs where email='yorick.etendino@company.ga'),
+    'Terminée',8,100,
+    '2025-01-15'::date,'2025-03-31'::date,
+    '2025-01-15'::date,'2025-03-28'::date,
+    680000,650000,680000,680000,650000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-001-TPGC'),
+    'Basic Engineering - Process',
+    'Développement des bases de conception process compression',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='PRO'),
+    (select id from utilisateurs where email='yorick.etendino@company.ga'),
+    'Terminée',10,100,
+    '2025-02-01'::date,'2025-05-31'::date,
+    '2025-02-03'::date,'2025-06-10'::date,
+    850000,920000,850000,850000,920000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-001-TPGC'),
+    'Detailed Engineering - Tuyauterie',
+    'Ingénierie détaillée tuyauterie haute pression',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='PIP'),
+    (select id from utilisateurs where email='p.nzamba@company.ga'),
+    'En cours',12,70,
+    '2025-04-01'::date,'2025-10-31'::date,
+    '2025-04-05'::date,null,
+    1020000,650000,900000,680000,710000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-002-SAIP'),
+    'Préparation terrain et terrassement',
+    'Terrassement et préparation plateforme compresseurs',
+    (select id from phases where code='EPC'),
+    (select id from disciplines where code='CIV'),
+    (select id from utilisateurs where email='m.boundono@company.ga'),
+    'Terminée',6,100,
+    '2025-06-01'::date,'2025-08-31'::date,
+    '2025-06-10'::date,'2025-09-05'::date,
+    720000,780000,720000,720000,780000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-002-SAIP'),
+    'Fondations béton compresseurs',
+    'Réalisation des fondations massives pour compresseurs',
+    (select id from phases where code='EPC'),
+    (select id from disciplines where code='CIV'),
+    (select id from utilisateurs where email='m.boundono@company.ga'),
+    'En cours',8,55,
+    '2025-08-01'::date,'2025-12-31'::date,
+    '2025-08-15'::date,null,
+    960000,520000,880000,484000,530000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-002-SAIP'),
+    'Charpente métallique abri compresseurs',
+    'Montage structure acier bâtiment compresseurs',
+    (select id from phases where code='EPC'),
+    (select id from disciplines where code='STR'),
+    (select id from utilisateurs where email='m.boundono@company.ga'),
+    'En attente',10,10,
+    '2025-12-01'::date,'2026-04-30'::date,
+    null,null,
+    1200000,110000,1000000,100000,120000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-004-ABBC'),
+    'Engineering électrique détaillé',
+    'Études électriques détaillées - schémas, notes de calcul',
+    (select id from phases where code='EPC'),
+    (select id from disciplines where code='ELE'),
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    'En cours',6,80,
+    '2025-04-01'::date,'2025-08-31'::date,
+    '2025-04-03'::date,null,
+    540000,430000,540000,432000,460000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-004-ABBC'),
+    'Fourniture tableaux électriques HTA/BTA',
+    'Fabrication et livraison tableaux de distribution',
+    (select id from phases where code='EPC'),
+    (select id from disciplines where code='ELE'),
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    'En cours',8,40,
+    '2025-07-01'::date,'2025-12-31'::date,
+    '2025-07-10'::date,null,
+    720000,290000,700000,280000,310000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-005-SIMC'),
+    'Engineering instrumentation',
+    'Études instrumentation - boucles, fiches de données, liste I/O',
+    (select id from phases where code='EPC'),
+    (select id from disciplines where code='INS'),
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    'En cours',4,30,
+    '2025-07-01'::date,'2025-11-30'::date,
+    '2025-07-15'::date,null,
+    360000,100000,340000,102000,112000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-005-SIMC'),
+    'Fourniture instrumentation de process',
+    'Fabrication et livraison instruments - débitmètres, capteurs',
+    (select id from phases where code='EPC'),
+    (select id from disciplines where code='INS'),
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    'En attente',6,0,
+    '2025-11-01'::date,'2026-04-30'::date,
+    null,null,
+    540000,0,480000,0,0,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-003-SAIP'),
+    'Préparation et montage skids compresseurs',
+    'Montage mécanique skids et équipements compresseurs centrifuges',
+    (select id from phases where code='EPC'),
+    (select id from disciplines where code='MEC'),
+    (select id from utilisateurs where email='m.boundono@company.ga'),
+    'En attente',6,10,
+    '2025-11-01'::date,'2026-06-30'::date,
+    null,null,
+    570000,55000,500000,50000,55000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-003-SAIP'),
+    'Tests et mise en service mécanique',
+    'FAT, SAT et mise en service mécanique compresseurs',
+    (select id from phases where code='EPC'),
+    (select id from disciplines where code='MEC'),
+    (select id from utilisateurs where email='m.boundono@company.ga'),
+    'En attente',6,0,
+    '2026-05-01'::date,'2026-09-30'::date,
+    null,null,
+    570000,0,500000,0,0,
+    (select id from utilisateurs where email='admin@company.ga')
+);
+
+-- --------------------
+-- PRJ-002 TACHES
+-- --------------------
+insert into taches (
+    projet_id, commande_id, nom, description,
+    phase_id, discipline_id, responsable_id,
+    statut, poids, avancement,
+    date_debut_prevue, date_fin_prevue,
+    date_debut_reelle, date_fin_reelle,
+    cout_prevu, cout_reel,
+    planned_value, earned_value, actual_cost,
+    cree_par
+) values
+(
+    (select id from projets where code='PRJ-002'),
+    (select id from commandes where code_commande='CMD-006-TPWI'),
+    'Basic Engineering - Hydraulique',
+    'Études hydrauliques système injection eau',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='PIP'),
+    (select id from utilisateurs where email='yorick.etendino@company.ga'),
+    'Terminée',8,100,
+    '2025-03-01'::date,'2025-05-31'::date,
+    '2025-03-01'::date,'2025-05-25'::date,
+    360000,340000,360000,360000,340000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-002'),
+    (select id from commandes where code_commande='CMD-006-TPWI'),
+    'Detailed Engineering - Pompes',
+    'Ingénierie détaillée pompes injection et ligne refoulement',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='MEC'),
+    (select id from utilisateurs where email='yorick.etendino@company.ga'),
+    'Terminée',10,100,
+    '2025-05-01'::date,'2025-09-30'::date,
+    '2025-05-05'::date,'2025-10-01'::date,
+    450000,435000,450000,450000,435000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-002'),
+    (select id from commandes where code_commande='CMD-006-TPWI'),
+    'Detailed Engineering - Contrôle-commande',
+    'Études contrôle commande système water injection',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='AUT'),
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    'Terminée',7,100,
+    '2025-06-01'::date,'2025-10-31'::date,
+    '2025-06-10'::date,'2025-10-28'::date,
+    315000,310000,315000,315000,310000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-002'),
+    (select id from commandes where code_commande='CMD-007-VLRC'),
+    'Fabrication lignes HP injection',
+    'Fabrication tuyauterie haute pression injection',
+    (select id from phases where code='PRO'),
+    (select id from disciplines where code='PIP'),
+    (select id from utilisateurs where email='yorick.etendino@company.ga'),
+    'En cours',8,65,
+    '2025-07-01'::date,'2025-12-31'::date,
+    '2025-07-10'::date,null,
+    440000,285000,400000,260000,280000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-002'),
+    (select id from commandes where code_commande='CMD-007-VLRC'),
+    'Inspection et contrôle qualité tuyauterie',
+    'Contrôle qualité fabrication - CND, radiographie',
+    (select id from phases where code='PRO'),
+    (select id from disciplines where code='QUA'),
+    (select id from utilisateurs where email='s.koumba@company.ga'),
+    'En cours',5,50,
+    '2025-09-01'::date,'2026-01-31'::date,
+    '2025-09-15'::date,null,
+    275000,135000,250000,125000,140000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-002'),
+    (select id from commandes where code_commande='CMD-008-SAIP'),
+    'Pose tuyauterie injection - ligne principale',
+    'Installation et raccordement ligne principale injection',
+    (select id from phases where code='EPC'),
+    (select id from disciplines where code='PIP'),
+    (select id from utilisateurs where email='m.boundono@company.ga'),
+    'En cours',9,45,
+    '2025-10-01'::date,'2026-03-31'::date,
+    '2025-10-15'::date,null,
+    495000,220000,450000,200000,220000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-002'),
+    (select id from commandes where code_commande='CMD-008-SAIP'),
+    'Montage pompes injection',
+    'Montage et raccordement pompes centrifuges injection eau',
+    (select id from phases where code='EPC'),
+    (select id from disciplines where code='MEC'),
+    (select id from utilisateurs where email='m.boundono@company.ga'),
+    'En cours',8,35,
+    '2025-11-01'::date,'2026-04-30'::date,
+    '2025-11-10'::date,null,
+    440000,155000,400000,140000,160000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-002'),
+    (select id from commandes where code_commande='CMD-009-ABWI'),
+    'Installation électrique water injection',
+    'Câblage et raccordement électrique équipements WI',
+    (select id from phases where code='EPC'),
+    (select id from disciplines where code='ELE'),
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    'En attente',5,5,
+    '2026-01-01'::date,'2026-05-31'::date,
+    null,null,
+    125000,5000,100000,5000,5500,
+    (select id from utilisateurs where email='admin@company.ga')
+);
+
+-- --------------------
+-- PRJ-003 TACHES
+-- --------------------
+insert into taches (
+    projet_id, commande_id, nom, description,
+    phase_id, discipline_id, responsable_id,
+    statut, poids, avancement,
+    date_debut_prevue, date_fin_prevue,
+    date_debut_reelle, date_fin_reelle,
+    cout_prevu, cout_reel,
+    planned_value, earned_value, actual_cost,
+    cree_par
+) values
+(
+    (select id from projets where code='PRJ-003'),
+    (select id from commandes where code_commande='CMD-010-TPOE'),
+    'Audit système électrique existant',
+    'Audit et diagnostic système électrique offshore existant',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='ELE'),
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    'Terminée',5,100,
+    '2025-06-01'::date,'2025-07-31'::date,
+    '2025-06-01'::date,'2025-07-25'::date,
+    325000,310000,325000,325000,310000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-003'),
+    (select id from commandes where code_commande='CMD-010-TPOE'),
+    'Basic Engineering électrique',
+    'Basic engineering refonte système HTA/BTA',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='ELE'),
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    'En cours',7,60,
+    '2025-07-01'::date,'2025-11-30'::date,
+    '2025-07-10'::date,null,
+    455000,275000,420000,252000,275000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-003'),
+    (select id from commandes where code_commande='CMD-010-TPOE'),
+    'Detailed Engineering électrique',
+    'Ingénierie détaillée - calculs, plans, spécifications',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='ELE'),
+    (select id from utilisateurs where email='p.nzamba@company.ga'),
+    'En cours',8,25,
+    '2025-10-01'::date,'2026-02-28'::date,
+    '2025-10-10'::date,null,
+    520000,130000,480000,120000,132000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-003'),
+    (select id from commandes where code_commande='CMD-011-ABOE'),
+    'Spécification et commande transformateurs',
+    'Spécification technique et lancement commande transformateurs HTA',
+    (select id from phases where code='PRO'),
+    (select id from disciplines where code='ELE'),
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    'En cours',9,55,
+    '2025-09-01'::date,'2025-12-31'::date,
+    '2025-09-10'::date,null,
+    1080000,595000,1000000,550000,600000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-003'),
+    (select id from commandes where code_commande='CMD-011-ABOE'),
+    'Fabrication et tests FAT transformateurs',
+    'Fabrication usine et Factory Acceptance Tests transformateurs',
+    (select id from phases where code='PRO'),
+    (select id from disciplines where code='ELE'),
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    'En cours',10,15,
+    '2025-12-01'::date,'2026-04-30'::date,
+    '2025-12-10'::date,null,
+    1200000,175000,1100000,165000,180000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-003'),
+    (select id from commandes where code_commande='CMD-011-ABOE'),
+    'Inspection et réception équipements',
+    'Inspection qualité et réception transformateurs et tableaux',
+    (select id from phases where code='PRO'),
+    (select id from disciplines where code='QUA'),
+    (select id from utilisateurs where email='s.koumba@company.ga'),
+    'En attente',4,0,
+    '2026-03-01'::date,'2026-05-31'::date,
+    null,null,
+    480000,0,440000,0,0,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-003'),
+    (select id from commandes where code_commande='CMD-012-SIOE'),
+    'Engineering tableaux distribution offshore',
+    'Ingénierie et spécification tableaux de distribution HTA',
+    (select id from phases where code='PRO'),
+    (select id from disciplines where code='ELE'),
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    'En attente',6,0,
+    '2026-01-01'::date,'2026-05-31'::date,
+    null,null,
+    510000,0,460000,0,0,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-003'),
+    (select id from commandes where code_commande='CMD-013-SAOE'),
+    'Installation et raccordement transformateurs',
+    'Installation offshore et raccordement transformateurs HTA',
+    (select id from phases where code='EPC'),
+    (select id from disciplines where code='ELE'),
+    (select id from utilisateurs where email='m.boundono@company.ga'),
+    'En attente',5,0,
+    '2026-06-01'::date,'2026-12-31'::date,
+    null,null,
+    250000,0,200000,0,0,
+    (select id from utilisateurs where email='admin@company.ga')
+);
+
+-- --------------------
+-- PRJ-004 TACHES
+-- --------------------
+insert into taches (
+    projet_id, commande_id, nom, description,
+    phase_id, discipline_id, responsable_id,
+    statut, poids, avancement,
+    date_debut_prevue, date_fin_prevue,
+    date_debut_reelle, date_fin_reelle,
+    cout_prevu, cout_reel,
+    planned_value, earned_value, actual_cost,
+    cree_par
+) values
+(
+    (select id from projets where code='PRJ-004'),
+    (select id from commandes where code_commande='CMD-014-TPHS'),
+    'Audit conformité réglementaire HSE',
+    'Audit de conformité réglementaire et légale HSE',
+    (select id from phases where code='OTH'),
+    (select id from disciplines where code='HSE'),
+    (select id from utilisateurs where email='joel.mba@company.ga'),
+    'En attente',12,10,
+    '2025-09-01'::date,'2025-12-31'::date,
+    null,null,
+    360000,30000,300000,30000,33000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-004'),
+    (select id from commandes where code_commande='CMD-014-TPHS'),
+    'Étude d''impact environnemental',
+    'Évaluation des impacts environnementaux sites Gabon',
+    (select id from phases where code='OTH'),
+    (select id from disciplines where code='ENV'),
+    (select id from utilisateurs where email='joel.mba@company.ga'),
+    'En attente',10,5,
+    '2025-10-01'::date,'2026-02-28'::date,
+    null,null,
+    300000,15000,250000,12500,14000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-004'),
+    (select id from commandes where code_commande='CMD-015-INHS'),
+    'Rédaction plan HSE interne',
+    'Rédaction du plan de gestion HSE pour les sites opérationnels',
+    (select id from phases where code='OTH'),
+    (select id from disciplines where code='HSE'),
+    (select id from utilisateurs where email='joel.mba@company.ga'),
+    'En attente',10,8,
+    '2025-10-01'::date,'2026-03-31'::date,
+    null,null,
+    250000,20000,200000,16000,18000,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-004'),
+    (select id from commandes where code_commande='CMD-015-INHS'),
+    'Formation et sensibilisation HSE',
+    'Programme de formation HSE pour le personnel des sites',
+    (select id from phases where code='OTH'),
+    (select id from disciplines where code='HSE'),
+    (select id from utilisateurs where email='joel.mba@company.ga'),
+    'En attente',8,0,
+    '2026-01-01'::date,'2026-05-31'::date,
+    null,null,
+    200000,0,160000,0,0,
+    (select id from utilisateurs where email='admin@company.ga')
+);
+
+-- =========================================================
+-- COUTS
+-- =========================================================
+insert into couts (
+    projet_id, commande_id, libelle, categorie,
+    cout_prevu, cout_reel, date_cout, cree_par
+) values
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-001-TPGC'),
+    'Ingénierie BE-DE TECHNIP','Ingénierie',
+    8500000,7200000,'2025-06-30'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-002-SAIP'),
+    'Construction Génie Civil SAIPEM','Construction',
+    12000000,9500000,'2025-09-30'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-004-ABBC'),
+    'Électricité & Automatisme ABB','Équipements',
+    9000000,7800000,'2025-09-30'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-001'),
+    null,
+    'Frais de gestion projet','Management',
+    2000000,1800000,'2025-09-30'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-002'),
+    (select id from commandes where code_commande='CMD-006-TPWI'),
+    'Ingénierie Water Injection TECHNIP','Ingénierie',
+    4500000,4200000,'2025-10-31'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-002'),
+    (select id from commandes where code_commande='CMD-007-VLRC'),
+    'Tuyauterie HP VALLOUREC','Équipements',
+    5500000,3800000,'2025-12-31'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-002'),
+    (select id from commandes where code_commande='CMD-008-SAIP'),
+    'Construction Water Injection SAIPEM','Construction',
+    5500000,4100000,'2026-01-31'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-003'),
+    (select id from commandes where code_commande='CMD-010-TPOE'),
+    'Ingénierie Électrique TECHNIP','Ingénierie',
+    6500000,2800000,'2025-12-31'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-003'),
+    (select id from commandes where code_commande='CMD-011-ABOE'),
+    'Transformateurs HTA ABB','Équipements',
+    12000000,3500000,'2025-12-31'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select id from projets where code='PRJ-004'),
+    (select id from commandes where code_commande='CMD-014-TPHS'),
+    'Audit HSE TECHNIP','Ingénierie',
+    3000000,500000,'2025-12-31'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+);
+
+-- =========================================================
+-- RISQUES
+-- =========================================================
+insert into risques (
+    projet_id, commande_id, titre, description,
+    probabilite, impact, statut,
+    plan_mitigation, responsable_id,
+    date_identification, date_echeance
+) values
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-002-SAIP'),
+    'Retard livraison béton',
+    'Pénurie ciment sur site MDJ - impact fondations',
+    4,5,'Ouvert',
+    'Identification fournisseurs alternatifs - stock tampon 30j',
+    (select id from utilisateurs where email='yorick.etendino@company.ga'),
+    '2025-08-01'::date,'2025-12-31'::date
+),
+(
+    (select id from projets where code='PRJ-001'),
+    (select id from commandes where code_commande='CMD-004-ABBC'),
+    'Délai fabrication tableaux HTA',
+    'Saturation usine ABB Europe - délai +3 mois estimé',
+    3,5,'En cours',
+    'Commande anticipée - sourcing fournisseur asiatique alternatif',
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    '2025-07-15'::date,'2026-01-31'::date
+),
+(
+    (select id from projets where code='PRJ-001'),
+    null,
+    'Fluctuation cours des matières premières',
+    'Hausse acier et cuivre - impact budget global estimé +8%',
+    3,4,'Ouvert',
+    'Clause de révision prix dans contrats - provision 10% budget',
+    (select id from utilisateurs where email='joel.mba@company.ga'),
+    '2025-06-01'::date,'2026-06-30'::date
+),
+(
+    (select id from projets where code='PRJ-002'),
+    (select id from commandes where code_commande='CMD-007-VLRC'),
+    'Non-conformité soudures tuyauterie HP',
+    'Risque de rejet lots tuyauterie après CND - impact planning 6 semaines',
+    2,5,'En cours',
+    'Renforcement contrôle qualité en fabrication - inspection tierce partie',
+    (select id from utilisateurs where email='s.koumba@company.ga'),
+    '2025-10-01'::date,'2026-02-28'::date
+),
+(
+    (select id from projets where code='PRJ-003'),
+    (select id from commandes where code_commande='CMD-011-ABOE'),
+    'Disponibilité barge offshore',
+    'Saturation parc barges - indisponibilité pour installation',
+    4,4,'Ouvert',
+    'Réservation anticipée barge BOURBON OFFSHORE',
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    '2025-11-01'::date,'2026-06-30'::date
+),
+(
+    (select id from projets where code='PRJ-004'),
+    null,
+    'Non-conformité réglementaire HSE',
+    'Risque de non-conformité détectée lors de l''audit - sanctions potentielles',
+    3,5,'Ouvert',
+    'Audit interne préalable - correction avant audit officiel',
+    (select id from utilisateurs where email='joel.mba@company.ga'),
+    '2025-09-01'::date,'2026-03-31'::date
+);
+
+-- =========================================================
+-- HISTORIQUE AVANCEMENT
+-- =========================================================
+insert into historique_avancement (
+    projet_id, commande_id,
+    date_snapshot, avancement_reel, avancement_prevu,
+    planned_value, earned_value, actual_cost, spi, cpi
+) values
+((select id from projets where code='PRJ-001'),null,
+ '2025-01-31'::date,5,8,3500000,1750000,1900000,0.50,0.92),
+((select id from projets where code='PRJ-001'),null,
+ '2025-02-28'::date,10,14,7000000,4200000,4600000,0.60,0.91),
+((select id from projets where code='PRJ-001'),null,
+ '2025-03-31'::date,16,20,10500000,6720000,7300000,0.64,0.92),
+((select id from projets where code='PRJ-001'),null,
+ '2025-04-30'::date,22,26,14000000,9240000,10100000,0.66,0.92),
+((select id from projets where code='PRJ-001'),null,
+ '2025-05-31'::date,28,32,17500000,11760000,12800000,0.67,0.92),
+((select id from projets where code='PRJ-001'),null,
+ '2025-06-30'::date,34,38,21000000,14280000,15500000,0.68,0.92),
+((select id from projets where code='PRJ-001'),null,
+ '2025-07-31'::date,38,44,24500000,15960000,17400000,0.65,0.92),
+((select id from projets where code='PRJ-001'),null,
+ '2025-08-31'::date,42,50,28000000,17640000,19200000,0.63,0.92),
+((select id from projets where code='PRJ-002'),null,
+ '2025-03-31'::date,8,10,1600000,1280000,1380000,0.80,0.93),
+((select id from projets where code='PRJ-002'),null,
+ '2025-04-30'::date,18,20,3200000,2880000,3100000,0.90,0.93),
+((select id from projets where code='PRJ-002'),null,
+ '2025-05-31'::date,28,30,4800000,4480000,4800000,0.93,0.93),
+((select id from projets where code='PRJ-002'),null,
+ '2025-06-30'::date,38,38,6400000,6080000,6500000,0.95,0.94),
+((select id from projets where code='PRJ-002'),null,
+ '2025-07-31'::date,48,46,8000000,7680000,8200000,0.96,0.94),
+((select id from projets where code='PRJ-002'),null,
+ '2025-08-31'::date,58,55,9600000,9280000,9900000,0.97,0.94),
+((select id from projets where code='PRJ-003'),null,
+ '2025-06-30'::date,5,8,2500000,1250000,1400000,0.50,0.89),
+((select id from projets where code='PRJ-003'),null,
+ '2025-07-31'::date,8,12,5000000,2000000,2250000,0.40,0.89),
+((select id from projets where code='PRJ-003'),null,
+ '2025-08-31'::date,12,18,7500000,3000000,3380000,0.40,0.89),
+((select id from projets where code='PRJ-004'),null,
+ '2025-09-30'::date,3,10,450000,135000,155000,0.30,0.87),
+((select id from projets where code='PRJ-004'),null,
+ '2025-10-31'::date,8,18,900000,360000,410000,0.40,0.88);
+
+-- =========================================================
+-- MDR (1 par commande)
+-- =========================================================
+insert into mdr (commande_id, projet_id, titre, cree_par)
+select
+    c.id,
+    c.projet_id,
+    'MDR - ' || c.nom,
+    (select id from utilisateurs where email='admin@company.ga')
+from commandes c;
+
+-- =========================================================
+-- DOCUMENTS MDR — CMD-001-TPGC (détail complet)
+-- =========================================================
+insert into documents_mdr (
+    mdr_id, commande_id, projet_id,
+    numero_document, titre,
+    phase_id, discipline_id, classe_num, doc_type_id,
+    pays_id, site_id, secteur_id,
+    duree_revue_company, duree_revue_contractor,
+    statut_final_attendu, sequence_statuts,
+    revision_courante, statut_courant, code_retour_courant,
+    est_finalise,
+    date_emission_prevue, date_emission_reelle,
+    date_retour_prevu, date_retour_reel,
+    cree_par
+) values
+(
+    (select m.id from mdr m
+     join commandes c on m.commande_id=c.id
+     where c.code_commande='CMD-001-TPGC'),
+    (select id from commandes where code_commande='CMD-001-TPGC'),
+    (select projet_id from commandes where code_commande='CMD-001-TPGC'),
+    'GA-MDJ-AGM-TPGC-PRO-PFD-00001',
+    'Process Flow Diagram - Compression Gaz',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='PRO'),
+    1,
+    (select id from doc_types_technique where code='PFD'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='AGM'),
+    15,15,'IFD','IFR,IFA,IFD',
+    '02','IFA','B',false,
+    '2025-02-01'::date,'2025-02-05'::date,
+    '2025-02-20'::date,'2025-02-22'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select m.id from mdr m
+     join commandes c on m.commande_id=c.id
+     where c.code_commande='CMD-001-TPGC'),
+    (select id from commandes where code_commande='CMD-001-TPGC'),
+    (select projet_id from commandes where code_commande='CMD-001-TPGC'),
+    'GA-MDJ-AGM-TPGC-PRO-PID-00001',
+    'P&ID - Compression Gaz Train A',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='PRO'),
+    1,
+    (select id from doc_types_technique where code='PID'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='AGM'),
+    15,15,'IFD','IFR,IFA,IFD',
+    '01','IFR','C',false,
+    '2025-02-15'::date,'2025-02-20'::date,
+    '2025-03-07'::date,'2025-03-10'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select m.id from mdr m
+     join commandes c on m.commande_id=c.id
+     where c.code_commande='CMD-001-TPGC'),
+    (select id from commandes where code_commande='CMD-001-TPGC'),
+    (select projet_id from commandes where code_commande='CMD-001-TPGC'),
+    'GA-MDJ-AGM-TPGC-PRO-PID-00002',
+    'P&ID - Compression Gaz Train B',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='PRO'),
+    1,
+    (select id from doc_types_technique where code='PID'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='AGM'),
+    15,15,'IFD','IFR,IFA,IFD',
+    '01','IFR','B',false,
+    '2025-02-15'::date,'2025-02-22'::date,
+    '2025-03-09'::date,'2025-03-12'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select m.id from mdr m
+     join commandes c on m.commande_id=c.id
+     where c.code_commande='CMD-001-TPGC'),
+    (select id from commandes where code_commande='CMD-001-TPGC'),
+    (select projet_id from commandes where code_commande='CMD-001-TPGC'),
+    'GA-MDJ-AGM-TPGC-PIP-SPC-00001',
+    'Spécification Tuyauterie Haute Pression',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='PIP'),
+    1,
+    (select id from doc_types_technique where code='SPC'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='AGM'),
+    15,15,'IFD','IFR,IFA,IFD',
+    '02','IFA','A',false,
+    '2025-03-01'::date,'2025-03-05'::date,
+    '2025-03-20'::date,'2025-03-18'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select m.id from mdr m
+     join commandes c on m.commande_id=c.id
+     where c.code_commande='CMD-001-TPGC'),
+    (select id from commandes where code_commande='CMD-001-TPGC'),
+    (select projet_id from commandes where code_commande='CMD-001-TPGC'),
+    'GA-MDJ-AGM-TPGC-MEC-DTS-00001',
+    'Datasheet Compresseur Centrifuge Train A',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='MEC'),
+    2,
+    (select id from doc_types_technique where code='DTS'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='AGM'),
+    15,15,'IFC','IFR,IFC',
+    '01','IFR','B',false,
+    '2025-03-15'::date,'2025-03-20'::date,
+    '2025-04-04'::date,'2025-04-06'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select m.id from mdr m
+     join commandes c on m.commande_id=c.id
+     where c.code_commande='CMD-001-TPGC'),
+    (select id from commandes where code_commande='CMD-001-TPGC'),
+    (select projet_id from commandes where code_commande='CMD-001-TPGC'),
+    'GA-MDJ-AGM-TPGC-MEC-DTS-00002',
+    'Datasheet Compresseur Centrifuge Train B',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='MEC'),
+    2,
+    (select id from doc_types_technique where code='DTS'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='AGM'),
+    15,15,'IFC','IFR,IFC',
+    '01','IFC','A',true,
+    '2025-03-15'::date,'2025-03-18'::date,
+    '2025-04-02'::date,'2025-04-01'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select m.id from mdr m
+     join commandes c on m.commande_id=c.id
+     where c.code_commande='CMD-001-TPGC'),
+    (select id from commandes where code_commande='CMD-001-TPGC'),
+    (select projet_id from commandes where code_commande='CMD-001-TPGC'),
+    'GA-MDJ-AGM-TPGC-ELE-NCT-00001',
+    'Note de Calcul - Bilan Électrique Compression',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='ELE'),
+    1,
+    (select id from doc_types_technique where code='NCT'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='AGM'),
+    15,15,'IFD','IFR,IFA,IFD',
+    '01','IFR','A',false,
+    '2025-04-01'::date,'2025-04-05'::date,
+    '2025-04-20'::date,'2025-04-18'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select m.id from mdr m
+     join commandes c on m.commande_id=c.id
+     where c.code_commande='CMD-001-TPGC'),
+    (select id from commandes where code_commande='CMD-001-TPGC'),
+    (select projet_id from commandes where code_commande='CMD-001-TPGC'),
+    'GA-MDJ-AGM-TPGC-INS-LST-00001',
+    'Liste des Instruments - Compression Gaz',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='INS'),
+    2,
+    (select id from doc_types_technique where code='LST'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='AGM'),
+    15,15,'IFC','IFR,IFC',
+    '02','IFC','A',true,
+    '2025-04-01'::date,'2025-04-03'::date,
+    '2025-04-18'::date,'2025-04-15'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select m.id from mdr m
+     join commandes c on m.commande_id=c.id
+     where c.code_commande='CMD-001-TPGC'),
+    (select id from commandes where code_commande='CMD-001-TPGC'),
+    (select projet_id from commandes where code_commande='CMD-001-TPGC'),
+    'GA-MDJ-AGM-TPGC-HSE-RPT-00001',
+    'Rapport HAZOP - Station Compression',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='HSE'),
+    3,
+    (select id from doc_types_technique where code='RPT'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='AGM'),
+    15,15,'IFI','IFI',
+    '01','IFI','A',true,
+    '2025-05-01'::date,'2025-05-10'::date,
+    null,null,
+    (select id from utilisateurs where email='admin@company.ga')
+),
+(
+    (select m.id from mdr m
+     join commandes c on m.commande_id=c.id
+     where c.code_commande='CMD-001-TPGC'),
+    (select id from commandes where code_commande='CMD-001-TPGC'),
+    (select projet_id from commandes where code_commande='CMD-001-TPGC'),
+    'GA-MDJ-AGM-TPGC-PJM-LST-00001',
+    'Document Index / MDR Compression Gaz',
+    (select id from phases where code='BE-DE'),
+    (select id from disciplines where code='PJM'),
+    2,
+    (select id from doc_types_technique where code='MDR'),
+    (select id from pays where code_pays='GA'),
+    (select id from sites where code_site='MDJ'),
+    (select id from secteurs where code_secteur='AGM'),
+    15,15,'IFC','IFR,IFC',
+    '03','IFC','A',true,
+    '2025-01-20'::date,'2025-01-22'::date,
+    '2025-02-06'::date,'2025-02-05'::date,
+    (select id from utilisateurs where email='admin@company.ga')
+);
+
+-- =========================================================
+-- DOCUMENTS MDR — CMD-002 à CMD-015 (génération via DO)
+-- =========================================================
+do $$
+declare
+    cmd_code      text;
+    cmd_list      text[] := array[
+        'CMD-002-SAIP','CMD-003-SAIP','CMD-004-ABBC','CMD-005-SIMC',
+        'CMD-006-TPWI','CMD-007-VLRC','CMD-008-SAIP','CMD-009-ABWI',
+        'CMD-010-TPOE','CMD-011-ABOE','CMD-012-SIOE','CMD-013-SAOE',
+        'CMD-014-TPHS','CMD-015-INHS'
+    ];
+    disc_codes    text[] := array[
+        'ELE','INS','MEC','PIP','PRO',
+        'CIV','STR','QUA','HSE','PJM'
+    ];
+    doc_type_codes text[] := array[
+        'PID','SPC','DTS','NCT','LST',
+        'RPT','PRO','PLN','SCH','MDR'
+    ];
+    classe_nums   int[]  := array[1,1,2,1,2,3,2,1,2,2];
+    i             int;
+    phase_code    text;
+    mdr_id_val    bigint;
+    doc_num       text;
+    seq_map       text;
+    statut_final  text;
+    statut_cur    text;
+    code_ret      text;
+    rev_cur       text;
+    est_fin       boolean;
+    admin_id      bigint;
+    c_id          bigint;
+    c_projet_id   bigint;
+    c_phase_id    bigint;
+    c_pays_id     bigint;
+    c_site_id     bigint;
+    c_secteur_id  bigint;
+    c_date_debut  date;
+begin
+    select id into admin_id
+    from utilisateurs where email = 'admin@company.ga';
+
+    foreach cmd_code in array cmd_list loop
+
+        -- récupérer les infos de la commande
+        select
+            c.id, c.projet_id, c.phase_id,
+            c.pays_id, c.site_id, c.secteur_id,
+            c.date_debut_prevue,
+            p.code
+        into
+            c_id, c_projet_id, c_phase_id,
+            c_pays_id, c_site_id, c_secteur_id,
+            c_date_debut,
+            phase_code
+        from commandes c
+        join phases p on c.phase_id = p.id
+        where c.code_commande = cmd_code;
+
+        -- récupérer le mdr_id
+        select m.id into mdr_id_val
+        from mdr m
+        where m.commande_id = c_id;
+
+        -- SI le mdr_id_val est NULL, on ignore cette commande
+        if mdr_id_val is null then
+            continue;
+        end if;
+
+        for i in 1..10 loop
+
+            -- déterminer séquence, statut final, statut courant
+            if classe_nums[i] = 3 then
+                seq_map      := 'IFI';
+                statut_final := 'IFI';
+                statut_cur   := 'IFI';
+                code_ret     := case when i <= 6 then 'A' else null end;
+                est_fin      := i <= 6;
+                rev_cur      := case when i <= 6 then '01' else '00' end;
+
+            elsif phase_code = 'EPC' and classe_nums[i] = 1 then
+                seq_map      := 'IFR,IFA,IFC,MKP,ASB';
+                statut_final := 'ASB';
+                statut_cur   := case
+                    when i <= 2 then 'IFR'
+                    when i <= 5 then 'IFA'
+                    else 'IFC' end;
+                code_ret     := case when i <= 5 then 'B' else 'A' end;
+                est_fin      := false;
+                rev_cur      := case
+                    when i <= 2 then '00'
+                    when i <= 5 then '01'
+                    else '02' end;
+
+            elsif phase_code in ('BE-DE','BE') and classe_nums[i] = 1 then
+                seq_map      := 'IFR,IFA,IFD';
+                statut_final := 'IFD';
+                statut_cur   := case
+                    when i <= 3 then 'IFR'
+                    when i <= 7 then 'IFA'
+                    else 'IFD' end;
+                code_ret     := case
+                    when i <= 3 then 'C'
+                    when i <= 7 then 'B'
+                    else 'A' end;
+                est_fin      := i > 7;
+                rev_cur      := case
+                    when i <= 3 then '01'
+                    when i <= 7 then '02'
+                    else '03' end;
+
+            elsif phase_code in ('DE','PRO') and classe_nums[i] = 1 then
+                seq_map      := 'IFR,IFA,IFC';
+                statut_final := 'IFC';
+                statut_cur   := case
+                    when i <= 3 then 'IFR'
+                    when i <= 6 then 'IFA'
+                    else 'IFC' end;
+                code_ret     := case
+                    when i <= 3 then 'C'
+                    when i <= 6 then 'B'
+                    else 'A' end;
+                est_fin      := i > 6;
+                rev_cur      := case
+                    when i <= 3 then '01'
+                    when i <= 6 then '02'
+                    else '03' end;
+
+            else
+                seq_map      := 'IFR,IFC';
+                statut_final := 'IFC';
+                statut_cur   := case when i <= 5 then 'IFR' else 'IFC' end;
+                code_ret     := case when i <= 5 then 'B' else 'A' end;
+                est_fin      := i > 5;
+                rev_cur      := case when i <= 5 then '01' else '02' end;
+            end if;
+
+            -- construire le numéro de document
+            doc_num := 'GA-MDJ-AGM-'
+                || replace(cmd_code, 'CMD-', '') || '-'
+                || disc_codes[i] || '-'
+                || doc_type_codes[i] || '-'
+                || lpad(i::text, 5, '0');
+
+            insert into documents_mdr (
+                mdr_id, commande_id, projet_id,
+                numero_document, titre,
+                phase_id, discipline_id, classe_num, doc_type_id,
+                pays_id, site_id, secteur_id,
+                duree_revue_company, duree_revue_contractor,
+                statut_final_attendu, sequence_statuts,
+                revision_courante, statut_courant, code_retour_courant,
+                est_finalise,
+                date_emission_prevue,
+                date_emission_reelle,
+                cree_par
+            ) values (
+                mdr_id_val,
+                c_id,
+                c_projet_id,
+                doc_num,
+                'Document ' || disc_codes[i] || ' - '
+                    || doc_type_codes[i] || ' n°' || i
+                    || ' [' || cmd_code || ']',
+                c_phase_id,
+                (select id from disciplines where code = disc_codes[i]),
+                classe_nums[i],
+                (select id from doc_types_technique
+                 where code = doc_type_codes[i] limit 1),
+                c_pays_id,
+                c_site_id,
+                c_secteur_id,
+                15, 15,
+                statut_final,
+                seq_map,
+                rev_cur,
+                statut_cur,
+                code_ret,
+                est_fin,
+                (c_date_debut + (i * 15 * interval '1 day'))::date,
+                (c_date_debut + ((i * 15 + 5) * interval '1 day'))::date,
+                admin_id
+            );
+
+        end loop;
+    end loop;
+end;
+$$;
+
+-- =========================================================
+-- REVISIONS DOCUMENTAIRES — CMD-001-TPGC
+-- =========================================================
+
+insert into document_revisions (
+    document_mdr_id, numero_revision, statut_emission, code_retour,
+    date_emission_contractor, date_reception_company,
+    date_retour_company, date_limite_retour,
+    commentaires_revue_consolides, est_en_retard, cree_par
+) values (
+    (select id from documents_mdr
+     where numero_document = 'GA-MDJ-AGM-TPGC-PRO-PFD-00001'),
+    '00', 'IFR', 'C',
+    '2025-02-01'::date,
+    '2025-02-03'::date,
+    '2025-02-18'::date,
+    '2025-02-18'::date,
+    'Commentaire général : diagramme incomplet - manque vannes sectionnement aval train A',
+    false,
+    (select id from utilisateurs where email='a.mboumba@company.ga')
+);
+
+insert into document_revisions (
+    document_mdr_id, numero_revision, statut_emission, code_retour,
+    date_emission_contractor, date_reception_company,
+    date_retour_company, date_limite_retour,
+    commentaires_revue_consolides, est_en_retard, cree_par
+) values (
+    (select id from documents_mdr
+     where numero_document = 'GA-MDJ-AGM-TPGC-PRO-PFD-00001'),
+    '01', 'IFR', 'B',
+    '2025-02-28'::date,
+    '2025-03-01'::date,
+    '2025-03-16'::date,
+    '2025-03-16'::date,
+    'Commentaire : correction vannes OK - revoir instrumentation mesure débit entrée',
+    false,
+    (select id from utilisateurs where email='a.mboumba@company.ga')
+);
+
+insert into document_revisions (
+    document_mdr_id, numero_revision, statut_emission, code_retour,
+    date_emission_contractor, date_reception_company,
+    date_retour_company, date_limite_retour,
+    commentaires_revue_consolides, est_en_retard, cree_par
+) values (
+    (select id from documents_mdr
+     where numero_document = 'GA-MDJ-AGM-TPGC-PRO-PFD-00001'),
+    '02', 'IFA', 'B',
+    '2025-04-01'::date,
+    '2025-04-02'::date,
+    '2025-04-17'::date,
+    '2025-04-17'::date,
+    'Commentaire mineur : légende à compléter - document acceptable pour approbation',
+    false,
+    (select id from utilisateurs where email='a.mboumba@company.ga')
+);
+
+-- =========================================================
+-- EVM SNAPSHOTS
+-- =========================================================
+insert into evm_snapshots (
+    projet_id, date_snapshot,
+    budget_total, planned_value, earned_value, actual_cost
+) values
+(
+    (select id from projets where code='PRJ-001'),
+    '2025-06-30'::date,
+    45000000,21000000,14280000,15500000
+),
+(
+    (select id from projets where code='PRJ-001'),
+    '2025-07-31'::date,
+    45000000,24500000,15960000,17400000
+),
+(
+    (select id from projets where code='PRJ-001'),
+    '2025-08-31'::date,
+    45000000,28000000,17640000,19200000
+),
+(
+    (select id from projets where code='PRJ-002'),
+    '2025-06-30'::date,
+    18000000,6400000,6080000,6500000
+),
+(
+    (select id from projets where code='PRJ-002'),
+    '2025-07-31'::date,
+    18000000,8000000,7680000,8200000
+),
+(
+    (select id from projets where code='PRJ-002'),
+    '2025-08-31'::date,
+    18000000,9600000,9280000,9900000
+),
+(
+    (select id from projets where code='PRJ-003'),
+    '2025-08-31'::date,
+    32000000,7500000,3000000,3380000
+);
+
+-- =========================================================
+-- NOTIFICATIONS
+-- =========================================================
+insert into notifications (
+    destinataire_id, type, titre, message,
+    projet_id, est_lue, est_email_envoye
+) values
+(
+    (select id from utilisateurs where email='a.mboumba@company.ga'),
+    'REVUE_ASSIGNEE',
+    'Nouvelle revue documentaire assignée',
+    'Le document GA-MDJ-AGM-TPGC-PRO-PFD-00001 Rev.02 vous a été assigné pour revue',
+    (select id from projets where code='PRJ-001'),
+    false, true
+),
+(
+    (select id from utilisateurs where email='joel.mba@company.ga'),
+    'RETARD_PROJET',
+    'Projet PRJ-001 en dérive planning',
+    'L''avancement réel (42%) est inférieur à l''avancement planifié (50%) - SPI = 0.63',
+    (select id from projets where code='PRJ-001'),
+    false, true
+),
+(
+    (select id from utilisateurs where email='jm.obiang@company.ga'),
+    'RISQUE_CRITIQUE',
+    'Risque critique détecté - PRJ-001',
+    'Risque "Délai fabrication tableaux HTA" - Criticité 15/25 - Action requise',
+    (select id from projets where code='PRJ-001'),
+    true, true
+),
+(
+    (select id from utilisateurs where email='yorick.etendino@company.ga'),
+    'DOCUMENT_FINALISE',
+    'Document finalisé - CMD-006-TPWI',
+    'Le document Datasheet Compresseur Train B a atteint son statut final (IFC - Code A)',
+    (select id from projets where code='PRJ-002'),
+    false, false
+);
+
+-- =========================================================
+-- END SEED DATA
+-- =========================================================

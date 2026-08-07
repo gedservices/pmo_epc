@@ -1,0 +1,315 @@
+{% extends "base/base.html" %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Projets</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-3">
+
+  <!-- Header -->
+  <div class="d-flex align-items-start justify-content-between mb-3">
+    <div>
+      <h1 class="pmo-page-title">
+        <i class="bi bi-folder2-open text-primary me-2"></i>Projets
+      </h1>
+      <p class="pmo-page-subtitle mb-0">
+        {{ nb_total }} projet{{ nb_total|pluralize }}
+        · {{ conteneur.libelle|default:"Tous" }}
+        {% if nb_retard > 0 %}
+        · <span class="text-danger fw-semibold">
+            {{ nb_retard }} en retard
+          </span>
+        {% endif %}
+      </p>
+    </div>
+    <div class="pmo-page-actions">
+      <a href="{% url 'projects:create' %}" class="btn-pmo-primary">
+        <i class="bi bi-plus-lg me-1"></i>Nouveau Projet
+      </a>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="pmo-filters mb-3">
+    <form method="get" class="row g-2 align-items-end">
+      <!-- Recherche -->
+      <div class="col-12 col-md-4 col-lg-3">
+        <div class="input-group input-group-sm">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" class="form-control"
+                 placeholder="Code, nom, description..."
+                 value="{{ search }}">
+        </div>
+      </div>
+      <!-- Statut -->
+      <div class="col-6 col-md-2">
+        <select name="statut" class="form-select form-select-sm pmo-auto-submit">
+          <option value="">Statut</option>
+          {% for val, label in statut_choices %}
+          <option value="{{ val }}"
+            {% if filtre_statut == val %}selected{% endif %}>
+            {{ label }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <!-- Priorité -->
+      <div class="col-6 col-md-2">
+        <select name="priorite" class="form-select form-select-sm pmo-auto-submit">
+          <option value="">Priorité</option>
+          {% for val, label in priorite_choices %}
+          <option value="{{ val }}"
+            {% if filtre_priorite == val %}selected{% endif %}>
+            {{ label }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <!-- Boutons -->
+      <div class="col-auto">
+        <button type="submit" class="btn btn-sm btn-pmo-primary">
+          Filtrer
+        </button>
+      </div>
+      <div class="col-auto">
+        <a href="{% url 'projects:list' %}" class="btn btn-sm btn-pmo-ghost">
+          <i class="bi bi-x-lg"></i> Réinitialiser
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Chips filtres actifs -->
+  {% if filtre_statut or filtre_priorite or search %}
+  <div class="d-flex gap-2 flex-wrap mb-3">
+    {% if search %}
+    <span class="pmo-filter-chip">
+      Recherche: "{{ search }}"
+      <a href="?{% if filtre_statut %}statut={{ filtre_statut }}&{% endif %}
+               {% if filtre_priorite %}priorite={{ filtre_priorite }}&{% endif %}"
+         class="btn-close"></a>
+    </span>
+    {% endif %}
+    {% if filtre_statut %}
+    <span class="pmo-filter-chip">
+      Statut: {{ filtre_statut }}
+      <a href="?{% if search %}q={{ search }}&{% endif %}
+               {% if filtre_priorite %}priorite={{ filtre_priorite }}&{% endif %}"
+         class="btn-close"></a>
+    </span>
+    {% endif %}
+    {% if filtre_priorite %}
+    <span class="pmo-filter-chip">
+      Priorité: {{ filtre_priorite }}
+      <a href="?{% if search %}q={{ search }}&{% endif %}
+               {% if filtre_statut %}statut={{ filtre_statut }}&{% endif %}"
+         class="btn-close"></a>
+    </span>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Tableau -->
+  <div class="pmo-card p-0">
+    <!-- Barre actions masse (cachée par défaut) -->
+    <div id="bulkActionsBar"
+         class="d-none align-items-center gap-3 px-4 py-2
+                bg-primary-subtle border-bottom"
+         style="font-size:13px;">
+      <span class="bulk-counter fw-semibold"></span>
+      <button class="btn btn-sm btn-outline-primary">
+        Changer statut
+      </button>
+      <button class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-download me-1"></i>Exporter sélection
+      </button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table pmo-table mb-0">
+        <thead>
+          <tr>
+            <th style="width:36px;">
+              <input type="checkbox" id="selectAll" class="form-check-input">
+            </th>
+            <th class="sortable-col" data-sort="code">
+              Code
+              {% if sort == 'code' %}<i class="bi bi-sort-up-alt ms-1"></i>
+              {% elif sort == '-code' %}<i class="bi bi-sort-down-alt ms-1"></i>
+              {% else %}<i class="bi bi-arrow-down-up ms-1 opacity-25"></i>{% endif %}
+            </th>
+            <th class="sortable-col" data-sort="nom">
+              Nom / Responsable
+              {% if sort == 'nom' %}<i class="bi bi-sort-up-alt ms-1"></i>{% endif %}
+            </th>
+            <th>Statut / Priorité</th>
+            <th class="sortable-col" data-sort="progression_calculee">
+              Avancement
+            </th>
+            <th>Budget</th>
+            <th>SPI / CPI</th>
+            <th class="sortable-col" data-sort="date_fin_prevue">
+              Échéance
+            </th>
+            <th style="width:80px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in projets %}
+          <tr class="{% if p.est_en_retard %}table-danger-subtle{% endif %}">
+            <td>
+              <input type="checkbox" class="form-check-input row-checkbox"
+                     value="{{ p.pk }}">
+            </td>
+            <td>
+              <a href="{% url 'projects:detail' p.pk %}"
+                 class="pmo-mono fw-semibold text-primary text-decoration-none">
+                {{ p.code }}
+              </a>
+            </td>
+            <td>
+              <div class="fw-medium">{{ p.nom|truncatechars:45 }}</div>
+              <div class="small text-muted">
+                {% if p.responsable %}
+                <i class="bi bi-person me-1"></i>{{ p.responsable.nom_complet }}
+                {% endif %}
+                {% if p.site %}
+                · <i class="bi bi-geo-alt me-1"></i>{{ p.site.code_site }}
+                {% endif %}
+              </div>
+              {% if p.est_en_retard %}
+              <span class="badge bg-danger-subtle text-danger border
+                           border-danger-subtle mt-1" style="font-size:10px;">
+                <i class="bi bi-clock"></i> En retard
+              </span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge pmo-badge
+                {% if p.statut == 'En cours' %}bg-warning text-dark
+                {% elif p.statut in 'Terminée,Finalisé' %}bg-success
+                {% elif p.statut == 'En attente' %}bg-info text-dark
+                {% elif p.statut == 'Suspendu' %}bg-secondary
+                {% else %}bg-danger{% endif %}">
+                {{ p.statut }}
+              </span>
+              {% if p.priorite %}
+              <br>
+              <span class="badge pmo-badge mt-1
+                {% if p.priorite == 'Critique' %}bg-danger
+                {% elif p.priorite == 'Haute' %}bg-warning text-dark
+                {% elif p.priorite == 'Moyenne' %}bg-info text-dark
+                {% else %}bg-secondary{% endif %}">
+                {{ p.priorite }}
+              </span>
+              {% endif %}
+            </td>
+            <td style="min-width:130px;">
+              <div class="d-flex align-items-center gap-2">
+                <div class="pmo-progress flex-grow-1">
+                  <div class="pmo-progress-bar bg-{{ p.couleur_progression }}"
+                       style="width:{{ p.progression_calculee }}%">
+                  </div>
+                </div>
+                <span class="small fw-semibold" style="min-width:32px;">
+                  {{ p.progression_calculee|floatformat:0 }}%
+                </span>
+              </div>
+            </td>
+            <td class="small">
+              <div>{{ p.budget_prevu|floatformat:0 }} €</div>
+              <div class="text-muted">
+                {{ p.taux_consommation }}% consommé
+              </div>
+            </td>
+            <td class="small text-center">
+              {% if p.spi %}
+              <span class="pmo-spi-value d-block">{{ p.spi }}</span>
+              <span class="text-muted" style="font-size:10px;">SPI</span>
+              {% else %}—{% endif %}
+              {% if p.cpi %}
+              <span class="pmo-spi-value d-block mt-1">{{ p.cpi }}</span>
+              <span class="text-muted" style="font-size:10px;">CPI</span>
+              {% endif %}
+            </td>
+            <td class="small">
+              {% if p.date_fin_prevue %}
+              <span {% if p.est_en_retard %}class="text-danger fw-semibold"{% endif %}>
+                {{ p.date_fin_prevue|date:"d/m/Y" }}
+              </span>
+              {% else %}—{% endif %}
+            </td>
+            <td>
+              <div class="d-flex gap-1">
+                <a href="{% url 'projects:detail' p.pk %}"
+                   class="btn-pmo-icon"
+                   title="Voir le projet"
+                   data-bs-toggle="tooltip">
+                  <i class="bi bi-eye"></i>
+                </a>
+                {% if not p.est_lecture_seule %}
+                <a href="{% url 'projects:edit' p.pk %}"
+                   class="btn-pmo-icon"
+                   title="Modifier"
+                   data-bs-toggle="tooltip">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                {% endif %}
+                <div class="dropdown">
+                  <button class="btn-pmo-icon" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end shadow-sm"
+                      style="font-size:13px;">
+                    <li>
+                      <a class="dropdown-item" href="{% url 'tasks:gantt' %}?projet={{ p.pk }}">
+                        <i class="bi bi-bar-chart-steps me-2"></i>Gantt
+                      </a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="{% url 'risks:list' %}?projet={{ p.pk }}">
+                        <i class="bi bi-shield-exclamation me-2"></i>Risques
+                      </a>
+                    </li>
+                    {% if request.user.is_pmo %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item" href="{% url 'projects:migrate' p.pk %}">
+                        <i class="bi bi-arrow-right-circle me-2"></i>Migrer conteneur
+                      </a>
+                    </li>
+                    {% endif %}
+                  </ul>
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="9">
+              <div class="pmo-empty-state">
+                <div class="pmo-empty-icon"><i class="bi bi-folder-x"></i></div>
+                <div class="pmo-empty-title">Aucun projet trouvé</div>
+                <div class="pmo-empty-sub">
+                  Modifiez vos filtres ou créez un nouveau projet.
+                </div>
+                <a href="{% url 'projects:create' %}" class="btn-pmo-primary">
+                  <i class="bi bi-plus-lg me-1"></i>Nouveau Projet
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="px-4 py-2 border-top bg-light">
+      {% include "components/pagination.html" with projets=projets %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

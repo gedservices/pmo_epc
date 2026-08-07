@@ -1,0 +1,178 @@
+{% extends "base/base.html" %}
+
+
+{% block title %}
+Suppression projet
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<div class="container-fluid px-4 py-3">
+
+
+
+    <div class="row justify-content-center">
+
+
+        <div class="col-lg-6">
+
+
+
+            <div class="pmo-card text-center">
+
+
+
+                <!-- Icône -->
+
+                <div class="mb-3">
+
+
+                    <i class="bi bi-exclamation-triangle-fill text-danger"
+                       style="font-size:48px;">
+                    </i>
+
+
+                </div>
+
+
+
+
+
+                <h3 class="mb-3">
+
+
+                    Supprimer le projet ?
+
+
+                </h3>
+
+
+
+
+
+                <p class="text-muted">
+
+
+                    Vous êtes sur le point de supprimer définitivement :
+
+
+                </p>
+
+
+
+
+
+                <div class="alert alert-danger">
+
+
+                    <strong>
+
+                        {{ projet.code }}
+
+                    </strong>
+
+
+                    <br>
+
+
+                    {{ projet.nom }}
+
+
+                </div>
+
+
+
+
+
+                <p class="small text-muted">
+
+
+                    Cette opération est irréversible.
+
+
+                    Les documents, tâches et historiques associés
+                    pourront être impactés.
+
+
+                </p>
+
+
+
+
+
+
+
+                <form method="post">
+
+
+                    {% csrf_token %}
+
+
+
+
+
+                    <div class="d-flex justify-content-center gap-2">
+
+
+                        <a href="{% url 'projects:detail' projet.pk %}"
+                           class="btn btn-secondary">
+
+
+                            <i class="bi bi-arrow-left"></i>
+
+
+                            Annuler
+
+
+                        </a>
+
+
+
+
+
+
+                        <button type="submit"
+                                class="btn btn-danger">
+
+
+                            <i class="bi bi-trash"></i>
+
+
+                            Supprimer
+
+
+                        </button>
+
+
+
+                    </div>
+
+
+
+                </form>
+
+
+
+
+
+            </div>
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+
+</div>
+
+
+
+{% endblock %}

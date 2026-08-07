@@ -1,0 +1,25 @@
+<form method="get" class="d-flex">
+
+    <div class="input-group">
+
+        <span class="input-group-text">
+            <i class="bi bi-search"></i>
+        </span>
+
+        <input
+            type="search"
+            name="{{ name|default:'q' }}"
+            class="form-control"
+            placeholder="{{ placeholder|default:'Rechercher...' }}"
+            value="{{ value|default:'' }}"
+            autocomplete="off">
+
+        {% if value %}
+        <a href="{{ clear_url|default:'?' }}" class="btn btn-outline-secondary">
+            <i class="bi bi-x-lg"></i>
+        </a>
+        {% endif %}
+
+    </div>
+
+</form>

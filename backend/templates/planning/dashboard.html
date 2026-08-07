@@ -1,0 +1,39 @@
+{% extends "base/base.html" %}
+
+{% block title %}Suivi des tâches{% endblock %}
+
+{% block content %}
+
+{% include "base/components/plannings/planning_header.html" %}
+
+<div class="container-fluid">
+
+    {% include "base/components/plannings/planning_toolbar.html" %}
+
+    {% include "base/components/plannings/planning_filters.html" %}
+
+    {% include "base/components/plannings/planning_statistics.html" %}
+
+    {% include "base/components/plannings/planning_summary.html" %}
+
+    <div class="row mt-4">
+
+        <div class="col-lg-8">
+
+            {% include "base/components/plannings/planning_gantt.html" %}
+
+        </div>
+
+        <div class="col-lg-4">
+
+            {% include "base/components/plannings/planning_retards.html" %}
+
+            {% include "base/components/plannings/planning_jalons.html" %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

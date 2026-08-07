@@ -1,0 +1,52 @@
+{% comment %}
+Badge priorité
+
+Variables :
+priorite
+
+Valeurs prévues :
+
+Critique
+Haute
+Moyenne
+Basse
+{% endcomment %}
+
+
+{% if priorite == "Critique" %}
+
+<span class="badge bg-danger">
+    <i class="bi bi-exclamation-triangle"></i>
+    {{ priorite }}
+</span>
+
+
+{% elif priorite == "Haute" %}
+
+<span class="badge bg-warning text-dark">
+    {{ priorite }}
+</span>
+
+
+{% elif priorite == "Moyenne" %}
+
+<span class="badge bg-info text-dark">
+    {{ priorite }}
+</span>
+
+
+{% elif priorite == "Basse" %}
+
+<span class="badge bg-secondary">
+    {{ priorite }}
+</span>
+
+
+{% else %}
+
+<span class="badge bg-light text-dark">
+    {{ priorite }}
+</span>
+
+
+{% endif %}

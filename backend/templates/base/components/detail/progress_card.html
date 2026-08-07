@@ -1,0 +1,47 @@
+<div class="card shadow-sm h-100">
+
+    <div class="card-body">
+        {% if title %}
+
+        <h6 class="text-muted mb-3">
+            {% if icon %}
+                <i class="bi {{ icon }}"></i>
+            {% endif %}
+
+            {{ title }}
+        </h6>
+
+        {% endif %}
+
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold">
+
+                {{ label|default:"Progression" }}
+            </span>
+
+            <span class="fw-bold">
+                {{ value }} %
+            </span>
+        </div>
+
+        <div class="progress"
+             style="height: 12px;">
+
+            <div class="progress-bar"
+                 role="progressbar"
+                 style="width: {{ value }}%;"
+                 aria-valuenow="{{ value }}"
+                 aria-valuemin="0"
+                 aria-valuemax="100">
+            </div>
+        </div>
+
+        {% if subtitle %}
+        <div class="small text-muted mt-2">
+            {{ subtitle }}
+        </div>
+
+        {% endif %}
+    </div>
+
+</div>

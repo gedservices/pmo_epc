@@ -1,0 +1,96 @@
+{% extends "base/base.html" %}
+
+
+{% block content %}
+
+<div class="container-fluid py-3">
+
+    {% block object_header %}
+    {% endblock %}
+
+
+    {% block workspace_toolbar %}
+    {% include "base/components/workspace/workspace_toolbar.html" %}
+    {% endblock %}
+
+
+    <ul class="nav nav-tabs mb-3">
+
+        {% block workspace_tabs %}
+
+        {% include "base/components/workspace/workspace_tabs.html" %}
+
+        {% endblock %}
+
+    </ul>
+
+
+    <div class="tab-content">
+
+        <div class="tab-pane fade show active"
+             id="dashboard">
+
+            {% block dashboard %}
+            {% endblock %}
+
+        </div>
+
+
+        <div class="tab-pane fade"
+             id="general">
+
+            {% block general %}
+            {% endblock %}
+
+        </div>
+
+
+        <div class="tab-pane fade"
+             id="organisation">
+
+            {% block organisation %}
+            {% endblock %}
+
+        </div>
+
+
+        <div class="tab-pane fade"
+             id="planning">
+
+            {% block planning %}
+            {% endblock %}
+
+        </div>
+
+
+        <div class="tab-pane fade"
+             id="budget">
+
+            {% block budget %}
+            {% endblock %}
+
+        </div>
+
+
+        <div class="tab-pane fade"
+             id="ged">
+
+            {% block ged %}
+            {% endblock %}
+
+        </div>
+
+
+        <div class="tab-pane fade"
+             id="history">
+
+            {% block history %}
+            {% endblock %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

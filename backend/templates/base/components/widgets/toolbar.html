@@ -1,0 +1,37 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+
+    <div class="d-flex flex-wrap gap-2">
+
+        {% if create_url %}
+        <a href="{{ create_url }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i>
+            {{ create_label|default:"Nouveau" }}
+        </a>
+        {% endif %}
+
+        {% if import_url %}
+        <a href="{{ import_url }}" class="btn btn-outline-success">
+            <i class="bi bi-upload"></i>
+            {{ import_label|default:"Importer" }}
+        </a>
+        {% endif %}
+
+        {% if export_url %}
+        <a href="{{ export_url }}" class="btn btn-outline-secondary">
+            <i class="bi bi-download"></i>
+            {{ export_label|default:"Exporter" }}
+        </a>
+        {% endif %}
+
+        {% block toolbar_extra %}
+        {% endblock %}
+
+    </div>
+
+    <div>
+
+        {% include "base/components/widgets/searchbar.html" with placeholder=search_placeholder %}
+
+    </div>
+
+</div>

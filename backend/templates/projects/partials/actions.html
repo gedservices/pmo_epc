@@ -1,0 +1,234 @@
+<div class="d-flex gap-2 flex-wrap justify-content-end">
+
+
+
+
+
+    <!-- Retour liste -->
+
+
+    <a href="{% url 'projects:list' %}"
+       class="btn btn-outline-secondary">
+
+
+        <i class="bi bi-arrow-left"></i>
+
+
+        Liste
+
+
+    </a>
+
+
+
+
+
+
+
+    <!-- Modification -->
+
+
+    {% if not projet.est_lecture_seule %}
+
+
+
+    <a href="{% url 'projects:edit' projet.pk %}"
+       class="btn btn-primary">
+
+
+        <i class="bi bi-pencil"></i>
+
+
+        Modifier
+
+
+    </a>
+
+
+
+    {% endif %}
+
+
+
+
+
+
+
+
+    <!-- Menu actions avancées -->
+
+
+    <div class="dropdown">
+
+
+
+        <button class="btn btn-outline-primary dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown">
+
+
+
+            <i class="bi bi-three-dots"></i>
+
+
+            Actions
+
+
+
+        </button>
+
+
+
+
+
+        <ul class="dropdown-menu dropdown-menu-end">
+
+
+
+
+
+
+
+            <!-- Gantt -->
+
+
+            <li>
+
+
+                <a class="dropdown-item"
+                   href="{% url 'tasks:gantt' %}?projet={{ projet.pk }}">
+
+
+                    <i class="bi bi-bar-chart-steps me-2"></i>
+
+
+                    Diagramme Gantt
+
+
+                </a>
+
+
+            </li>
+
+
+
+
+
+
+
+            <!-- Risques -->
+
+
+            <li>
+
+
+                <a class="dropdown-item"
+                   href="{% url 'risks:list' %}?projet={{ projet.pk }}">
+
+
+                    <i class="bi bi-shield-exclamation me-2"></i>
+
+
+                    Risques
+
+
+                </a>
+
+
+            </li>
+
+
+
+
+
+
+
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+
+
+
+
+
+
+
+
+            <!-- Migration -->
+
+
+            {% if not projet.est_lecture_seule %}
+
+
+            <li>
+
+
+                <a class="dropdown-item"
+                   href="{% url 'projects:migrate' projet.pk %}">
+
+
+                    <i class="bi bi-arrow-right-circle me-2"></i>
+
+
+                    Migrer conteneur
+
+
+                </a>
+
+
+            </li>
+
+
+            {% endif %}
+
+
+
+
+
+
+
+            <!-- Suppression -->
+
+
+            {% if not projet.est_lecture_seule %}
+
+
+
+            <li>
+
+
+                <a class="dropdown-item text-danger"
+                   href="{% url 'projects:supprimer' projet.pk %}">
+
+
+                    <i class="bi bi-trash me-2"></i>
+
+
+                    Supprimer
+
+
+                </a>
+
+
+            </li>
+
+
+
+            {% endif %}
+
+
+
+
+
+
+        </ul>
+
+
+    </div>
+
+
+
+
+
+
+</div>

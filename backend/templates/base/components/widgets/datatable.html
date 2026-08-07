@@ -1,0 +1,31 @@
+<div class="card shadow-sm">
+
+    {% if title or toolbar %}
+
+    <div class="card-header d-flex justify-content-between align-items-center">
+
+        <div>
+
+            {% if title %}
+            <strong>{{ title }}</strong>
+            {% endif %}
+
+        </div>
+
+        <div>
+
+            {{ toolbar }}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+    <div class="table-responsive">
+
+        {{ table|safe }}
+
+    </div>
+
+</div>

@@ -1,0 +1,25 @@
+FICHIERS À MODIFIER :
+  backend/core/core/settings.py
+  backend/core/core/urls.py
+
+FICHIERS À CRÉER — APPS :
+  backend/apps/accounts/
+  backend/apps/projects/
+  backend/apps/contracts/
+  backend/apps/tasks/
+  backend/apps/costs/
+  backend/apps/risks/
+  backend/apps/dashboard/
+  backend/apps/reporting/
+  backend/apps/core_ref/   ← référentiels
+
+FICHIERS À CRÉER — TEMPLATES :
+  backend/templates/base/
+  backend/templates/components/
+  backend/templates/dashboard/
+  backend/templates/projects/
+  ... (tous les gabarits étape 3)
+
+FICHIERS À CRÉER — STATIC :
+  backend/static/css/pmo.css
+  backend/static/js/pmo.js

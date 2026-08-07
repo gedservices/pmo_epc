@@ -1,0 +1,23 @@
+{% extends "planning/dashboard.html" %}
+
+{% block title %}
+
+Suivi des tâches par commande
+
+{% endblock %}
+
+{% block content %}
+
+{% include "base/components/plannings/planning_header.html" with titre="Suivi des tâches par commande" %}
+
+<div class="container-fluid">
+
+    {% include "base/components/plannings/planning_toolbar.html" %}
+    {% include "base/components/plannings/planning_filters.html" %}
+    {% include "base/components/plannings/planning_statistics.html" %}
+
+    {% include "base/components/plannings/planning_command_card.html" %}
+
+</div>
+
+{% endblock %}

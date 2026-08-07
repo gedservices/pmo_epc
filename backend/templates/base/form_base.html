@@ -1,0 +1,72 @@
+{% extends "base/base.html" %}
+
+
+{% block content %}
+
+<div class="container-fluid py-3">
+
+
+    {% include "base/components/page_title.html" %}
+
+
+    <div class="card shadow-sm">
+
+
+        <div class="card-body">
+
+
+            <form method="post"
+                  enctype="multipart/form-data">
+
+
+                {% csrf_token %}
+
+
+                {% block form_content %}
+
+
+                {{ form.as_p }}
+
+
+                {% endblock %}
+
+
+
+                <div class="mt-4">
+
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        <i class="bi bi-check-lg"></i>
+                        Enregistrer
+
+                    </button>
+
+
+
+                    <a href="{{ cancel_url }}"
+                       class="btn btn-secondary">
+
+                        <i class="bi bi-x-lg"></i>
+                        Annuler
+
+                    </a>
+
+
+                </div>
+
+
+            </form>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+{% endblock %}

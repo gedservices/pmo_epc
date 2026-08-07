@@ -1,0 +1,46 @@
+{% comment %}
+Badge Progression
+
+Variable :
+- progression
+
+Valeur attendue :
+0 à 100
+{% endcomment %}
+
+{% if progression is not None %}
+
+    {% if progression < 25 %}
+
+        <span class="badge bg-secondary">
+            {{ progression }} %
+        </span>
+
+    {% elif progression < 50 %}
+
+        <span class="badge bg-warning text-dark">
+            {{ progression }} %
+        </span>
+
+    {% elif progression < 75 %}
+
+        <span class="badge bg-primary">
+            {{ progression }} %
+        </span>
+
+    {% elif progression < 100 %}
+
+        <span class="badge bg-info text-dark">
+            {{ progression }} %
+        </span>
+
+    {% else %}
+
+        <span class="badge bg-success">
+            <i class="bi bi-check-circle me-1"></i>
+            {{ progression }} %
+        </span>
+
+    {% endif %}
+
+{% endif %}

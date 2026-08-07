@@ -1,0 +1,49 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+
+<div class="container-fluid py-3">
+
+    <!-- ===================================== -->
+    <!-- Header -->
+    <!-- ===================================== -->
+
+    {% include "base/components/page_title.html" %}
+
+    {% include "base/components/toolbar.html" %}
+
+
+    <!-- ===================================== -->
+    <!-- Résumé -->
+    <!-- ===================================== -->
+
+    {% block workspace_header %}
+    {% endblock %}
+
+
+    <!-- ===================================== -->
+    <!-- Navigation -->
+    <!-- ===================================== -->
+
+    <ul class="nav nav-tabs mt-4 mb-3">
+
+        {% block workspace_tabs %}
+        {% endblock %}
+
+    </ul>
+
+
+    <!-- ===================================== -->
+    <!-- Contenu -->
+    <!-- ===================================== -->
+
+    <div class="tab-content">
+
+        {% block workspace_content %}
+        {% endblock %}
+
+    </div>
+
+</div>
+
+{% endblock %}

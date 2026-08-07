@@ -1,0 +1,89 @@
+{% comment %}
+Badge Phase
+
+Variable :
+phase
+
+Accepte :
+- un objet Phase
+- ou directement un code
+
+Exemples :
+PRE
+FEED
+DED
+PROC
+CONST
+COM
+OPS
+{% endcomment %}
+
+{% if phase %}
+
+    {% if phase.code %}
+
+        {% with code=phase.code %}
+
+            {% include "base/components/badges/badge_phase.html" with phase=code %}
+
+        {% endwith %}
+
+    {% elif phase == "PRE" or phase == "FEA" or phase == "FS" %}
+
+        <span class="badge text-bg-secondary">
+
+            {{ phase }}
+
+        </span>
+
+    {% elif phase == "BAS" or phase == "CON" or phase == "FEED" or phase == "DED" %}
+
+        <span class="badge text-bg-success">
+
+            {{ phase }}
+
+        </span>
+
+    {% elif phase == "PROC" or phase == "PUR" or phase == "BUY" %}
+
+        <span class="badge text-bg-warning">
+
+            {{ phase }}
+
+        </span>
+
+    {% elif phase == "CONS" or phase == "CTR" or phase == "CONST" %}
+
+        <span class="badge text-bg-primary">
+
+            {{ phase }}
+
+        </span>
+
+    {% elif phase == "COM" or phase == "PRECOM" or phase == "SAT" %}
+
+        <span class="badge text-bg-danger">
+
+            {{ phase }}
+
+        </span>
+
+    {% elif phase == "OPS" %}
+
+        <span class="badge text-bg-dark">
+
+            {{ phase }}
+
+        </span>
+
+    {% else %}
+
+        <span class="badge bg-light text-dark">
+
+            {{ phase }}
+
+        </span>
+
+    {% endif %}
+
+{% endif %}

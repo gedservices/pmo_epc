@@ -1,0 +1,49 @@
+<div class="row g-4">
+
+    <div class="col-lg-4">
+
+        {% include "base/components/detail/stat_card.html" with title="Budget prévu" icon="bi-cash-stack" value=commande.budget_prevu suffix=" €" %}
+
+    </div>
+
+    <div class="col-lg-4">
+
+        {% include "base/components/detail/stat_card.html" with title="Budget réel" icon="bi-wallet2" value=commande.budget_reel suffix=" €" %}
+
+    </div>
+
+    <div class="col-lg-4">
+
+        {% include "base/components/detail/progress_card.html" with title="Progression financière" value=commande.progression_calculee %}
+
+    </div>
+
+</div>
+
+
+
+<div class="mt-5">
+
+    {% include "base/components/detail/section_title.html" with title="Earned Value Management" icon="bi-graph-up-arrow" subtitle="Indicateurs de performance du projet" %}
+
+    {% include "base/components/detail/info_row.html" with label="Planned Value (PV)" value=commande.planned_value %}
+
+    {% include "base/components/detail/info_row.html" with label="Earned Value (EV)" value=commande.earned_value %}
+
+    {% include "base/components/detail/info_row.html" with label="Actual Cost (AC)" value=commande.actual_cost %}
+
+</div>
+
+
+
+<div class="mt-5">
+
+    {% include "base/components/detail/section_title.html" with title="Analyse budgétaire" icon="bi-bar-chart-line" %}
+
+    {% include "base/components/detail/info_row.html" with label="Budget prévu" value=commande.budget_prevu %}
+
+    {% include "base/components/detail/info_row.html" with label="Budget consommé" value=commande.budget_reel %}
+
+    {% include "base/components/detail/info_row.html" with label="Poids dans le projet" value=commande.poids suffix=" %" %}
+
+</div>

@@ -1,0 +1,59 @@
+<div class="modal fade"
+     id="{{ modal_id|default:'confirmModal' }}"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    {% if icon %}
+                    <i class="bi {{ icon }} me-2"></i>
+                    {% endif %}
+
+                    {{ title|default:"Confirmation" }}
+
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                {{ message }}
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Annuler
+                </button>
+
+                <a href="{{ confirm_url }}"
+                   class="btn btn-danger">
+
+                    {% if confirm_icon %}
+                    <i class="bi {{ confirm_icon }}"></i>
+                    {% endif %}
+
+                    {{ confirm_label|default:"Confirmer" }}
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

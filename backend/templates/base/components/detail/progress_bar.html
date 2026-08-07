@@ -1,0 +1,56 @@
+{% comment %}
+Barre de progression
+
+Variables :
+
+value
+height (optionnel)
+
+{% endcomment %}
+
+<div class="progress"
+     style="height:{{ height|default:'8px' }};">
+
+    <div class="progress-bar
+
+        {% if value >= 100 %}
+
+            bg-success
+
+        {% elif value >= 75 %}
+
+            bg-primary
+
+        {% elif value >= 50 %}
+
+            bg-warning
+
+        {% elif value >= 25 %}
+
+            bg-info
+
+        {% else %}
+
+            bg-secondary
+
+        {% endif %}"
+
+        role="progressbar"
+
+        style="width:{{ value }}%;"
+
+        aria-valuenow="{{ value }}"
+
+        aria-valuemin="0"
+
+        aria-valuemax="100">
+
+    </div>
+
+</div>
+
+<div class="small text-muted mt-1">
+
+    {{ value }} %
+
+</div>

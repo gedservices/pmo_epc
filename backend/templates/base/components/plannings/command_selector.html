@@ -1,0 +1,25 @@
+<div class="col-md-4">
+
+    <label class="form-label fw-semibold">
+        Commande
+    </label>
+
+    <select class="form-select"
+            name="commande">
+
+        <option value="">
+            Toutes les commandes
+        </option>
+
+        {% for commande in commandes %}
+            <option value="{{ commande.id }}"
+                {% if commande.id == commande_selectionnee.id %}
+                    selected
+                {% endif %}>
+                {{ commande.numero }}
+            </option>
+        {% endfor %}
+
+    </select>
+
+</div>

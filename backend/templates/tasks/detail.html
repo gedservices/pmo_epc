@@ -1,0 +1,364 @@
+{% extends "base/layout/workspace_detail.html" %}
+
+
+{% block object_header %}
+
+{% include "base/components/cards/object_header.html" with title=tache.nom subtitle=tache.projet.nom code=tache.id icon="bi-list-task" statut=tache.statut %}
+
+{% endblock %}
+
+
+{% block dashboard %}
+
+<div class="row g-4">
+
+    <div class="col-lg-3">
+
+        {% include "base/components/detail/stat_card.html" with title="Progression" icon="bi-speedometer2" value=tache.avancement suffix=" %" %}
+
+    </div>
+
+    <div class="col-lg-3">
+
+        {% include "base/components/detail/stat_card.html" with title="Poids" icon="bi-percent" value=tache.poids suffix=" %" %}
+
+    </div>
+
+    <div class="col-lg-3">
+
+        {% include "base/components/detail/stat_card.html" with title="Coût prévu" icon="bi-cash-stack" value=tache.cout_prevu suffix=" €" %}
+
+    </div>
+
+    <div class="col-lg-3">
+
+        {% include "base/components/detail/stat_card.html" with title="Coût réel" icon="bi-cash-stack" value=tache.cout_reel suffix=" €" %}
+
+    </div>
+
+</div>
+
+
+<div class="row mt-4">
+
+    <div class="col-lg-8">
+
+        <div class="card shadow-sm">
+
+            <div class="card-header">
+
+                <strong>
+
+                    <i class="bi bi-bar-chart-line me-2"></i>
+
+                    Avancement
+
+                </strong>
+
+            </div>
+
+            <div class="card-body">
+
+                {% include "base/components/progress/progress_bar.html" with value=tache.avancement %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="card shadow-sm">
+
+            <div class="card-header">
+
+                <strong>
+
+                    <i class="bi bi-flag me-2"></i>
+
+                    Statut
+
+                </strong>
+
+            </div>
+
+            <div class="card-body">
+
+                {% include "base/components/badges/badge_statut.html" with statut=tache.statut %}
+
+                <br><br>
+
+                {% if tache.est_en_retard %}
+
+                    <span class="badge bg-danger">
+
+                        En retard
+
+                    </span>
+
+                {% else %}
+
+                    <span class="badge bg-success">
+
+                        Conforme
+
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+
+{% block general %}
+
+<div class="card shadow-sm">
+
+    <div class="card-body">
+
+        <table class="table table-borderless">
+
+            <tr>
+
+                <th width="220">Nom</th>
+
+                <td>{{ tache.nom }}</td>
+
+            </tr>
+
+            <tr>
+
+                <th>Description</th>
+
+                <td>{{ tache.description|default:"—"|linebreaks }}</td>
+
+            </tr>
+
+            <tr>
+
+                <th>Projet</th>
+
+                <td>{{ tache.projet }}</td>
+
+            </tr>
+
+            <tr>
+
+                <th>Commande</th>
+
+                <td>{{ tache.commande|default:"—" }}</td>
+
+            </tr>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+
+{% block organisation %}
+
+<div class="card shadow-sm">
+
+    <div class="card-body">
+
+        <table class="table table-borderless">
+
+            <tr>
+
+                <th width="220">Responsable</th>
+
+                <td>{{ tache.responsable|default:"—" }}</td>
+
+            </tr>
+
+            <tr>
+
+                <th>Phase</th>
+
+                <td>
+
+                    {% include "base/components/badges/badge_phase.html" with phase=tache.phase %}
+
+                </td>
+
+            </tr>
+
+            <tr>
+
+                <th>Discipline</th>
+
+                <td>
+
+                    {% include "base/components/badges/badge_discipline.html" with discipline=tache.discipline %}
+
+                </td>
+
+            </tr>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+
+{% block planning %}
+
+<div class="row g-4">
+
+    <div class="col-md-6">
+
+        {% include "base/components/detail/stat_card.html" with title="Début prévu" icon="bi-calendar-event" value=tache.date_debut_prevue %}
+
+    </div>
+
+    <div class="col-md-6">
+
+        {% include "base/components/detail/stat_card.html" with title="Fin prévue" icon="bi-calendar-event" value=tache.date_fin_prevue %}
+
+    </div>
+
+    <div class="col-md-6">
+
+        {% include "base/components/detail/stat_card.html" with title="Début réel" icon="bi-calendar-check" value=tache.date_debut_reelle %}
+
+    </div>
+
+    <div class="col-md-6">
+
+        {% include "base/components/detail/stat_card.html" with title="Fin réelle" icon="bi-calendar-check" value=tache.date_fin_reelle %}
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+
+{% block budget %}
+
+<div class="row g-4">
+
+    <div class="col-lg-4">
+
+        {% include "base/components/detail/stat_card.html" with title="Planned Value" icon="bi-graph-up" value=tache.planned_value suffix=" €" %}
+
+    </div>
+
+    <div class="col-lg-4">
+
+        {% include "base/components/detail/stat_card.html" with title="Earned Value" icon="bi-graph-up-arrow" value=tache.earned_value suffix=" €" %}
+
+    </div>
+
+    <div class="col-lg-4">
+
+        {% include "base/components/detail/stat_card.html" with title="Actual Cost" icon="bi-cash-stack" value=tache.actual_cost suffix=" €" %}
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+
+{% block ged %}
+
+{% include "base/components/states/empty_state.html" with title="GED" subtitle="Aucun document lié à cette tâche." icon="bi-folder2-open" %}
+
+{% endblock %}
+
+
+
+{% block history %}
+
+<div class="card shadow-sm">
+
+    <div class="card-header">
+
+        <strong>
+
+            Historique
+
+        </strong>
+
+    </div>
+
+    <div class="card-body">
+
+        {% if historique %}
+
+        <table class="table table-sm">
+
+            <thead>
+
+                <tr>
+
+                    <th>Date</th>
+
+                    <th>Champ</th>
+
+                    <th>Ancienne valeur</th>
+
+                    <th>Nouvelle valeur</th>
+
+                    <th>Utilisateur</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            {% for h in historique %}
+
+                <tr>
+
+                    <td>{{ h.date_modification }}</td>
+
+                    <td>{{ h.champ_modifie }}</td>
+
+                    <td>{{ h.ancienne_valeur }}</td>
+
+                    <td>{{ h.nouvelle_valeur }}</td>
+
+                    <td>{{ h.modifie_par }}</td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        {% else %}
+
+            {% include "base/components/states/empty_state.html" with title="Historique" subtitle="Aucune modification enregistrée." icon="bi-clock-history" %}
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

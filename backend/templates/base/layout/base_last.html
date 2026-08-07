@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}
+            {{ page_title|default:"PMO EPC" }}
+        {% endblock %}
+        — PMO EPC
+    </title>
+
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="{% static 'bootstrap-5.3.8-dist/css/bootstrap.min.css' %}">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="{% static 'bootstrap-5.3.8-dist/icons/bootstrap-icons.min.css' %}">
+
+    <!-- PMO CSS -->
+    <link rel="stylesheet" href="{% static 'bootstrap-5.3.8-dist/css/pmo.css' %}">
+
+    <!-- ⭐ NOUVEAU : Sidebar enhancements -->
+    <link rel="stylesheet" href="{% static 'css/sidebar_enhancements.css' %}">
+
+    <!-- Bloc pour CSS supplémentaire des pages enfants -->
+    {% block extra_css %}{% endblock %}
+
+</head>
+
+<body class="pmo-body">
+
+    <!-- ============================================ -->
+    <!-- SIDEBAR -->
+    <!-- ============================================ -->
+    {% include "components/sidebar.html" %}
+
+    <!-- ============================================ -->
+    <!-- ZONE PRINCIPALE -->
+    <!-- ============================================ -->
+    <div class="pmo-main" id="pmoMain">
+
+        <!-- TOPBAR -->
+        {% include "components/topbar.html" %}
+
+        <!-- CONTENU -->
+        <main class="pmo-content">
+
+            <!-- Messages Django -->
+            {% if messages %}
+            <div class="px-4 pt-3">
+                {% for msg in messages %}
+                <div class="alert {{ msg.tags }} alert-dismissible fade show d-flex align-items-center gap-2"
+                     role="alert">
+
+                    {% if 'success' in msg.tags %}
+                        <i class="bi bi-check-circle-fill"></i>
+                    {% elif 'danger' in msg.tags or 'error' in msg.tags %}
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    {% elif 'warning' in msg.tags %}
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                    {% else %}
+                        <i class="bi bi-info-circle-fill"></i>
+                    {% endif %}
+
+                    <span>{{ msg }}</span>
+
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- CONTENU DES PAGES -->
+            {% block content %}{% endblock %}
+
+        </main>
+
+        <!-- FOOTER -->
+        {% include "components/footer.html" %}
+
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SCRIPTS -->
+    <!-- ============================================ -->
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+    <!-- SortableJS -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
+
+    <!-- PMO JS -->
+    <script src="{% static 'js/pmo.js' %}"></script>
+
+    <!-- ⭐ NOUVEAU : Sidebar enhancements -->
+    <script src="{% static 'js/sidebar_enhancements.js' %}"></script>
+
+    <!-- Bloc pour JS supplémentaire des pages enfants -->
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,96 @@
+
+<div class="container-fluid px-0">
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-lg-3 col-md-6">
+
+            {% include "base/components/detail/stat_card.html" with  title="Budget prévu" icon="bi-cash-stack" value=commande.budget_prevu suffix=" €" %}
+
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+
+            {% include "base/components/detail/stat_card.html" with title="Budget réel"  icon="bi-wallet2"  value=commande.budget_reel  suffix=" €"   %}
+
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+
+            {% include "base/components/detail/progress_card.html" with  title="Progression"     value=commande.progression_calculee   %}
+
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+
+            {% include "base/components/detail/document_counter.html" with title="Documents" count=0  icon="bi-folder2-open" %}
+
+        </div>
+
+    </div>
+
+
+
+    <div class="row g-4">
+
+        <div class="col-lg-6">
+
+            {% include "base/components/detail/section_title.html" with title="Planning"  icon="bi-calendar3" %}
+
+            {% include "base/components/detail/info_row.html" with   label="Début prévu"   value=commande.date_debut_prevue  %}
+
+            {% include "base/components/detail/info_row.html" with  label="Fin prévue"  value=commande.date_fin_prevue   %}
+
+            {% include "base/components/detail/info_row.html" with  label="Début réel"   value=commande.date_debut_reelle  %}
+
+            {% include "base/components/detail/info_row.html" with  label="Fin réelle"  value=commande.date_fin_reelle    %}
+
+        </div>
+
+
+
+        <div class="col-lg-6">
+
+            {% include "base/components/detail/section_title.html" with   title="Indicateurs EVM"  icon="bi-graph-up-arrow"   %}
+
+            {% include "base/components/detail/info_row.html" with  label="Planned Value"  value=commande.planned_value   %}
+
+            {% include "base/components/detail/info_row.html" with  label="Earned Value"  value=commande.earned_value  %}
+
+            {% include "base/components/detail/info_row.html" with   label="Actual Cost"   value=commande.actual_cost    %}
+
+        </div>
+
+    </div>
+
+
+
+    <div class="row g-4 mt-2">
+
+        <div class="col-lg-6">
+
+            {% include "base/components/detail/section_title.html" with    title="Dernières activités"   icon="bi-clock-history"    %}
+
+            {% include "base/components/detail/timeline_item.html" with  icon="bi-plus-circle"  title="Création de la commande"   subtitle=commande.cree_par   date=commande.date_creation  %}
+
+            {% include "base/components/detail/timeline_item.html" with  icon="bi-pencil-square"  title="Dernière modification"  subtitle=commande.modifie_par  date=commande.date_modification  %}
+
+        </div>
+
+
+
+        <div class="col-lg-6">
+
+            {% include "base/components/detail/section_title.html" with   title="GED"  icon="bi-folder"  %}
+
+            {% include "base/components/detail/document_counter.html" with  title="Documents"   count=0  icon="bi-file-earmark-text"   %}
+
+            {% include "base/components/detail/document_counter.html" with title="Révisions"   count=0   icon="bi-arrow-repeat"  %}
+
+            {% include "base/components/detail/document_counter.html" with  title="Transmittals"  count=0  icon="bi-send"  %}
+
+        </div>
+
+    </div>
+
+</div>
