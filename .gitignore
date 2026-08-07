@@ -1,17 +1,33 @@
-﻿# Django
+# Django
 *.pyc
 __pycache__/
+*.pyo
 db.sqlite3
 media/
+media/documents/
 staticfiles/
+logs/
+*.sqlite3
 
 # Env
 .venv/
 venv/
 .env
 .env.local
+!.env.example
 
 # IDE
 .idea/
 .vscode/
 *.log
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+~$*.docx
+~$*.xlsx
+
+# Legacy / temp
+Nouveau Document texte.txt
