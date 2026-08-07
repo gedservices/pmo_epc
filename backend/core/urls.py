@@ -7,6 +7,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,7 +25,7 @@ urlpatterns = [
     path('risks/', include('apps.risks.urls', namespace='risks')),
     path('reporting/', include('apps.reporting.urls', namespace='reporting')),
     path('referentiels/', include('apps.core_ref.urls', namespace='core_ref')),
-    path('', include('apps.dashboard.urls')),
+    path('', RedirectView.as_view(url='/dashboard/', permanent=False)),
 ]
 
 if settings.DEBUG:
