@@ -1,0 +1,16 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "sqlite"; url = "file:./dev.db" }
+// provider = "postgresql" en prod : DATABASE_URL
+
+model Conteneur { id String @id @default(cuid()); code String @unique; libelle String; ordre Int; actif Boolean @default(true) }
+model Phase { id String @id @default(cuid()); code String @unique; nom String }
+model Projet { id String @id @default(cuid()); code String @unique; nom String; conteneurId String; phases Phase[]; createdAt DateTime @default(now()) }
+model Commande { id String @id @default(cuid()); projetId String; phaseId String; codeCommande String @unique; codeOriginator String; projet Projet @relation(fields:[projetId], references:[id]) }
+model Tache {
+  id String @id @default(cuid()); projetId String; commandeId String?; parentId String?; parent Tache? @relation("WBS", fields:[parentId], references:[id]); enfants Tache[] @relation("WBS")
+  niveau Int @default(1); nom String; poids Decimal @default(0); avancement Decimal @default(0); estJalon Boolean @default(false); dateFinPrevue DateTime?
+  documents TacheDocument[]; liensSource TacheLien[] @relation("source"); liensCible TacheLien[] @relation("cible")
+}
+model TacheLien { tacheSourceId String; tacheCibleId String; typeLien String @default("FS"); decalage Int @default(0); tacheSource Tache @relation("source", fields:[tacheSourceId], references:[id]); tacheCible Tache @relation("cible", fields:[tacheCibleId], references:[id]); @@id([tacheSourceId, tacheCibleId, typeLien]) }
+model TacheDocument { tacheId String; documentId String; role String?; @@id([tacheId, documentId]) }
+model Document { id String @id @default(cuid()); codeDoc String @unique; titre String; projetId String; commandeId String? }
